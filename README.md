@@ -372,15 +372,11 @@ curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install
 
 This installs agents and skills to `~/.claude/`.
 
-### Project Setup (Optional)
+### Project Setup (Automatic)
 
-For the full reactive system with hooks:
+The reactive system is set up automatically on first `/craft` or `/learn`.
 
-```bash
-/setup-reactive
-```
-
-Creates `.spectre/`, hooks configuration, and routing scripts.
+Creates `.spectre/` with state, learnings, and routing configuration.
 
 ---
 
@@ -457,19 +453,13 @@ Spectre isn't about generating more code faster. It's about **crafting better so
 
 ---
 
-## Commands Reference
+## Commands
 
 | Command | Description |
 |---------|-------------|
 | `/craft` | Build features with guided flow |
 | `/heal` | Auto-fix tests, types, build, specs |
-| `/learn` | Learn project patterns |
-| `/agent <name>` | Start specific agent with reactive links |
-| `/reactive-loop` | Start full multi-agent workflow |
-| `/setup-reactive` | Configure reactive system in project |
-| `/add-skill` | Add specialized skills to agents |
-| `/test-craft` | TDD/BDD testing guidance |
-| `/init-frontend` | Bootstrap React project with craft principles |
+| `/learn` | Learn project patterns, detect violations |
 
 ---
 

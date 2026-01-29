@@ -41,29 +41,31 @@ Auto-repair with smart routing:
 
 ## `/learn`
 
-Learn YOUR patterns, refuse anti-patterns:
+Reactive learning — violations trigger architect for refacto plan:
 
 ```bash
-/learn              # Full project analysis
-/learn <file>       # Learn from specific file
-/learn --auto       # Intelligent scan (STOPS on violations)
+/learn              # Full scan: stack + patterns + violations
+/learn --only <path># Scan specific path
+/learn --show       # View current learnings
 ```
 
-## Agents
+## Under the Hood
+
+Spectre orchestrates specialized agents internally:
 
 | Agent | Role |
 |-------|------|
+| **learning-agent** | Stack detection, pattern learning, violation detection |
 | **product-owner** | Specs, user stories |
 | **architect** | Architecture, design, code review |
-| **frontend-engineer** | UI, React, accessibility |
-| **backend-engineer** | APIs, services, security |
+| **frontend/backend** | Implementation |
 | **qa-engineer** | Tests, verification |
 
 ## Philosophy
 
+- **Reactive** — Agents collaborate, not block
 - **Domain First** — Business logic at center
 - **Type Safety** — Types are documentation
 - **Explicit > Implicit** — No magic, Result<T, E>
 - **Test-Driven** — Tests are specs that run
 - **Self-Correcting** — Agents fix their own bugs
-- **Adaptive** — Learns YOUR patterns, guards against anti-patterns
