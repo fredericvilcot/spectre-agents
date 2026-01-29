@@ -120,43 +120,64 @@ Header: "Feature"
 
 ## Step 4: Input Analysis (THE SMART PART)
 
-Analyze what the user provided to determine routing:
+**Rule: PO ALWAYS intervenes unless user provides a REAL spec source.**
 
-### Input Types
+A "real spec" is NOT a text description. It's an actual artifact:
+- **File**: `.md`, `.yml`, `.yaml`, `.json` spec file
+- **URL**: Jira ticket, Linear issue, Notion page, GitHub issue
+- **Explicit format**: User story with Given/When/Then, acceptance criteria list
 
-| Type | Indicators | Example | Route |
-|------|------------|---------|-------|
-| **Raw Idea** | Vague, no acceptance criteria, informal | "a sexy counter" | PO first |
-| **Functional Spec** | User stories, acceptance criteria, behavior described | "Counter that increments, persists in localStorage, has dark mode" | Architect first |
-| **Technical Spec** | Architecture details, file structure, implementation notes | "Create Counter.tsx with useState, useEffect for localStorage sync" | Dev first |
-| **Bug/Fix** | References existing code, describes problem | "Fix the counter reset bug in Counter.tsx" | Dev only |
+### Input Types & Routing
+
+| Input | Is Real Spec? | Route |
+|-------|---------------|-------|
+| "a sexy counter" | ❌ No (just text) | **PO first** |
+| "Counter with +/-, localStorage, dark mode" | ❌ No (detailed but not formal) | **PO first** |
+| "See spec in docs/counter.md" | ✅ Yes (file) | Architect first |
+| "Jira ticket: PROJ-123" | ✅ Yes (external) | Architect first |
+| "Create Counter.tsx with useState..." | ❌ No (technical but no spec) | **PO first** (light) |
+| "Fix the counter reset bug" | N/A (bug fix) | Dev only |
+
+### Why PO Always?
+
+Even a "detailed description" is NOT a spec. A proper spec has:
+- User story format (As a... I want... So that...)
+- Acceptance criteria (Given/When/Then)
+- Edge cases considered
+- Out of scope defined
+
+**The PO ensures this exists before any work starts.**
 
 ### Detection Logic
 
 ```
 ANALYZE the user's input:
 
-IF input is vague/informal (just an idea, no specifics):
-  → INPUT_TYPE = "raw_idea"
+# Check for REAL spec source
+IF input references a file (*.md, *.yml, *.yaml, *.json):
+  → READ the file
+  → IF file contains proper spec format:
+    → INPUT_TYPE = "spec_file"
+    → NEEDS_PO = false
+    → "Spec file provided. Architect can design."
+
+ELSE IF input contains URL (jira, linear, notion, github issue):
+  → FETCH the URL content
+  → INPUT_TYPE = "external_spec"
+  → NEEDS_PO = false
+  → "External spec source. Architect can design."
+
+ELSE IF input is clearly a bug fix (references existing file + problem):
+  → INPUT_TYPE = "bug_fix"
+  → NEEDS_PO = false
+  → NEEDS_ARCHITECT = false
+  → "Bug fix. Dev handles directly."
+
+ELSE:
+  # ANY other text input = PO first
+  → INPUT_TYPE = "needs_spec"
   → NEEDS_PO = true
-  → "User has an idea but no spec. PO will formalize it."
-
-ELSE IF input has functional requirements (what, not how):
-  → INPUT_TYPE = "functional_spec"
-  → NEEDS_PO = false
-  → "User has functional spec. Architect can design."
-
-ELSE IF input has technical details (how, structure, files):
-  → INPUT_TYPE = "technical_spec"
-  → NEEDS_PO = false
-  → NEEDS_ARCHITECT = false
-  → "User has technical spec. Dev can implement."
-
-ELSE IF input references existing code/bug:
-  → INPUT_TYPE = "fix"
-  → NEEDS_PO = false
-  → NEEDS_ARCHITECT = false
-  → "Bug fix. Dev handles, QA verifies."
+  → "No formal spec. PO will create one first."
 ```
 
 ### Inform the User
@@ -227,14 +248,18 @@ so that I can track a value with delight.
 - Max value? → No limit unless specified
 ```
 
-### Route B: Functional Spec → Architect First
+### Route B: Real Spec File/URL → Architect First
+
+Only when a REAL spec source is provided (file, Jira, etc.):
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  USER INPUT: "Counter with +/-, localStorage, dark mode"        │
+│  USER INPUT: "See spec in docs/counter-spec.md"                 │
+│         or: "Jira ticket PROJ-123"                              │
+│         or: "GitHub issue #45"                                  │
 │                                                                  │
 │       ┌──────────┐                                              │
-│       │ Architect│ ← Designs from functional spec               │
+│       │ Architect│ ← Reads spec, designs technical solution     │
 │       │ (design) │                                              │
 │       └────┬─────┘                                              │
 │            │                                                     │
@@ -250,12 +275,29 @@ so that I can track a value with delight.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Route C: Technical Spec → Dev First
+### Route C: Detailed Text Description → STILL PO First!
+
+Even detailed descriptions need PO to formalize:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  USER INPUT: "Create Counter.tsx with useState, Tailwind..."    │
+│  USER INPUT: "Counter with +/-, localStorage, dark mode"        │
 │                                                                  │
+│  ⚠️ This is NOT a spec! It's a detailed idea.                   │
+│     PO will formalize it with proper acceptance criteria.       │
+│                                                                  │
+│       ┌──────────┐                                              │
+│       │    PO    │ ← Formalizes into spec (light)               │
+│       │  (spec)  │                                              │
+│       └────┬─────┘                                              │
+│            │                                                     │
+│            ▼                                                     │
+│       ┌──────────┐                                              │
+│       │ Architect│                                              │
+│       │ (design) │                                              │
+│       └────┬─────┘                                              │
+│            │                                                     │
+│            ▼                                                     │
 │       ┌─────────────────────────┐                               │
 │       │      PARALLEL           │                               │
 │       │  ┌──────┐  ┌──────┐    │                               │
@@ -479,16 +521,23 @@ Task(
 
 ## Context-Aware Routing Matrix
 
+**Rule: PO intervenes unless real spec file/URL is provided.**
+
 | Context | Input Type | Pipeline |
 |---------|------------|----------|
-| **Product Team** | Raw idea | PO → Architect → Dev // QA |
-| **Product Team** | Func spec | Architect → Dev // QA |
-| **Product Team** | Tech spec | Dev // QA |
-| **Startup** | Raw idea | PO (light) → Architect → Dev // QA |
-| **Startup** | Func spec | Architect → Dev // QA |
-| **Startup** | Tech spec | Dev // QA |
-| **Freelance** | Any | Dev → QA |
+| **Product Team** | Text (any description) | PO → Architect → Dev ⇄ QA |
+| **Product Team** | Spec file (md/yml/json) | Architect → Dev ⇄ QA |
+| **Product Team** | External (Jira/Linear/etc) | Architect → Dev ⇄ QA |
+| **Product Team** | Bug fix | Dev → QA |
+| **Startup** | Text (any description) | PO (light) → Architect → Dev ⇄ QA |
+| **Startup** | Spec file/External | Architect → Dev ⇄ QA |
+| **Startup** | Bug fix | Dev → QA |
+| **Freelance** | Text | PO (minimal) → Dev ⇄ QA |
+| **Freelance** | Spec file/Bug fix | Dev → QA |
 | **Learning** | Any | Single agent (explains as it goes) |
+
+**Key insight**: "Counter with +/-, localStorage, dark mode" is TEXT, not a spec.
+A spec has: user story format, acceptance criteria, edge cases.
 
 ---
 
