@@ -6,7 +6,11 @@ set -euo pipefail
 
 REPO_URL="https://github.com/fredericvilcot/spectre-agents"
 CLAUDE_DIR="$HOME/.claude"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Handle curl|bash case where BASH_SOURCE is empty
+SCRIPT_DIR="${BASH_SOURCE[0]:-}"
+if [[ -n "$SCRIPT_DIR" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd)"
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -21,7 +25,7 @@ error() { echo -e "${RED}✗${NC} $1" >&2; exit 1; }
 
 # Check if running from cloned repo or via curl
 is_local_install() {
-    [[ -d "$SCRIPT_DIR/.claude/agents" ]] && [[ -d "$SCRIPT_DIR/.claude/skills" ]]
+    [[ -n "$SCRIPT_DIR" ]] && [[ -d "$SCRIPT_DIR/.claude/agents" ]] && [[ -d "$SCRIPT_DIR/.claude/skills" ]]
 }
 
 # Create directories
