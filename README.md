@@ -21,12 +21,10 @@
 
 ---
 
-<h2 align="center">⚡ THREE COMMANDS. THAT'S IT.</h2>
+<h2 align="center">⚡ ONE COMMAND TO RULE THEM ALL</h2>
 
 ```bash
-/learn    # 🧠 Adapt to YOUR project
-/craft    # 🔨 Create something new
-/heal     # 💊 Fix what's broken
+/craft    # 🔨 Create something new — THE main command
 ```
 
 <p align="center">
@@ -35,7 +33,7 @@
 
 ---
 
-## 🔨 `/craft` — Tell Us What You Need
+## 🔨 `/craft` — THE Command
 
 ```
 > /craft
@@ -68,6 +66,14 @@ Then describe what you want. **Spectre assembles the right team:**
 | 🚀 **Startup** | Fast track: Architect → Dev → QA |
 | 💼 **Freelance** | Direct: Dev → QA |
 | 📚 **Learning** | Educational: Single agent explains |
+
+---
+
+<h2 align="center">🎁 BONUS COMMANDS</h2>
+
+<p align="center">
+  <em>Because <code>/craft</code> isn't always enough...</em>
+</p>
 
 ---
 
@@ -243,11 +249,14 @@ BSD 3-Clause
 ---
 
 <p align="center">
-  <img src="https://img.shields.io/badge/🧠_/learn-adapt-blue?style=for-the-badge" alt="/learn"/>
-  <img src="https://img.shields.io/badge/🔨_/craft-create-success?style=for-the-badge" alt="/craft"/>
-  <img src="https://img.shields.io/badge/💊_/heal-fix-red?style=for-the-badge" alt="/heal"/>
+  <img src="https://img.shields.io/badge/🔨_/craft-CREATE-success?style=for-the-badge&labelColor=black" alt="/craft"/>
 </p>
 
 <p align="center">
-  <strong>That's the Spectre way.</strong> 👻
+  <img src="https://img.shields.io/badge/💊_/heal-fix-gray?style=flat-square" alt="/heal"/>
+  <img src="https://img.shields.io/badge/🧠_/learn-adapt-gray?style=flat-square" alt="/learn"/>
+</p>
+
+<p align="center">
+  <strong>/craft to create. That's the Spectre way.</strong> 👻
 </p>
