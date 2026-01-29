@@ -7,16 +7,40 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task, AskUserQuestion
 
 # Spectre Learn — Adaptive Intelligence
 
-**Active by default.** Spectre automatically learns your project's patterns and adapts all agents to match YOUR conventions.
+**Active by default.** Two distinct phases that work independently.
+
+## The Two Phases
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  PHASE 1: STACK DETECTION          PHASE 2: PATTERN LEARNING    │
+│  ─────────────────────────         ─────────────────────────    │
+│                                                                  │
+│  ✅ ALWAYS runs                    ⚠️  MAY BE BLOCKED            │
+│  ✅ Independent of violations      ❌ STOPS on violations        │
+│  ✅ Result: stack context          ✅ Result: learned patterns   │
+│                                    ❌ On block: craft defaults   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why Two Phases?
+
+**Stack detection** tells agents WHAT language/framework you're using.
+**Pattern learning** tells agents HOW you use it in this project.
+
+Even if your code has violations, agents still need to know it's TypeScript vs Go.
+They just won't copy your bad patterns — they'll use craft defaults instead.
 
 ## Default Behavior
 
 When you run `/craft` or `/heal`, Spectre automatically:
 
-1. **Detects your stack** (package.json, go.mod, Cargo.toml, etc.)
-2. **Learns your patterns** (architecture, naming, error handling, tests)
-3. **Applies craft guard** (stops on violations)
-4. **Adapts agents** to your conventions
+1. **Detects your stack** → ALWAYS (stored in context.json)
+2. **Learns your patterns** → IF no violations (stored in learnings/)
+3. **Applies craft guard** → STOPS on violations, generates report
+4. **Adapts agents** → Stack + patterns OR Stack + craft defaults
 
 You don't need to run `/learn` manually — it happens automatically.
 
@@ -58,7 +82,69 @@ Stored in `.spectre/context.json`:
 }
 ```
 
-Agents automatically adapt to this context.
+---
+
+## On Violation: What Happens
+
+When craft guard detects violations during pattern learning:
+
+```
+🔍 Phase 1: Detecting stack...
+   ✅ TypeScript + React detected
+
+🔍 Phase 2: Learning patterns...
+
+🛑 CRAFT VIOLATIONS DETECTED
+
+   src/services/UserService.ts:45
+   → throw new Error('User not found')
+   → Violates: Explicit Error Handling
+   → Fix: Return Result<User, NotFoundError>
+
+📋 Report: .spectre/violations-report.md
+
+┌─────────────────────────────────────────────────────────────────┐
+│  RESULT                                                          │
+│                                                                  │
+│  ✅ Stack: TypeScript + React (DETECTED)                         │
+│  ❌ Patterns: NOT LEARNED (violations blocked)                   │
+│  ✅ Agents will use: Craft defaults for TypeScript + React       │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+   [ 🔧 Fix violations ]  [ ⏭️ Continue anyway ]  [ 🛑 Stop ]
+```
+
+### Context After Violation
+
+```json
+{
+  "stack": {
+    "language": "typescript",
+    "runtime": "node",
+    "framework": "react"
+  },
+  "learning": {
+    "enabled": true,
+    "status": "blocked",
+    "reason": "violations",
+    "violationCount": 2,
+    "reportPath": ".spectre/violations-report.md"
+  }
+}
+```
+
+### What Agents Get
+
+| Situation | Stack Known | Patterns Learned | Agents Use |
+|-----------|-------------|------------------|------------|
+| ✅ Clean code | Yes | Yes | Project patterns |
+| ❌ Violations | Yes | **No** | Craft defaults |
+| 🆕 From scratch | Yes (selected) | — | Craft defaults |
+| 🚫 Learning off | Yes | — | Craft defaults |
+
+**Key insight:** Violations block pattern learning, NOT stack detection.
+Agents always know your stack. They just won't copy bad patterns.
 
 ---
 

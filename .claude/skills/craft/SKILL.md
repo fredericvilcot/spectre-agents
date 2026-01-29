@@ -18,11 +18,52 @@ Different contexts need different workflows:
 
 ---
 
-## Step 0: Auto-Detect Stack OR Guide Stack Selection
+## Step 0: Stack Detection + Pattern Learning (2 phases distinctes)
 
-**Before asking any questions**, check for existing project:
+**Before asking any questions**, two separate phases:
 
-### Case A: Existing Project → Auto-Detect
+### Phase 1: STACK DETECTION (toujours exécuté)
+
+Détecte le stack technique. **Indépendant des violations.**
+Même si le code est pourri, on sait quand même que c'est du TypeScript/Go/Rust.
+
+### Phase 2: PATTERN LEARNING (peut être bloqué)
+
+Apprend les patterns du projet. **STOP sur violations.**
+Si bloqué → agents utilisent les craft defaults pour le stack détecté.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    FLOW DÉTAILLÉ                                 │
+│                                                                  │
+│  1. STACK DETECTION ─────────────────────────────────────────   │
+│     │                                                            │
+│     └─→ Toujours OK → Stocké dans .spectre/context.json         │
+│                                                                  │
+│  2. PATTERN LEARNING ────────────────────────────────────────   │
+│     │                                                            │
+│     ├─→ Violation? ─── OUI ─→ STOP                              │
+│     │                         Rapport généré                     │
+│     │                         User décide (fix/skip/stop)        │
+│     │                         Patterns NON appris                │
+│     │                                                            │
+│     └─→ Violation? ─── NON ─→ Patterns appris                   │
+│                               Stockés dans .spectre/learnings/   │
+│                                                                  │
+│  3. AGENTS TRAVAILLENT AVEC: ────────────────────────────────   │
+│     │                                                            │
+│     ├─→ Stack détecté (TOUJOURS)                                │
+│     ├─→ Patterns appris (SI pas de violations)                  │
+│     └─→ Craft defaults pour le stack (SI violations)            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Phase 1: Stack Detection (ALWAYS)
+
+#### Case A: Existing Project → Auto-Detect
 
 ```bash
 # Check for stack indicators
@@ -42,7 +83,7 @@ elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
 fi
 ```
 
-### Case B: Empty/New Project → Guide Stack Selection
+#### Case B: Empty/New Project → Guide Stack Selection
 
 If no stack detected, **ask the user**:
 
@@ -79,7 +120,7 @@ Options:
      Description: "Add Zustand + React Query"
 ```
 
-### Store Context
+#### Store Stack Context (Phase 1 Result)
 
 ```bash
 mkdir -p .spectre
@@ -94,34 +135,94 @@ cat > .spectre/context.json << EOF
   },
   "learning": {
     "enabled": true,
-    "scope": "project"
+    "scope": "project",
+    "status": "pending"
   },
-  "fromScratch": true,
+  "fromScratch": $FROM_SCRATCH,
   "detectedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
 ```
 
-### Agent Skill Injection
+---
 
-Based on stack, inject relevant knowledge into agents:
+### Phase 2: Pattern Learning (MAY BE BLOCKED)
 
-| Stack | Architect Knows | Engineers Know |
-|-------|-----------------|----------------|
-| **TS + React** | React patterns, hooks, component design | JSX, Testing Library, a11y |
-| **TS + Node** | Express/Fastify patterns, middleware | API design, Zod validation |
-| **Go** | Go idioms, error handling, interfaces | Standard lib, testing |
-| **Rust** | Ownership, traits, Result/Option | Cargo, testing, async |
-| **Python** | FastAPI/Django patterns, typing | pytest, type hints |
+**Only runs if project has existing code.**
 
-### Auto-Learn (if existing code)
+```bash
+if [ "$FROM_SCRATCH" = "false" ] && [ "$LEARNING_ENABLED" = "true" ]; then
+  # Scan for patterns
+  # Apply craft guard
+  # If violations → STOP, report, ask user
+  # If clean → store patterns
+fi
+```
 
-If `learning.enabled: true` AND project has code:
-- Scan codebase for patterns
-- Apply craft guard (stop on violations)
-- Store learnings in `.spectre/learnings/`
+#### On Violation: What Happens
 
-**This happens silently** — user only sees output if violations are found or stack needs selection.
+```
+🔍 Learning patterns...
+
+🛑 CRAFT VIOLATIONS DETECTED
+
+   src/services/UserService.ts:45
+   → throw new Error('User not found')
+   → Violates: Explicit Error Handling
+
+📋 Report: .spectre/violations-report.md
+
+⚠️  Stack detected: TypeScript + React
+✅  Agents will use CRAFT DEFAULTS for TypeScript + React
+❌  Project patterns NOT learned (violations blocked)
+
+   [ 🔧 Fix violations ]  [ ⏭️ Continue anyway ]  [ 🛑 Stop ]
+```
+
+#### Context After Violation
+
+```json
+{
+  "stack": {
+    "language": "typescript",
+    "runtime": "node",
+    "framework": "react"
+  },
+  "learning": {
+    "enabled": true,
+    "status": "blocked",
+    "reason": "violations",
+    "violationCount": 2
+  }
+}
+```
+
+**Agents still know the stack.** They use craft defaults instead of project patterns.
+
+---
+
+### Agent Knowledge by Stack
+
+Agents adapt to detected stack with **craft defaults**:
+
+| Stack | Architect Defaults | Engineer Defaults |
+|-------|-------------------|-------------------|
+| **TS + React** | Hooks, composition, explicit props | Testing Library, a11y, strict types |
+| **TS + Node** | Ports/adapters, DI, Result types | Zod validation, explicit errors |
+| **Go** | Interfaces, error returns, small packages | Table tests, standard lib |
+| **Rust** | Traits, Result/Option, ownership | Cargo test, no unwrap |
+| **Python** | Type hints, protocols, dataclasses | pytest, explicit returns |
+
+---
+
+### Summary: What Agents Get
+
+| Situation | Stack | Patterns | Source |
+|-----------|-------|----------|--------|
+| Clean project | ✅ Detected | ✅ Learned | Project |
+| Violations found | ✅ Detected | ❌ Blocked | Craft defaults |
+| From scratch | ✅ Selected | — | Craft defaults |
+| Learning disabled | ✅ Detected | — | Craft defaults |
 
 ---
 
