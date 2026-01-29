@@ -2,179 +2,177 @@
   <img src="https://img.shields.io/badge/SPECTRE-AGENTS-blueviolet?style=for-the-badge&logo=ghost&logoColor=white" alt="Spectre Agents"/>
 </p>
 
-<h1 align="center">SPECTRE AGENTS</h1>
+<h1 align="center">Stop prompting. Start crafting.</h1>
 
 <p align="center">
-  <strong>Stop prompting. Start crafting.</strong>
-</p>
-
-<p align="center">
-  <em>A reactive multi-agent system for <a href="https://claude.ai/code">Claude Code</a><br/>that learns, adapts, and delivers craft-ready code.</em>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/craft-first-8A2BE2?style=flat-square" alt="Craft First"/>
-  <img src="https://img.shields.io/badge/reactive-agents-9400D3?style=flat-square" alt="Reactive"/>
-  <img src="https://img.shields.io/badge/auto-learning-8B008B?style=flat-square" alt="Auto-learning"/>
+  <em>Turn Claude Code into a team of expert developers<br/>that write production-ready code. Together.</em>
 </p>
 
 ---
 
-## Quick Install
+## The Problem
+
+You prompt. AI dumps code. You debug it.
+
+No architecture. No tests. No standards. Just... code.
+
+**You became the QA for an AI.**
+
+---
+
+## The Solution
+
+What if Claude Code worked like a **real dev team**?
+
+```
+You: "Build user authentication"
+
+    Product Owner    →  Writes the spec
+    Architect        →  Designs the solution
+    Developer        →  Implements it
+    QA Engineer      →  Tests it
+
+    Bug found? → Dev fixes → QA re-tests → Loop until green.
+```
+
+That's Spectre.
+
+---
+
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fredericvilcot/spectre-agents/main/install.sh | bash
 ```
 
-Restart Claude Code. Done.
-
 ---
 
-## Three Commands
+## Three Commands. That's It.
 
 ```bash
-/craft    # Build with the right agent team
-/heal     # Auto-fix everything
-/learn    # Adapt to YOUR patterns
+/craft    # Build something
+/heal     # Fix something
+/learn    # Adapt to your codebase
 ```
 
 ---
 
-## What is Spectre?
+## `/craft` — Your AI Dev Team
 
-Spectre is built on **three pillars**:
+Say what you want. Spectre assembles the right team.
 
-### 1. Craft First
+```
+> /craft "a beautiful counter with animations"
 
-No code without craft. Every agent enforces:
-- **Strict TypeScript** — No `any`, types are documentation
-- **Result Types** — `Result<T, E>` not `throw`, explicit errors
-- **Clean Architecture** — Domain at center, hexagonal structure
-- **Test-Driven** — Tests are executable specifications
+👤 PO: Writing spec...
+   ✓ User story defined
+   ✓ 6 acceptance criteria
 
-### 2. Reactive Collaboration
+🏗️ Architect: Designing...
+   ✓ Clean architecture
+   ✓ File structure ready
 
-Agents don't just execute — they **react** to each other:
-- QA finds bug → routes to Dev → Dev fixes → QA re-verifies
-- Violation detected → triggers Architect → proposes refactoring
-- Spec unclear → escalates to PO → PO clarifies
+💻 Dev + 🧪 QA: Building...
+   ✓ Counter.tsx created
+   ✓ Tests written
+   ✗ Test failed: animation not smooth
+   🔧 Dev fixing...
+   ✓ All tests passing
 
-No blocking. No waiting. Continuous feedback loop.
-
-### 3. Auto-Learning
-
-Spectre learns YOUR codebase:
-- Detects your stack, patterns, conventions
-- Adapts all agents to follow YOUR style
-- Guards against violations of YOUR standards
-
----
-
-## `/craft` — Build Features
-
-Smart workflow that adapts to your input.
-
-### Rule: No Spec = No Code
-
-Nothing gets implemented without contracts:
-
-| Contract | Owner | Purpose |
-|----------|-------|---------|
-| `.spectre/spec.md` | PO | Functional spec (user story, criteria, edge cases) |
-| `.spectre/design.md` | Architect | Technical spec (files, patterns, tests) |
-
-Dev and QA implement `design.md` **exactly**. No improvisation.
-
-### Smart Routing
-
-| Your Input | What Happens |
-|------------|--------------|
-| "a sexy counter" | PO creates spec → Architect designs → Dev ⇄ QA |
-| Jira ticket | PO fetches + creates spec → Architect → Dev ⇄ QA |
-| `spec.md` file | Architect designs → Dev ⇄ QA |
-| "Fix the bug" | Dev → QA |
-
-### Parallel Execution
-
-Dev and QA work **together**:
-- Dev implements while QA writes tests
-- QA runs tests as Dev completes files
-- Failures route back instantly
-
----
-
-## `/heal` — Auto-Repair
-
-Routes problems to the right expert:
-
-```bash
-/heal           # Fix all
-/heal tests     # Fix failing tests
-/heal types     # Fix TypeScript errors
+✨ Done. 8 files. 12 tests. Production-ready.
 ```
 
-| Problem | Expert |
-|---------|--------|
-| Test failure | Dev |
+**No spec? PO writes it.**
+**No design? Architect creates it.**
+**Bug? Dev fixes it. Automatically.**
+
+---
+
+## `/heal` — Smart Auto-Repair
+
+Something broken? Spectre knows who to call.
+
+```bash
+/heal        # Fix everything
+/heal tests  # Just the tests
+/heal types  # Just TypeScript errors
+```
+
+| Problem | Spectre routes to |
+|---------|-------------------|
+| Test failing | Developer |
 | Type error | Architect |
-| Design flaw | Architect |
-| Spec gap | PO |
+| Missing edge case | Product Owner |
 
 ---
 
-## `/learn` — Adapt
+## `/learn` — Adapts to YOU
 
-Learns your codebase, detects violations:
+Spectre learns your codebase:
 
-```bash
-/learn              # Full scan
-/learn --only src/  # Specific path
-```
+- Your folder structure
+- Your naming conventions
+- Your patterns
 
-On violations → triggers Architect with refactoring plan.
-Reactive, not punitive.
-
----
-
-## The Agents
-
-| Agent | Role |
-|-------|------|
-| **learning-agent** | Pattern detection, violations |
-| **product-owner** | Specs, acceptance criteria |
-| **architect** | Design, code review |
-| **frontend-engineer** | React, UI, accessibility |
-| **backend-engineer** | APIs, services |
-| **qa-engineer** | Tests, verification |
-
----
-
-## Reactive Mesh
+Then enforces them. Everywhere.
 
 ```
-Learning Agent ─── violation ───▶ Architect
-                                      │
-Product Owner ◀─── contradiction ─────┤
-     │                                │
-spec_gap ◀─── Dev              design ┘
-unclear  ◀─── QA               review ───▶ Dev
-     │                                    │
-     ▼                                    ▼
-┌─────────┐                        ┌───────────┐
-│   Dev   │◀─── test_failure ──────│    QA     │
-└─────────┘                        └───────────┘
+> /learn
+
+📦 Detected: TypeScript + React + Vitest
+📐 Patterns: Feature folders, Result types
+⚠️ Found: 5x 'any' types
+
+🏗️ Architect proposes refactoring plan...
 ```
 
 ---
+
+## Why Spectre?
+
+| Without Spectre | With Spectre |
+|-----------------|--------------|
+| You prompt, you debug | Agents collaborate, QA verifies |
+| Generic code | Learns YOUR patterns |
+| `any` everywhere | Strict TypeScript |
+| `throw new Error` | `Result<T, E>` |
+| No tests | Tests included |
+| You are the QA | QA agent catches bugs |
+
+---
+
+## The Team
+
+| Agent | Superpower |
+|-------|------------|
+| **Product Owner** | Turns vague ideas into clear specs |
+| **Architect** | Designs clean, maintainable solutions |
+| **Developer** | Implements with craft principles |
+| **QA Engineer** | Catches bugs before you do |
+| **Learning Agent** | Adapts everything to YOUR codebase |
+
+---
+
+## Craft Principles
+
+Every agent follows:
+
+- **No `any`** — Types are documentation
+- **No `throw`** — Use `Result<T, E>`
+- **No god classes** — Single responsibility
+- **No code without tests** — TDD mindset
+- **No implementation without spec** — Contracts first
+
+---
+
+<p align="center">
+  <strong>Spectre learns. Spectre adapts. Spectre crafts.</strong>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge//%20craft-8A2BE2?style=for-the-badge" alt="/craft"/>
   <img src="https://img.shields.io/badge//%20heal-9400D3?style=for-the-badge" alt="/heal"/>
   <img src="https://img.shields.io/badge//%20learn-9932CC?style=for-the-badge" alt="/learn"/>
-</p>
-
-<p align="center">
-  <strong>Spectre learns. Spectre adapts. Spectre crafts.</strong>
 </p>
 
 ---
