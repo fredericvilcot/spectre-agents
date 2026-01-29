@@ -62,46 +62,54 @@ curl -fsSL https://raw.githubusercontent.com/fredericvilcot/spectre-agents/main/
 Say what you want. Spectre does the rest.
 
 ```
-> /craft "a pokemon list with search"
+> /craft "user authentication with OAuth"
 
-🔍 Detected: TypeScript + React
+🔍 Detected: TypeScript + React + Node
 
 👤 PO → spec.md
    ✓ User story
-   ✓ 4 acceptance criteria
+   ✓ 6 acceptance criteria
 
 🏗️ Architect → design.md
-   ✓ 6 files planned
+   ✓ 8 files planned
    ✓ CRAFT patterns
 
 💻 Dev + 🧪 QA (parallel)
    ✓ Implementing...
-   ✗ Test failed: missing error state
-   🔧 Fixing...
-   ✓ 4/4 tests passing
+   ✗ Test failed: OAuth callback
+   🔧 Dev fixing... (auto)
+   ✓ 6/6 tests passing
 
 ✨ Done.
 ```
 
-**All agents. Always. No shortcuts.**
+**All agents. Always. No shortcuts. Autonomous fixing.**
 
 ---
 
-## `/heal` — Smart Auto-Repair
+## `/heal` — Re-launch the Agent Loop
 
-Something broken? Spectre knows who to call.
+Something broken? Spectre relaunches agents to fix it.
 
 ```bash
-/heal        # Fix everything
-/heal tests  # Just the tests
-/heal types  # Just TypeScript errors
+/heal        # Diagnose → Route → Fix → Verify → Loop
+/heal tests  # Focus on test failures
+/heal types  # Focus on TypeScript errors
 ```
 
-| Problem | Spectre routes to |
-|---------|-------------------|
+**`/heal` is NOT `npm test`.** It relaunches the full agent loop:
+
+1. **Diagnose** — What's broken?
+2. **Route** — Send to the right agent
+3. **Fix** — Agent fixes autonomously
+4. **Verify** — QA re-runs tests
+5. **Loop** — Until all green
+
+| Problem | Agent fixes it |
+|---------|----------------|
 | Test failing | Developer |
 | Type error | Architect |
-| Missing edge case | Product Owner |
+| Spec gap | Product Owner |
 
 ---
 
