@@ -461,52 +461,174 @@ Task(
 
 ### Architect Prompt (Spec → Design)
 
+**ABSOLUTE RULE: Architect outputs `.spectre/design.md`. Dev and QA implement it TO THE LETTER.**
+
 ```
 Task(
   subagent_type: "architect",
   prompt: """
     ## CONTEXT
 
-    FUNCTIONAL SPEC:
-    <PO's output or user's functional spec>
-
+    FUNCTIONAL SPEC: .spectre/spec.md
     STACK: <stack>
     CRAFT PRINCIPLES: Result<T,E>, strict TypeScript, hexagonal
 
     ## Your Job
 
-    Design the technical architecture.
+    Create the technical design document that Dev and QA will implement EXACTLY.
 
-    ## Output Format
+    ## OUTPUT: .spectre/design.md
 
-    ### Architecture Decision
-    Brief explanation of approach.
+    You MUST write to `.spectre/design.md` with this structure:
 
-    ### File Structure
+    ```markdown
+    # Technical Design: [Feature Name]
+
+    ## Overview
+    Brief description of the technical approach.
+
+    ## Architecture Decision
+    Why this approach? What alternatives were considered?
+
+    ## File Structure
+    EXACT files to create (Dev will create THESE files, no more, no less):
+
     ```
-    src/
-    ├── features/
-    │   └── <feature>/
-    │       ├── domain/       # Entities, value objects
-    │       ├── application/  # Use cases, hooks
-    │       ├── infrastructure/ # API, storage
-    │       └── ui/           # Components
+    src/features/<feature>/
+    ├── domain/
+    │   ├── <Entity>.ts           # Description
+    │   └── <ValueObject>.ts      # Description
+    ├── application/
+    │   └── use<UseCase>.ts       # Description
+    ├── infrastructure/
+    │   └── <Adapter>.ts          # Description
+    └── ui/
+        ├── <Component>.tsx       # Description
+        └── <Component>.test.tsx  # Description
     ```
 
-    ### Key Files to Create
-    1. File path - purpose
-    2. ...
+    ## Implementation Details
 
-    ### For Dev
-    Implementation notes, patterns to use.
+    ### File: src/features/<feature>/domain/<Entity>.ts
+    - Purpose: ...
+    - Exports: ...
+    - Key types: ...
+    - Craft patterns: Result<T, E>, no throw
 
-    ### For QA (Acceptance Test Specs)
-    Test scenarios derived from acceptance criteria:
-    - Test: "should increment counter"
-    - Test: "should persist value to localStorage"
-    - ...
+    ### File: src/features/<feature>/application/use<UseCase>.ts
+    - Purpose: ...
+    - Dependencies: ...
+    - Returns: Result<T, E>
 
-    ### Implementation Phases
+    (etc. for each file)
+
+    ## Test Specifications (for QA)
+    EXACT tests to write:
+
+    - [ ] `<Component>.test.tsx`: "should render initial state"
+    - [ ] `<Component>.test.tsx`: "should handle increment"
+    - [ ] `use<UseCase>.test.ts`: "should return Ok on success"
+    - [ ] `use<UseCase>.test.ts`: "should return Err on failure"
+
+    ## Craft Checklist
+    - [ ] No `any` types
+    - [ ] All errors as Result<T, E>
+    - [ ] Domain isolated from framework
+    - [ ] Tests colocated
+    - [ ] Strict TypeScript
+    ```
+
+    ## IMPORTANT
+
+    Dev and QA will implement THIS DOCUMENT exactly.
+    - Dev creates the EXACT files listed
+    - Dev uses the EXACT patterns specified
+    - QA writes the EXACT tests listed
+    - No deviation without coming back to you
+
+    The design.md IS the implementation contract.
+  """
+)
+```
+
+### Architect Output: .spectre/design.md
+
+This file becomes the IMPLEMENTATION CONTRACT:
+
+```markdown
+# Technical Design: Counter
+
+## Overview
+A delightful counter with persistence and theme support.
+
+## Architecture Decision
+Feature-folder structure with hexagonal architecture.
+Domain logic isolated, React only in ui/ layer.
+
+## File Structure
+
+```
+src/features/counter/
+├── domain/
+│   ├── Counter.ts              # Value object with increment/decrement
+│   └── CounterError.ts         # Typed errors
+├── application/
+│   └── useCounter.ts           # Hook returning Result<Counter, CounterError>
+├── infrastructure/
+│   └── CounterStorage.ts       # localStorage adapter
+└── ui/
+    ├── Counter.tsx             # Main component
+    ├── Counter.test.tsx        # Tests
+    └── CounterButton.tsx       # Animated button
+```
+
+## Implementation Details
+
+### File: src/features/counter/domain/Counter.ts
+```typescript
+// EXACT code structure Dev must follow
+export type Counter = {
+  readonly value: number;
+};
+
+export const Counter = {
+  create: (value: number = 0): Counter => ({ value }),
+  increment: (c: Counter): Counter => ({ value: c.value + 1 }),
+  decrement: (c: Counter): Counter => ({ value: c.value - 1 }),
+  reset: (): Counter => ({ value: 0 }),
+};
+```
+
+### File: src/features/counter/application/useCounter.ts
+```typescript
+// Hook signature Dev must implement
+export function useCounter(): {
+  counter: Counter;
+  increment: () => Result<Counter, CounterError>;
+  decrement: () => Result<Counter, CounterError>;
+  reset: () => void;
+}
+```
+
+## Test Specifications (for QA)
+
+- [ ] `Counter.test.ts`: "Counter.create returns Counter with value 0"
+- [ ] `Counter.test.ts`: "Counter.increment increases value by 1"
+- [ ] `Counter.test.ts`: "Counter.decrement decreases value by 1"
+- [ ] `useCounter.test.ts`: "returns Ok on successful increment"
+- [ ] `Counter.test.tsx`: "renders current value"
+- [ ] `Counter.test.tsx`: "calls increment on + button click"
+
+## Craft Checklist
+- [ ] No `any` types
+- [ ] Result<T, E> for operations that can fail
+- [ ] Domain has no React imports
+- [ ] Tests colocated with components
+```
+
+**Dev and QA implement THIS DOCUMENT. No improvisation.**
+
+### Implementation Phases (from design.md)
     1. Phase 1: ...
     2. Phase 2: ...
   """

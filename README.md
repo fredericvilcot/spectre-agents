@@ -42,23 +42,31 @@ Then restart Claude Code. Done.
 
 ## What is Spectre?
 
-Spectre transforms Claude Code into a **multi-agent craft system**. Instead of one AI generating code, specialized agents collaborate:
+Spectre transforms Claude Code into a **multi-agent craft system**. Instead of one AI generating code, specialized agents collaborate through **contracts**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      SPECTRE WORKFLOW                           │
-│                                                                 │
-│   /craft "a sexy counter"                                       │
-│       │                                                         │
-│       ▼                                                         │
-│   ┌─────────┐    ┌───────────┐    ┌───────────────────────┐    │
-│   │   PO    │───▶│ Architect │───▶│   Dev    ⇄    QA     │    │
-│   │  specs  │    │  designs  │    │  (parallel execution) │    │
-│   └─────────┘    └───────────┘    └───────────┬───────────┘    │
-│                                               │                 │
-│                                        error? │ auto-fix        │
-│                                               └─────────────────│
-│                                                                 │
+│                   SPECTRE: CONTRACT-DRIVEN                       │
+│                                                                  │
+│   /craft "a sexy counter"                                        │
+│       │                                                          │
+│       ▼                                                          │
+│   ┌─────────┐                                                    │
+│   │   PO    │ → .spectre/spec.md (FUNCTIONAL CONTRACT)           │
+│   └────┬────┘                                                    │
+│        │                                                          │
+│        ▼                                                          │
+│   ┌─────────┐                                                    │
+│   │Architect│ → .spectre/design.md (TECHNICAL CONTRACT)          │
+│   └────┬────┘                                                    │
+│        │                                                          │
+│        ▼                                                          │
+│   ┌───────────────────────────┐                                  │
+│   │   Dev ⇄ QA                │                                  │
+│   │   Implement design.md     │                                  │
+│   │   TO THE LETTER           │                                  │
+│   └───────────────────────────┘                                  │
+│                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -66,16 +74,28 @@ Spectre transforms Claude Code into a **multi-agent craft system**. Instead of o
 
 ## `/craft` — Smart Build
 
-The magic: **adapts to your input type**.
+**Rule: All agents work from contracts (MD files).**
+
+### RULE: No Spec = No Code
+
+**Nothing gets implemented without both contracts:**
+
+| Contract | Created By | Contains |
+|----------|------------|----------|
+| `.spectre/spec.md` | PO | User story, acceptance criteria, edge cases |
+| `.spectre/design.md` | Architect | File structure, code patterns, test specs |
+
+Dev and QA implement `design.md` **exactly**. No improvisation. No shortcuts.
 
 ### Smart Routing
 
-| Your Input | Detected As | Pipeline |
-|------------|-------------|----------|
-| "a sexy counter" | Raw idea | PO → Architect → Dev ⇄ QA |
-| "Counter with +/-, localStorage, dark mode" | Functional spec | Architect → Dev ⇄ QA |
-| "Create Counter.tsx with useState..." | Technical spec | Dev ⇄ QA |
-| "Fix the counter reset bug" | Bug fix | Dev → QA |
+| Your Input | PO Action | Pipeline |
+|------------|-----------|----------|
+| "a sexy counter" | Creates spec.md | PO → Architect → Dev ⇄ QA |
+| "Counter with +/-, localStorage" | Creates spec.md | PO → Architect → Dev ⇄ QA |
+| Jira ticket PROJ-123 | Fetches + creates spec.md | PO → Architect → Dev ⇄ QA |
+| `docs/spec.md` file | Validates | Architect → Dev ⇄ QA |
+| "Fix the counter bug" | — | Dev → QA |
 
 ### Parallel Execution
 
