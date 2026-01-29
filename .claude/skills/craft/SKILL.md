@@ -1,13 +1,13 @@
 ---
-name: build
-description: "Build something new. Adapts to your work context (Product Team, Startup, Freelance). Express your need, Spectre configures the agents."
+name: craft
+description: "Craft something new. Adapts to your work context (Product Team, Startup, Freelance). Express your need, Spectre configures the agents."
 context: conversation
 allowed-tools: Read, Bash, Task, AskUserQuestion, Skill
 ---
 
-# Spectre Build — Adapted to Your Context
+# Spectre Craft — Adapted to Your Context
 
-Build features based on HOW you work, not just WHAT you want to build.
+Craft features based on HOW you work, not just WHAT you want to build.
 
 ## Philosophy
 

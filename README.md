@@ -43,7 +43,7 @@ Restart Claude Code after installation.
 ### Use
 
 ```bash
-/build    # Build something new — adapts to your context
+/craft    # Build something new — adapts to your context
 /heal     # Something's broken — auto-repair
 ```
 
@@ -53,7 +53,7 @@ That's it. Two commands for everything.
 
 ## The Two Commands
 
-### `/build` — Build with Guidance
+### `/craft` — Build with Guidance
 
 For building new features, the guide adapts to your work context.
 
@@ -101,7 +101,7 @@ Found 2 issues:
 
 ---
 
-## How `/build` Works
+## How `/craft` Works
 
 ### Step 1: Your Work Context
 
@@ -249,7 +249,7 @@ What makes Spectre unique: **agents that fix their own mistakes**.
 
 ## Agents
 
-Specialized experts that `/build` orchestrates for you.
+Specialized experts that `/craft` orchestrates for you.
 
 | Agent | Role | Expertise |
 |-------|------|-----------|

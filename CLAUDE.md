@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Two Commands
 
 ```bash
-/build    # Build something — adapts to your context
+/craft    # Build something — adapts to your context
 /heal     # Fix something — auto-repair
 ```
 
@@ -30,14 +30,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Code:** Diagnoses → Fixes → Verifies → Loops until healed
 - **Specs:** Compares spec vs code → Syncs or updates
 
-### `/build` — Guided Build
+### `/craft` — Guided Build
 
 Spectre adapts to your work context and configures the right agents.
 
 ### The Flow
 
 ```
-/build
+/craft
    │
    ├─→ "What's your work context?"
    │      [ Product Team ]  → Full process, specs, compliance
