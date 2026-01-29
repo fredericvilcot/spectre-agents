@@ -10,6 +10,7 @@ ERRORS_FILE="$SPECTRE_DIR/errors.jsonl"
 EVENTS_FILE="$SPECTRE_DIR/events.jsonl"
 LEARNINGS_FILE="$SPECTRE_DIR/learnings.jsonl"
 OWNERSHIP_FILE="$SPECTRE_DIR/ownership.json"
+LINKS_FILE="$SPECTRE_DIR/links.json"
 
 # Colors
 RED='\033[0;31m'
@@ -172,11 +173,75 @@ resolve_agent_for_error() {
     esac
 }
 
+# Get the next agent based on links configuration
+get_next_linked_agent() {
+    local current_agent="$1"
+
+    # Check if links.json exists
+    if [[ ! -f "$LINKS_FILE" ]]; then
+        echo ""
+        return
+    fi
+
+    local primary=$(jq -r '.primary // empty' "$LINKS_FILE")
+    local links=$(jq -r '.links // [] | .[]' "$LINKS_FILE")
+
+    # If current agent is the primary, return first link
+    if [[ "$current_agent" == "$primary" ]]; then
+        local first_link=$(jq -r '.links[0] // empty' "$LINKS_FILE")
+        echo "$first_link"
+        return
+    fi
+
+    # If current agent is in links, check if there's a next link
+    local link_array=($(jq -r '.links[]' "$LINKS_FILE" 2>/dev/null))
+    local found=false
+    for i in "${!link_array[@]}"; do
+        if [[ "${link_array[$i]}" == "$current_agent" ]]; then
+            # Return next link if exists
+            local next_idx=$((i + 1))
+            if [[ $next_idx -lt ${#link_array[@]} ]]; then
+                echo "${link_array[$next_idx]}"
+                return
+            fi
+        fi
+    done
+
+    # If current is last link or not found, workflow is complete
+    echo "complete"
+}
+
+# Get the agent to route errors back to
+get_error_target_agent() {
+    local current_agent="$1"
+
+    # Check if links.json exists
+    if [[ -f "$LINKS_FILE" ]]; then
+        local primary=$(jq -r '.primary // empty' "$LINKS_FILE")
+        if [[ -n "$primary" ]]; then
+            echo "$primary"
+            return
+        fi
+    fi
+
+    # Fallback to standard error routing
+    echo ""
+}
+
 # Get the next agent in the workflow
 get_next_workflow_agent() {
     local current_agent="$1"
     local workflow=$(get_state "workflow")
     local stack=$(get_state "stack")
+
+    # Check for agent mode with links first
+    if [[ "$workflow" == "agent" ]] && [[ -f "$LINKS_FILE" ]]; then
+        local next=$(get_next_linked_agent "$current_agent")
+        if [[ -n "$next" ]]; then
+            echo "$next"
+            return
+        fi
+    fi
 
     # Default workflow: PO → Architect → Dev → QA
     case "$current_agent" in
@@ -261,7 +326,7 @@ handle_agent_complete() {
     local retry_count=$(get_state "retryCount")
     local max_retries=$(get_state "maxRetries")
 
-    # Special handling for QA
+    # Special handling for QA (or any verifying agent)
     if [[ "$agent" == "qa-engineer" ]]; then
         # Check for unresolved errors
         local has_errors="false"
@@ -277,8 +342,18 @@ handle_agent_complete() {
                 local error_type=$(echo "$last_error" | jq -r '.type // "unknown"')
                 local error_file=$(echo "$last_error" | jq -r '.file // empty')
 
+                # First check if we have a linked primary agent to route back to
+                local linked_target=$(get_error_target_agent "$agent")
+
                 # Resolve which agent should fix this
-                local fixer=$(resolve_agent_for_error "$error_type" "$error_file")
+                local fixer
+                if [[ -n "$linked_target" ]]; then
+                    # In agent mode with links, route to primary agent
+                    fixer="$linked_target"
+                else
+                    # Standard error routing based on error type
+                    fixer=$(resolve_agent_for_error "$error_type" "$error_file")
+                fi
 
                 set_state "phase" "\"fix\""
                 set_state "retryCount" "$((retry_count + 1))"
@@ -532,6 +607,96 @@ EOF
     echo -e "${GREEN}[SPECTRE]${NC} Initialized for feature: $feature (stack: $stack)"
 }
 
+# Initialize for agent mode with links
+init_agent() {
+    local primary="${1:-}"
+    local links="${2:-}"
+    local stack="${3:-frontend}"
+    local task="${4:-ad-hoc}"
+
+    if [[ -z "$primary" ]]; then
+        echo -e "${RED}[SPECTRE]${NC} Error: primary agent required"
+        exit 1
+    fi
+
+    mkdir -p "$SPECTRE_DIR"
+
+    # Create links configuration
+    local links_json="[]"
+    if [[ -n "$links" ]]; then
+        links_json=$(echo "$links" | tr ',' '\n' | jq -R . | jq -s .)
+    fi
+
+    cat > "$LINKS_FILE" << EOF
+{
+    "primary": "$primary",
+    "links": $links_json,
+    "stack": "$stack",
+    "task": "$task"
+}
+EOF
+
+    # Create state
+    cat > "$STATE_FILE" << EOF
+{
+    "workflow": "agent",
+    "feature": "$task",
+    "stack": "$stack",
+    "phase": "active",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "agents": {
+        "primary": "$primary",
+        "links": $links_json,
+        "lastActive": null,
+        "lastDev": null,
+        "history": []
+    },
+    "status": "in_progress"
+}
+EOF
+
+    touch "$ERRORS_FILE"
+    touch "$EVENTS_FILE"
+    touch "$LEARNINGS_FILE"
+    echo "{}" > "$OWNERSHIP_FILE"
+
+    echo -e "${GREEN}[SPECTRE]${NC} Agent mode initialized"
+    echo -e "  ${YELLOW}Primary:${NC} $primary"
+    if [[ -n "$links" ]]; then
+        echo -e "  ${YELLOW}Links:${NC} $links"
+    fi
+    echo -e "  ${YELLOW}Stack:${NC} $stack"
+    echo -e "  ${YELLOW}Task:${NC} $task"
+}
+
+# Show links configuration
+show_links() {
+    if [[ -f "$LINKS_FILE" ]]; then
+        echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
+        echo -e "${BLUE}║         AGENT LINKS                    ║${NC}"
+        echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+        echo ""
+
+        local primary=$(jq -r '.primary' "$LINKS_FILE")
+        local links=$(jq -r '.links | join(" → ")' "$LINKS_FILE")
+        local task=$(jq -r '.task' "$LINKS_FILE")
+
+        echo -e "  ${YELLOW}$primary${NC}"
+        if [[ -n "$links" ]]; then
+            echo -e "      ↓"
+            echo -e "  ${CYAN}$links${NC}"
+            echo -e "      ↓ (on error)"
+            echo -e "  ${YELLOW}$primary${NC}"
+        fi
+        echo ""
+        echo -e "  Task: $task"
+    else
+        echo -e "${YELLOW}[SPECTRE]${NC} No agent links configured"
+        echo "Use: spectre-router.sh agent <primary> [--link <agents>]"
+    fi
+}
+
 # ============================================================================
 # MAIN
 # ============================================================================
@@ -568,20 +733,84 @@ main() {
             local stack="${2:-frontend}"
             init_state "$feature" "$stack"
             ;;
+        "agent")
+            # Parse agent command with options
+            local primary=""
+            local links=""
+            local stack="frontend"
+            local task="ad-hoc"
+
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --link|-l)
+                        links="$2"
+                        shift 2
+                        ;;
+                    --stack|-s)
+                        stack="$2"
+                        shift 2
+                        ;;
+                    --task|-t)
+                        task="$2"
+                        shift 2
+                        ;;
+                    -*)
+                        echo "Unknown option: $1"
+                        exit 1
+                        ;;
+                    *)
+                        if [[ -z "$primary" ]]; then
+                            primary="$1"
+                        fi
+                        shift
+                        ;;
+                esac
+            done
+
+            if [[ -z "$primary" ]]; then
+                echo "Usage: spectre-router.sh agent <agent-name> [--link <agents>] [--stack <stack>] [--task <desc>]"
+                exit 1
+            fi
+
+            # Expand shorthand names
+            case "$primary" in
+                front) primary="frontend-dev" ;;
+                back) primary="backend-dev" ;;
+                arch) primary="software-craftsman" ;;
+                qa) primary="qa-engineer" ;;
+                po) primary="product-owner" ;;
+            esac
+
+            init_agent "$primary" "$links" "$stack" "$task"
+            ;;
+        "links")
+            show_links
+            ;;
         *)
             echo "Spectre Router - Intelligent multi-agent routing"
             echo ""
             echo "Usage: spectre-router.sh <action> [args]"
             echo ""
             echo "Actions:"
+            echo "  agent <name> [options]     Start agent with optional reactive links"
             echo "  agent-complete <agent>     Agent finished (reads context from stdin)"
             echo "  test-result                Parse test output (reads from stdin)"
             echo "  error <agent> [message]    Record an error"
             echo "  ownership <agent> <files>  Track file ownership"
             echo "  status                     Show current state"
+            echo "  links                      Show current link configuration"
             echo "  init <feature> [stack]     Initialize new workflow"
             echo ""
-            echo "Stacks: frontend, backend, fullstack"
+            echo "Agent options:"
+            echo "  --link, -l <agents>        Agents to link reactively (comma-separated)"
+            echo "  --stack, -s <stack>        Stack context (frontend, backend, fullstack)"
+            echo "  --task, -t <description>   Task description"
+            echo ""
+            echo "Agent shorthand: front, back, arch, qa, po"
+            echo ""
+            echo "Examples:"
+            echo "  spectre-router.sh agent frontend-dev --link qa-engineer"
+            echo "  spectre-router.sh agent arch --link front,qa --task \"Build login\""
             exit 1
             ;;
     esac
