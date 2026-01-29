@@ -193,6 +193,48 @@ Architect ───▶ Engineer ───▶ QA
 
 ---
 
+### `/add-skill` — Fine-tuning mode
+
+Inject specific expertise into an agent, then trigger reactive re-implementation.
+
+```bash
+/add-skill architect DDD
+/add-skill architect CQRS --scope src/orders
+/add-skill backend-engineer Event-Sourcing
+/add-skill frontend-engineer React-Patterns
+```
+
+**What happens:**
+
+```
+🎯 Inject skill → architect learns DDD
+
+🔍 Analyze codebase with new lens
+   → "OrderService is an anemic model"
+   → "Missing aggregate boundaries"
+
+📋 Propose refactoring plan
+   → Phase 1: Create Order Aggregate
+   → Phase 2: Move business logic to domain
+
+🚀 Reactive loop (if approved)
+   → Architect designs
+   → Engineers implement
+   → QA verifies
+   → Loop until green
+```
+
+**Available skills:**
+
+| Category | Skills |
+|----------|--------|
+| Architecture | `DDD`, `CQRS`, `Event-Sourcing`, `Hexagonal`, `Microservices` |
+| Frontend | `React-Patterns`, `State-Machines`, `A11y-Expert`, `Performance` |
+| Backend | `API-Design`, `GraphQL`, `Message-Queues`, `Caching` |
+| Testing | `TDD`, `BDD`, `Contract-Testing`, `Property-Testing` |
+
+---
+
 ## 👥 The Team
 
 | Agent | Focus | Expertise |
