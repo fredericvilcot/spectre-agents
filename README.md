@@ -43,114 +43,16 @@ Restart Claude Code after installation.
 ### Use
 
 ```bash
-# Don't know where to start? Use the guided mode
 /guide
-
-# Start a feature with the reactive loop
-/reactive-loop
-
-# Or start any agent with optional reactive links
-/agent frontend-dev --link qa-engineer
-/agent arch --link front,qa --task "Build login"
-
-# Or use individual skills
-/typescript-craft
-/react-craft
-/test-craft
 ```
+
+That's it. Spectre will ask you a few questions and launch the right agents.
 
 ---
 
-## The Reactive Loop
+## How `/guide` Works
 
-This is what sets Spectre apart: **agents that fix their own mistakes**.
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         SPECTRE REACTIVE LOOP                           │
-│                                                                         │
-│    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐        │
-│    │ Product  │ ─▶ │ Software │ ─▶ │ Frontend │ ─▶ │    QA    │        │
-│    │  Owner   │    │ Craftsman│    │   Dev    │    │ Engineer │        │
-│    └──────────┘    └──────────┘    └──────────┘    └────┬─────┘        │
-│                                          ▲               │              │
-│                                          │    error      │              │
-│                                          └───────────────┘              │
-│                                             fix & retry                 │
-│                                                                         │
-│    ┌────────────────────────────────────────────────────────────────┐  │
-│    │  .spectre/                                                     │  │
-│    │  ├── errors.jsonl    ← QA writes errors                        │  │
-│    │  ├── learnings.jsonl ← Successful fixes become patterns        │  │
-│    │  └── state.json      ← Workflow coordination                   │  │
-│    └────────────────────────────────────────────────────────────────┘  │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### How It Works
-
-1. **QA runs tests** → finds error
-2. **Hook captures** error context automatically
-3. **Dev agent spawns** with full error details + past learnings
-4. **Dev fixes** the issue
-5. **QA re-verifies** automatically
-6. **Loop until success** (max 3 retries)
-7. **Learning recorded** for future reference
-
-### Setup in Your Project
-
-```bash
-/setup-reactive    # Configure hooks and shared state
-/reactive-loop     # Start building a feature
-```
-
----
-
-## Agents
-
-Specialized experts, each with deep domain knowledge.
-
-| Agent | Role | Expertise |
-|-------|------|-----------|
-| **software-craftsman** | 🏗️ Architect | Clean Architecture, DDD, Hexagonal, SOLID, TDD/BDD |
-| **product-owner** | 📋 Product | User stories, acceptance criteria, prioritization, MVP |
-| **frontend-dev** | ⚛️ Frontend | React, accessibility, state management, component testing |
-| **qa-engineer** | 🧪 Quality | Test strategy, TDD/BDD, test pyramid, coverage |
-| **orchestrator** | 🎯 Conductor | Reactive loop coordination, routing, retry logic |
-
----
-
-## Skills
-
-Invoke with `/skill-name` in Claude Code.
-
-### Craft Skills — Apply Excellence
-
-| Skill | What It Does |
-|-------|--------------|
-| `/typescript-craft` | Strict typing, algebraic types, Result types, pure functions, immutability |
-| `/react-craft` | Component design, hooks patterns, accessibility, state management, testing |
-| `/test-craft` | TDD/BDD workflow, test pyramid, proper mocks, behavior-driven tests |
-
-### Workflow Skills — Build Features
-
-| Skill | What It Does |
-|-------|--------------|
-| `/guide` | **Interactive guided mode — start here if unsure** |
-| `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest with craft structure |
-| `/feature` | Linear workflow: PO → Architect → Dev → QA (manual progression) |
-| `/reactive-loop` | **Full reactive loop with auto-correction** |
-| `/agent` | **Start any agent with optional reactive links** |
-| `/setup-reactive` | Configure your project for the reactive system |
-
----
-
-## The `/guide` Skill — Interactive Guided Mode
-
-**Don't know where to start?** Just run `/guide` and answer a few questions. Spectre figures out the right agents for you.
-
-### The Flow
+Express your need, Spectre configures the agents.
 
 ```
 /guide
@@ -201,61 +103,90 @@ Invoke with `/skill-name` in Claude Code.
 │                                             ↑            │      │
 │                                             └── error ───┘      │
 │                                                                 │
-│  Launching: /reactive-loop                                      │
+│  Agents start working...                                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### How Your Answers Map to Agents
+### What Happens Based on Your Answers
 
-| Starting Point | Domain | Testing | Agents Chain |
-|----------------|--------|---------|--------------|
-| User need/idea | UI | Yes | `PO → Architect → frontend-dev → QA` |
-| User need/idea | Backend | Yes | `PO → Architect → backend-dev → QA` |
-| Know what to build | UI | Yes | `Architect → frontend-dev → QA` |
-| Know what to build | Backend | Yes | `Architect → backend-dev → QA` |
-| Just code it | UI | Yes | `frontend-dev ↔ QA` (loop) |
-| Just code it | Backend | Yes | `backend-dev ↔ QA` (loop) |
-| Any | Any | No | Single agent, no QA |
+| Situation | Starting Point | Testing | What Spectre Does |
+|-----------|----------------|---------|-------------------|
+| **Build** | User need/idea | Yes | PO writes spec → Architect designs → Dev builds → QA tests |
+| **Build** | Know what to build | Yes | Architect designs → Dev builds → QA tests |
+| **Build** | Just code it | Yes | Dev builds → QA tests (loops if errors) |
+| **Build** | Any | No | Single agent works, no verification |
+| **Fix** | Tests failing | — | Dev fixes → QA re-verifies → loops until green |
+| **Fix** | Build broken | — | Architect analyzes → fixes types/structure |
+| **Improve** | Add tests | — | QA writes tests |
+| **Improve** | Refactor | — | Architect refactors → QA verifies |
+| **Think** | Architecture | — | Architect analyzes and proposes design |
 
 ### Smart Shortcuts
 
-Skip questions by providing context upfront:
+Skip questions by providing context:
 
 ```bash
-/guide add login form       # Detected: build + UI
-/guide fix failing tests    # Detected: broken + tests
-/guide refactor auth        # Detected: improve + refactor
-/guide how to design auth   # Detected: think + architecture
+/guide add login form       # → build + UI flow
+/guide fix failing tests    # → fix + tests flow
+/guide refactor auth        # → improve flow
+/guide how to design auth   # → think flow
 ```
 
 ---
 
-### The `/agent` Skill — Flexible Agent Linking
+## The Reactive Loop
 
-Start any agent and optionally connect it to others for reactive collaboration.
+What makes Spectre unique: **agents that fix their own mistakes**.
 
-```bash
-# Start frontend-dev alone (no reactive loop)
-/agent frontend-dev
-
-# Start frontend-dev linked to QA (reactive loop)
-/agent frontend-dev --link qa-engineer
-
-# Start architect linked to dev and QA with a task
-/agent software-craftsman --link frontend-dev,qa-engineer --task "Build authentication"
-
-# Shorthand names: front, back, arch, qa, po
-/agent arch --link front,qa
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SPECTRE REACTIVE LOOP                           │
+│                                                                         │
+│    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐        │
+│    │ Product  │ ─▶ │ Software │ ─▶ │ Frontend │ ─▶ │    QA    │        │
+│    │  Owner   │    │ Craftsman│    │   Dev    │    │ Engineer │        │
+│    └──────────┘    └──────────┘    └──────────┘    └────┬─────┘        │
+│                                          ▲               │              │
+│                                          │    error      │              │
+│                                          └───────────────┘              │
+│                                             fix & retry                 │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Link Behaviors:**
-```
-frontend-dev → qa-engineer:
-  Dev works → QA verifies → error → Dev fixes → loop
+1. **QA runs tests** → finds error
+2. **Dev agent spawns** automatically with error context
+3. **Dev fixes** the issue
+4. **QA re-verifies** automatically
+5. **Loop until success** (max 3 retries)
+6. **Learning recorded** for future reference
 
-software-craftsman → frontend-dev → qa-engineer:
-  Architect designs → Dev implements → QA verifies → errors route back
-```
+---
+
+## Agents
+
+Specialized experts that `/guide` orchestrates for you.
+
+| Agent | Role | Expertise |
+|-------|------|-----------|
+| **software-craftsman** | 🏗️ Architect | Clean Architecture, DDD, Hexagonal, SOLID, TDD/BDD |
+| **product-owner** | 📋 Product | User stories, acceptance criteria, prioritization |
+| **frontend-dev** | ⚛️ Frontend | React, accessibility, state management, testing |
+| **backend-dev** | 🔧 Backend | APIs, services, data layer, integration |
+| **qa-engineer** | 🧪 Quality | Test strategy, TDD/BDD, test pyramid, coverage |
+
+---
+
+## Craft Skills
+
+Apply excellence to specific areas (invoked automatically by `/guide` or manually):
+
+| Skill | What It Does |
+|-------|--------------|
+| `/typescript-craft` | Strict typing, algebraic types, Result types, pure functions |
+| `/react-craft` | Component design, hooks patterns, accessibility, testing |
+| `/test-craft` | TDD/BDD workflow, test pyramid, proper mocks |
+| `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest project |
 
 ---
 
@@ -276,21 +207,13 @@ software-craftsman → frontend-dev → qa-engineer:
 | Principle | What It Means |
 |-----------|---------------|
 | **Auto-Correction** | Errors trigger fixes without human intervention |
-| **Shared Memory** | Agents communicate through `.spectre/` state |
+| **Shared Memory** | Agents communicate through shared state |
 | **Learning** | Every successful fix becomes a pattern |
 | **Bounded Retry** | Max 3 attempts, then ask for help |
-| **Full Context** | Each agent receives relevant history |
 
 ---
 
-## Documentation
-
-- **[Architecture Guide](docs/ARCHITECTURE.md)** — Full technical documentation
-- **[CLAUDE.md](CLAUDE.md)** — Instructions for Claude Code
-
----
-
-## Installation Details
+## Installation
 
 ### From Source
 
@@ -300,33 +223,18 @@ cd spectre-agents
 ./install.sh  # or .\install.ps1 on Windows
 ```
 
-### What Gets Installed
-
-```
-~/.claude/
-├── agents/
-│   ├── software-craftsman.md
-│   ├── product-owner.md
-│   ├── frontend-dev.md
-│   ├── qa-engineer.md
-│   └── orchestrator.md
-└── skills/
-    ├── typescript-craft/
-    ├── react-craft/
-    ├── test-craft/
-    ├── init-frontend/
-    ├── feature/
-    ├── reactive-loop/
-    ├── agent/
-    ├── guide/
-    └── setup-reactive/
-```
-
 ### Uninstall
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/uninstall.sh | bash
 ```
+
+---
+
+## Documentation
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)** — Full technical documentation
+- **[CLAUDE.md](CLAUDE.md)** — Instructions for Claude Code
 
 ---
 

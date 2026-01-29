@@ -26,17 +26,20 @@ Spectre Agents est une bibliothèque d'agents et skills pour Claude Code, orient
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         SPECTRE AGENTS                                  │
 │                                                                         │
+│                           ┌─────────────┐                               │
+│                           │   /guide    │  ← Point d'entrée             │
+│                           └──────┬──────┘                               │
+│                                  │                                      │
+│                                  ▼                                      │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐ │
-│  │     AGENTS      │  │     SKILLS      │  │    REACTIVE SYSTEM      │ │
+│  │     AGENTS      │  │  CRAFT SKILLS   │  │    REACTIVE SYSTEM      │ │
 │  │                 │  │                 │  │                         │ │
-│  │ • software-     │  │ • typescript-   │  │ • orchestrator agent    │ │
-│  │   craftsman     │  │   craft         │  │ • hooks (SubagentStop)  │ │
-│  │ • product-owner │  │ • react-craft   │  │ • shared state          │ │
-│  │ • frontend-dev  │  │ • test-craft    │  │ • auto-correction loop  │ │
-│  │ • qa-engineer   │  │ • init-frontend │  │ • learnings             │ │
-│  │ • orchestrator  │  │ • feature       │  │ • agent links           │ │
-│  │                 │  │ • reactive-loop │  │                         │ │
-│  │                 │  │ • agent         │  │                         │ │
+│  │ • software-     │  │ • typescript-   │  │ • hooks (SubagentStop)  │ │
+│  │   craftsman     │  │   craft         │  │ • shared state          │ │
+│  │ • product-owner │  │ • react-craft   │  │ • auto-correction loop  │ │
+│  │ • frontend-dev  │  │ • test-craft    │  │ • learnings             │ │
+│  │ • qa-engineer   │  │ • init-frontend │  │                         │ │
+│  │                 │  │                 │  │                         │ │
 │  └─────────────────┘  └─────────────────┘  └─────────────────────────┘ │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -142,17 +145,13 @@ Détails d'exécution...
 
 #### Liste des skills
 
-| Skill | Agent | Context | Description |
-|-------|-------|---------|-------------|
-| **/guide** | — | conversation | Mode guidé interactif pour choisir le bon workflow |
-| **/typescript-craft** | software-craftsman | fork | Principes craft TypeScript |
-| **/react-craft** | frontend-dev | fork | Principes craft React |
-| **/test-craft** | qa-engineer | fork | TDD/BDD, test pyramid |
-| **/init-frontend** | software-craftsman | fork | Bootstrap projet React |
-| **/feature** | software-craftsman | fork | Workflow complet PO→Arch→Dev→QA |
-| **/reactive-loop** | orchestrator | fork | Boucle réactive auto-corrective |
-| **/agent** | — | conversation | Démarre un agent avec liens réactifs optionnels |
-| **/setup-reactive** | — | conversation | Configure le système réactif |
+| Skill | Description |
+|-------|-------------|
+| **/guide** | **Point d'entrée principal** — mode guidé interactif |
+| **/typescript-craft** | Principes craft TypeScript |
+| **/react-craft** | Principes craft React |
+| **/test-craft** | TDD/BDD, test pyramid |
+| **/init-frontend** | Bootstrap projet React |
 
 #### Context: fork vs conversation
 
@@ -750,39 +749,40 @@ project/
 
 ## Utilisation
 
-### Commandes principales
+### La seule commande à connaître
 
-| Commande | Description |
-|----------|-------------|
-| `/guide` | **Mode guidé interactif — commencez ici si vous ne savez pas** |
-| `/reactive-loop` | Démarre la boucle réactive pour une feature complète |
-| `/agent <name> [options]` | Démarre un agent avec liens réactifs optionnels |
-| `/setup-reactive` | Configure le projet pour le système réactif |
-| `/feature` | Workflow linéaire (sans auto-correction) |
-| `/init-frontend` | Bootstrap un projet React craft |
-| `/typescript-craft` | Applique les principes craft au code TS |
-| `/react-craft` | Applique les principes craft au code React |
-| `/test-craft` | Applique les principes TDD/BDD |
+```bash
+/guide
+```
+
+C'est tout. Spectre vous pose des questions et configure les bons agents.
 
 ### Workflow typique
 
 ```bash
-# 1. Nouveau projet
-/init-frontend
+# 1. Lancez le guide
+/guide
 
-# 2. Configurer le système réactif
-/setup-reactive
+# 2. Répondez aux questions
+#    - Situation ? [ Build | Fix | Improve | Think ]
+#    - Point de départ ? [ Idée | Specs claires | Juste coder ]
+#    - Domaine ? [ UI | Backend | Les deux ]
+#    - Testé ? [ Oui | Non ]
 
-# 3a. Développer une feature complète avec auto-correction
-/reactive-loop
-> "I want to build a user login form with email and password"
+# 3. Décrivez votre besoin
+#    > "Password reset via email"
 
-# 3b. Ou démarrer un agent spécifique avec liens
-/agent frontend-dev --link qa-engineer --task "Add password validation"
-/agent arch --link front,qa --task "Design auth architecture"
-
-# 4. Les agents collaborent automatiquement
+# 4. Les agents travaillent automatiquement
 #    PO → Architect → Dev → QA → [fix loop] → Complete
+```
+
+### Raccourcis
+
+```bash
+/guide add login form       # → flow build + UI
+/guide fix failing tests    # → flow fix + tests
+/guide refactor auth        # → flow improve
+/guide how to design auth   # → flow think
 ```
 
 ### Monitoring
