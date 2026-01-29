@@ -1,70 +1,85 @@
-# Spectre Agents
+<p align="center">
+  <img src="https://img.shields.io/badge/SPECTRE-AGENTS-blueviolet?style=for-the-badge&logo=ghost&logoColor=white" alt="Spectre Agents"/>
+</p>
 
-> **Stop prompting. Start crafting.**
+<h1 align="center">👻 SPECTRE AGENTS</h1>
 
-A reactive multi-agent system for [Claude Code](https://claude.ai/code) that adapts to how you work.
+<p align="center">
+  <strong>🚀 Stop prompting. Start crafting.</strong>
+</p>
+
+<p align="center">
+  <a href="#-three-commands-thats-it"><img src="https://img.shields.io/badge/Commands-3-success?style=flat-square" alt="3 Commands"/></a>
+  <a href="#-the-team"><img src="https://img.shields.io/badge/Agents-5-blue?style=flat-square" alt="5 Agents"/></a>
+  <a href="#-reactive-links"><img src="https://img.shields.io/badge/Reactive_Links-8-orange?style=flat-square" alt="8 Links"/></a>
+  <a href="#-philosophy"><img src="https://img.shields.io/badge/Philosophy-Craft-red?style=flat-square" alt="Craft"/></a>
+</p>
+
+<p align="center">
+  <em>A reactive multi-agent system for <a href="https://claude.ai/code">Claude Code</a> that adapts to how YOU work.</em>
+</p>
 
 ---
 
-## Three Commands. That's It.
+<h2 align="center">⚡ THREE COMMANDS. THAT'S IT.</h2>
 
 ```bash
-/craft    # Create something new
-/heal     # Fix what's broken
-/learn    # Adapt to YOUR project
+/learn    # 🧠 Adapt to YOUR project
+/craft    # 🔨 Create something new
+/heal     # 💊 Fix what's broken
 ```
 
-No configuration. No learning curve. Just results.
+<p align="center">
+  <strong>No configuration. No learning curve. Just results.</strong>
+</p>
 
 ---
 
-## `/craft` — Tell Us What You Need
+## 🔨 `/craft` — Tell Us What You Need
 
 ```
 > /craft
 
 What's your work context?
 
-  [ Product Team ]  → Full specs, reviews, compliance
-  [ Startup ]       → Ship fast, iterate faster
-  [ Freelance ]     → Get it done, no overhead
-  [ Learning ]      → Explore, no pressure
+  🏢 [ Product Team ]  → Full specs, reviews, compliance
+  🚀 [ Startup ]       → Ship fast, iterate faster
+  💼 [ Freelance ]     → Get it done, no overhead
+  📚 [ Learning ]      → Explore, no pressure
 ```
 
-Then describe what you want. Spectre assembles the right team:
+Then describe what you want. **Spectre assembles the right team:**
 
 ```
 > "User authentication with OAuth and magic links"
 
-Got it! Here's the plan:
+✨ Got it! Here's the plan:
 
-  product-owner → software-craftsman → frontend-dev → qa-engineer
-                                             ↑              │
-                                             └── fix loop ──┘
+  👤 product-owner → 🏗️ software-craftsman → 💻 frontend-dev → 🧪 qa-engineer
+                                                    ↑                │
+                                                    └── fix loop ────┘
 
-Starting...
+🚀 Starting...
 ```
 
-**Your context changes everything:**
-
 | You | What Happens |
-|-----|--------------|
-| **Product Team** | Full workflow: PO writes spec → Architect designs → Dev builds → QA tests |
-| **Startup** | Fast track: Architect → Dev → QA (you're the PO) |
-| **Freelance** | Direct: Dev → QA (or just Dev if prototyping) |
-| **Learning** | Educational: Single agent explains as it goes |
+|:---:|:-------------|
+| 🏢 **Product Team** | Full workflow: PO → Architect → Dev → QA |
+| 🚀 **Startup** | Fast track: Architect → Dev → QA |
+| 💼 **Freelance** | Direct: Dev → QA |
+| 📚 **Learning** | Educational: Single agent explains |
 
 ---
 
-## `/heal` — Fix Everything Automatically
+## 💊 `/heal` — Fix Everything Automatically
 
-Something broke? Don't debug. Just heal.
+Something broke? **Don't debug. Just heal.**
 
 ```bash
-/heal           # Fix everything (tests, build, types, specs)
-/heal tests     # Fix failing tests
-/heal types     # Fix TypeScript errors
-/heal spec      # Sync spec with implementation
+/heal           # 🔧 Fix everything
+/heal tests     # 🧪 Fix failing tests
+/heal types     # 📝 Fix TypeScript errors
+/heal spec      # 📋 Sync spec ↔ code
 ```
 
 ```
@@ -77,174 +92,33 @@ Something broke? Don't debug. Just heal.
 
 🔧 Healing...
 
-  → software-craftsman fixed type errors
-  → frontend-dev fixed tests
-  → qa-engineer verified
+  → 🏗️ software-craftsman fixed type errors
+  → 💻 frontend-dev fixed tests
+  → 🧪 qa-engineer verified
 
 ✅ All systems healthy.
 ```
 
-**Even specs get healed:**
-
-```
-> /heal spec
-
-🔍 Comparing spec vs code...
-
-  ❌ Missing in code: "Remember me" checkbox
-  ⚠️ Mismatch: spec says 5 retries, code has 3
-
-🔧 Healing...
-
-  → product-owner updated spec
-  → frontend-dev added feature
-
-✅ Spec and code in sync.
-```
-
 ---
 
-## Why Spectre?
+## 🧠 `/learn` — Adapt to YOUR Project
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                                                                │
-│   Other tools:        You prompt → Agent works → You check     │
-│                                                                │
-│   Spectre:            You describe → Agents collaborate →      │
-│                       Agents verify → Agents fix → Done        │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
-```
-
-**Agents that talk to each other:**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   QA finds test failure ────────────▶ Dev fixes            │
-│   QA finds design flaw ─────────────▶ Architect redesigns  │
-│   QA finds unclear spec ────────────▶ PO clarifies         │
-│                                                             │
-│   Dev blocked by design ────────────▶ Architect adjusts    │
-│   Dev finds spec gap ───────────────▶ PO completes         │
-│                                                             │
-│   Architect finds contradiction ────▶ PO arbitrates        │
-│   Architect reviews code ───────────▶ Dev improves         │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Not just "Dev fixes tests". **Every agent can escalate to the right expert.**
-
----
-
-## Install
+**Agents learn YOUR conventions.** Not generic best practices — YOUR patterns.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
+# 📖 Manual mode
+/learn                       # Full analysis
+/learn --example <file>      # "THIS is my gold standard"
+
+# 🤖 Auto mode (intelligent)
+/learn --auto                # Scan with craft guard
+/learn --auto --generate     # Generate custom skills
 ```
-
-Restart Claude Code. Done.
-
----
-
-## The Team
-
-Specialized agents that know their craft:
-
-| Agent | Expertise |
-|-------|-----------|
-| **product-owner** | Specs, user stories, acceptance criteria |
-| **software-craftsman** | Architecture, DDD, SOLID, clean code |
-| **frontend-dev** | React, accessibility, state, components |
-| **backend-dev** | APIs, services, data, integrations |
-| **qa-engineer** | Tests, TDD/BDD, coverage, verification |
-
-You don't manage them. `/craft` and `/heal` do.
-
----
-
-## Reactive Links
-
-Agents don't just work in sequence. They **react** to each other:
-
-| When... | Then... |
-|---------|---------|
-| QA finds **test failure** | Dev (who wrote the code) fixes it |
-| QA finds **design flaw** | Architect redesigns, Dev re-implements |
-| QA finds **unclear spec** | PO clarifies, QA re-tests |
-| Dev is **blocked by design** | Architect adjusts, Dev continues |
-| Dev finds **spec gap** | PO completes, Dev implements |
-| Architect finds **contradiction** | PO decides, Architect adjusts |
-
-```
-         ┌──── contradiction ────▶ PO
-         │
-Architect├──── design flaw ◀───── QA
-         │
-         └──── review ───────────▶ Dev
-                                    │
-                   ┌────────────────┤
-                   │                │
-              spec gap          blocked
-                   │                │
-                   ▼                ▼
-                  PO            Architect
-```
-
-**The right expert handles each problem. Automatically.**
-
----
-
-## `/learn` — Adapt to Your Project
-
-Agents learn YOUR conventions. Not generic best practices — YOUR patterns.
-
-```bash
-# Manual mode
-/learn                       # Full project analysis
-/learn <file>                # Learn from exemplary file
-/learn --example <file>      # Mark as gold standard
-
-# Auto mode (intelligent)
-/learn --auto                # Scan & learn with craft guard
-/learn --auto --generate     # Also generate custom skills
-/learn --violations          # Show detected anti-patterns
-```
-
-```
-> /learn
-
-🔍 Analyzing project...
-
-📦 Tech Stack: React 18 + TypeScript + Vite
-🏗️ Architecture: Feature-based (src/features/)
-🧪 Testing: Vitest, co-located, BDD naming
-📝 Specs: Markdown with Gherkin AC
-✨ Style: Strict TS, single quotes, @/ imports
-
-💾 Saved. Agents will now follow your conventions.
-```
-
-**Fine-tune with exemplary files:**
-
-```bash
-# "This service is exactly how I want services written"
-/learn --example src/features/auth/AuthService.ts
-
-# "This is my reference test file"
-/learn --example src/components/Button/Button.test.tsx
-```
-
-Agents will now reference YOUR gold standard files when writing similar code.
-
-**Auto-learn with Craft Guard:**
 
 ```
 > /learn --auto
 
-🔍 Scanning codebase...
+🤖 Scanning codebase...
 
   ✅ Architecture: Hexagonal
   ✅ Error handling: Result<T, E>
@@ -252,71 +126,128 @@ Agents will now reference YOUR gold standard files when writing similar code.
 
   🛑 STOPPING — Craft violation detected!
 
-  File: src/services/PaymentService.ts
-  Issue: God class (847 lines)
-  Violates: Single Responsibility
+  📁 File: src/services/PaymentService.ts
+  ⚠️  Issue: God class (847 lines)
+  🚫 Violates: Single Responsibility
 
-  [ Fix it ]  [ Ignore ]  [ Stop ]
+  [ 🔧 Fix it ]  [ ⏭️ Ignore ]  [ 🛑 Stop ]
 ```
 
-**Auto-learn will NEVER learn anti-patterns.** It stops and asks you first.
-
-**Before `/learn`:**
-```typescript
-// Generic patterns
-import Button from '../../../components/Button'
-throw new Error('Failed')
-```
-
-**After `/learn`:**
-```typescript
-// YOUR patterns
-import { Button } from '@/components'
-return Result.err(new AuthError('Failed'))
-```
+> **⚠️ Auto-learn will NEVER learn anti-patterns.** It stops and asks you first.
 
 ---
 
-## Craft Skills
+## 🔗 REACTIVE LINKS
+
+<p align="center">
+  <strong>Agents don't just work in sequence. They REACT to each other.</strong>
+</p>
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   🧪 QA finds test failure ─────────────▶ 💻 Dev fixes         │
+│   🧪 QA finds design flaw ──────────────▶ 🏗️ Architect fixes   │
+│   🧪 QA finds unclear spec ─────────────▶ 👤 PO clarifies      │
+│                                                                 │
+│   💻 Dev blocked by design ─────────────▶ 🏗️ Architect adjusts │
+│   💻 Dev finds spec gap ────────────────▶ 👤 PO completes      │
+│                                                                 │
+│   🏗️ Architect finds contradiction ────▶ 👤 PO arbitrates      │
+│   🏗️ Architect reviews code ───────────▶ 💻 Dev improves       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| When... | Then... |
+|:--------|:--------|
+| 🧪 QA finds **test failure** | 💻 Dev who wrote the code fixes it |
+| 🧪 QA finds **design flaw** | 🏗️ Architect redesigns |
+| 💻 Dev is **blocked** | 🏗️ Architect adjusts |
+| 💻 Dev finds **spec gap** | 👤 PO completes |
+| 🏗️ Architect finds **contradiction** | 👤 PO decides |
+
+<p align="center">
+  <strong>🎯 The right expert handles each problem. Automatically.</strong>
+</p>
+
+---
+
+## 📦 INSTALL
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
+```
+
+**Restart Claude Code. Done.** ✅
+
+---
+
+## 👥 THE TEAM
+
+<table>
+<tr>
+<td align="center">👤<br/><strong>product-owner</strong><br/><sub>Specs, stories, criteria</sub></td>
+<td align="center">🏗️<br/><strong>software-craftsman</strong><br/><sub>Architecture, DDD, SOLID</sub></td>
+<td align="center">💻<br/><strong>frontend-dev</strong><br/><sub>React, a11y, components</sub></td>
+<td align="center">⚙️<br/><strong>backend-dev</strong><br/><sub>APIs, services, data</sub></td>
+<td align="center">🧪<br/><strong>qa-engineer</strong><br/><sub>Tests, TDD/BDD, coverage</sub></td>
+</tr>
+</table>
+
+<p align="center">
+  <em>You don't manage them. <code>/craft</code> and <code>/heal</code> do.</em>
+</p>
+
+---
+
+## 🎨 CRAFT SKILLS
 
 Apply craft principles to specific areas:
 
-```bash
-/typescript-craft    # Strict types, Result patterns, pure functions
-/react-craft         # Component design, hooks, accessibility
-/test-craft          # TDD/BDD, test pyramid, proper mocks
-/init-frontend       # Bootstrap React + Vite + TypeScript + Vitest
-```
+| Skill | What it does |
+|:------|:-------------|
+| `/typescript-craft` | Strict types, Result patterns, pure functions |
+| `/react-craft` | Component design, hooks, accessibility |
+| `/test-craft` | TDD/BDD, test pyramid, proper mocks |
+| `/init-frontend` | Bootstrap React + Vite + TS + Vitest |
 
 ---
 
-## Philosophy
+## 💎 PHILOSOPHY
 
-**Code is a craft.** Not a race.
+<p align="center">
+  <strong>Code is a craft. Not a race.</strong>
+</p>
 
 | Principle | Meaning |
-|-----------|---------|
-| **Domain First** | Business logic at center, frameworks at edges |
-| **Type Safety** | Types are documentation that compiles |
-| **Explicit > Implicit** | No magic, no surprises |
-| **Test-Driven** | Tests are specs that run |
+|:----------|:--------|
+| 🎯 **Domain First** | Business logic at center, frameworks at edges |
+| 🔒 **Type Safety** | Types are documentation that compiles |
+| 👁️ **Explicit > Implicit** | No magic, no surprises |
+| 🧪 **Test-Driven** | Tests are specs that run |
 
 ---
 
-## Documentation
+## 📚 DOCUMENTATION
 
-- [Architecture Guide](docs/ARCHITECTURE.md) — How it works under the hood
-- [CLAUDE.md](CLAUDE.md) — Instructions for Claude Code
+- 📖 [Architecture Guide](docs/ARCHITECTURE.md) — How it works under the hood
+- 📝 [CLAUDE.md](CLAUDE.md) — Instructions for Claude Code
 
 ---
 
-## License
+## 📄 LICENSE
 
 BSD 3-Clause
 
 ---
 
 <p align="center">
-  <strong>/learn</strong> to adapt. <strong>/craft</strong> to create. <strong>/heal</strong> to fix.<br/>
-  That's the Spectre way.
+  <img src="https://img.shields.io/badge/🧠_/learn-adapt-blue?style=for-the-badge" alt="/learn"/>
+  <img src="https://img.shields.io/badge/🔨_/craft-create-success?style=for-the-badge" alt="/craft"/>
+  <img src="https://img.shields.io/badge/💊_/heal-fix-red?style=for-the-badge" alt="/heal"/>
+</p>
+
+<p align="center">
+  <strong>That's the Spectre way.</strong> 👻
 </p>
