@@ -172,19 +172,24 @@ You don't need to run `/learn` — it happens automatically when you use `/craft
 /learn --show           # Show current learnings
 ```
 
-### Natively Supported Stacks
+### Any Stack, Full Precision
 
-Each stack has dedicated craft defaults — type patterns, error handling, architecture, testing practices — all injected dynamically into agents.
+Spectre doesn't use static templates. It detects your **exact** stack and generates craft defaults on the fly.
 
-| Stack | Auto-Detected By | Craft Defaults |
-|-------|------------------|----------------|
-| **TypeScript + React** | `package.json` + React | Strict types, hooks, Testing Library, a11y |
-| **TypeScript + Node** | `package.json` + tsconfig | Result types, Zod, hexagonal, Pino |
-| **Go** | `go.mod` | Error returns, small interfaces, table tests |
-| **Rust** | `Cargo.toml` | Result/Option, thiserror, traits |
-| **Python** | `pyproject.toml` | Type hints, dataclasses, protocols, pytest |
+```
+package.json detected:
+  → React 18.2 + React Query v5 + Zustand + Zod + Vitest
 
-Not listed? Spectre still works — agents apply universal craft principles. Want dedicated support? Add a stack file in `.claude/skills/craft/stacks/`.
+Generating craft defaults...
+  → React Query patterns (query keys, mutations, optimistic updates)
+  → Zustand patterns (slices, selectors, no global store)
+  → Zod validation patterns
+  → Testing Library + MSW patterns
+
+Cached in .spectre/stack-defaults.md
+```
+
+Dependencies change? Spectre regenerates. New library added? New patterns included.
 
 ### Two-Phase Intelligence
 

@@ -287,13 +287,34 @@ Craft principles are universal. Implementation adapts to your stack:
 
 ```
 .spectre/
-├── context.json          # Stack + settings
+├── context.json          # Stack détaillé + settings + hash pour invalidation
+├── stack-defaults.md     # Craft defaults GÉNÉRÉS pour votre stack exacte
 ├── learnings/
 │   ├── patterns.json     # Learned patterns → INJECTED into agents
 │   └── examples.json     # Reference files → INJECTED into agents
 ├── violations-report.md  # Current violations
 └── state.json            # Workflow state
 ```
+
+### stack-defaults.md — Généré dynamiquement
+
+Pas de fichiers statiques. Spectre détecte votre stack **exacte** et génère les craft defaults.
+
+```
+Détecté: TypeScript 5.3 + React 18.2 + React Query v5 + Zustand + Zod
+
+Génération des craft defaults...
+  → Type system patterns
+  → React Query patterns (query keys, mutations, optimistic)
+  → Zustand patterns (slices, selectors)
+  → Zod validation patterns
+  → Testing patterns (Vitest + Testing Library + MSW)
+  → Anti-patterns spécifiques à éviter
+
+Stocké dans .spectre/stack-defaults.md
+```
+
+**Invalidation automatique** : si package.json/go.mod/Cargo.toml change → régénération.
 
 ### patterns.json — What Agents Receive
 

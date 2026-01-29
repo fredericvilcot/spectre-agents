@@ -201,93 +201,194 @@ fi
 
 ---
 
-### Agent Knowledge by Stack — Dynamic Injection
+### Agent Knowledge by Stack — Dynamic Generation
 
-Agents receive stack-specific craft guidelines **dynamically injected** at spawn time.
+**Pas de fichiers statiques.** Les craft defaults sont générés à la volée pour VOTRE stack exact.
 
-#### Supported Stacks (Native)
-
-| Stack | File | Key Patterns |
-|-------|------|--------------|
-| **TypeScript + React** | `stacks/typescript-react.md` | Strict types, hooks, Testing Library, a11y |
-| **TypeScript + Node** | `stacks/typescript-node.md` | Result types, Zod, hexagonal, Pino |
-| **Go** | `stacks/go.md` | Error returns, small interfaces, table tests |
-| **Rust** | `stacks/rust.md` | Result/Option, thiserror, traits, no unwrap |
-| **Python** | `stacks/python.md` | Type hints, dataclasses, protocols, pytest |
-
-#### Injection Flow — Stack Defaults + Project Learnings
+#### Flow de génération dynamique
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
+│                     GÉNÉRATION DYNAMIQUE                         │
 │                                                                  │
-│  1. Stack detected → "typescript-react"                         │
+│  1. DÉTECTION FINE DE LA STACK                                  │
+│     ──────────────────────────                                   │
+│     package.json → React 18.2 + React Query v5 + Zustand + Zod  │
+│     go.mod → Go 1.21 + Gin + GORM + Zap                         │
+│     Cargo.toml → Rust + Axum + SQLx + Tokio                     │
 │                                                                  │
-│  2. Load CRAFT DEFAULTS (always):                               │
-│     → Read .claude/skills/craft/stacks/typescript-react.md      │
+│  2. CHECK CACHE                                                  │
+│     ─────────────                                                │
+│     .spectre/stack-defaults.md existe et à jour ?               │
+│       │                                                          │
+│       ├─→ OUI → Utilise le cache                                │
+│       │                                                          │
+│       └─→ NON → Génère (étape 3)                                │
 │                                                                  │
-│  3. Load PROJECT LEARNINGS (if clean, auto-learning on):        │
-│     → Read .spectre/learnings/patterns.json                     │
-│     → Read .spectre/learnings/examples.json                     │
-│                                                                  │
-│  4. Spawn agent with FULL context:                              │
-│                                                                  │
+│  3. GÉNÉRATION VIA ARCHITECT                                    │
+│     ─────────────────────────                                    │
 │     Task(                                                        │
-│       subagent_type: "frontend-engineer",                       │
+│       subagent_type: "architect",                               │
 │       prompt: """                                                │
-│         ## Stack Context                                         │
-│         Tu travailles sur un projet TypeScript + React.          │
+│         Génère les craft defaults pour cette stack exacte:       │
+│         - TypeScript 5.3 (strict mode)                          │
+│         - React 18.2                                             │
+│         - React Query v5                                         │
+│         - Zustand                                                │
+│         - Zod                                                    │
+│         - Vitest + Testing Library                               │
 │                                                                  │
-│         ## Craft Defaults (Stack)                                │
-│         <contenu de typescript-react.md>                        │
-│                                                                  │
-│         ## Project Patterns (Learned)                            │
-│         <contenu de .spectre/learnings/patterns.json>           │
-│                                                                  │
-│         ## Reference Examples                                    │
-│         <contenu de .spectre/learnings/examples.json>           │
-│                                                                  │
-│         ## Task                                                  │
-│         <la tâche demandée>                                     │
+│         Format attendu:                                          │
+│         ## Type System                                           │
+│         ## Error Handling                                        │
+│         ## State Management (React Query + Zustand patterns)     │
+│         ## Testing                                               │
+│         ## Anti-patterns à éviter                                │
 │       """                                                        │
 │     )                                                            │
 │                                                                  │
-│  5. Agent = Universal + Stack defaults + Project patterns       │
+│  4. CACHE LE RÉSULTAT                                           │
+│     ─────────────────                                            │
+│     → Stocke dans .spectre/stack-defaults.md                    │
+│     → Hash du package.json/go.mod pour invalidation             │
+│                                                                  │
+│  5. INJECTION DANS LES AGENTS                                   │
+│     ─────────────────────────                                    │
+│     Chaque agent reçoit:                                        │
+│     - Stack defaults générés                                     │
+│     - Project learnings (si clean)                               │
+│     - La tâche demandée                                          │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### What Gets Injected
+#### Détection fine de la stack
 
-| Source | Condition | Content |
-|--------|-----------|---------|
-| **Stack defaults** | Always | Craft principles for the detected stack |
-| **Project patterns** | Learning ON + No violations | Naming, imports, architecture conventions |
-| **Reference examples** | Learning ON + No violations | Best files as templates |
+```bash
+# Pour Node.js — parse package.json
+DEPS=$(jq -r '.dependencies + .devDependencies | keys[]' package.json)
 
-#### Continuous Learning
+# Détecte chaque lib
+echo "$DEPS" | grep -q "react" && LIBS+=("React")
+echo "$DEPS" | grep -q "@tanstack/react-query" && LIBS+=("React Query v5")
+echo "$DEPS" | grep -q "zustand" && LIBS+=("Zustand")
+echo "$DEPS" | grep -q "zod" && LIBS+=("Zod")
+echo "$DEPS" | grep -q "vitest" && LIBS+=("Vitest")
+echo "$DEPS" | grep -q "@testing-library" && LIBS+=("Testing Library")
+echo "$DEPS" | grep -q "tailwindcss" && LIBS+=("TailwindCSS")
+echo "$DEPS" | grep -q "prisma" && LIBS+=("Prisma")
 
-Each time `/craft` or `/heal` runs:
-1. Check if `.spectre/learnings/` exists and is up-to-date
-2. If new patterns detected → update learnings
-3. Inject fresh learnings into next agent spawn
+# Pour Go — parse go.mod
+grep -q "gin-gonic/gin" go.mod && LIBS+=("Gin")
+grep -q "gorm.io/gorm" go.mod && LIBS+=("GORM")
+grep -q "go.uber.org/zap" go.mod && LIBS+=("Zap")
 
-Agents stay in sync with your evolving codebase.
+# Stack complète
+FULL_STACK="${LANGUAGE} + ${LIBS[*]}"
+# → "TypeScript + React + React Query v5 + Zustand + Zod + Vitest"
+```
 
-#### Why This Matters
+#### Cache et invalidation
 
-| Sans injection | Avec injection |
-|----------------|----------------|
-| Agent devine les conventions | Agent suit des guidelines précises |
-| Patterns incohérents | Patterns uniformes |
-| Code "générique" | Code idiomatique au stack |
-| Risque d'anti-patterns | Anti-patterns documentés et évités |
+```json
+// .spectre/context.json
+{
+  "stack": {
+    "language": "typescript",
+    "runtime": "node",
+    "framework": "react",
+    "libs": ["react-query", "zustand", "zod", "vitest", "testing-library"],
+    "versions": {
+      "typescript": "5.3",
+      "react": "18.2",
+      "@tanstack/react-query": "5.0"
+    }
+  },
+  "stackDefaultsHash": "a1b2c3d4",  // Hash de package.json
+  "stackDefaultsGeneratedAt": "2024-01-15T10:30:00Z"
+}
+```
 
-#### Adding New Stacks
+**Invalidation automatique** : si le hash de package.json/go.mod change → régénère.
 
-Pour supporter un nouveau stack :
-1. Créer `.claude/skills/craft/stacks/<stack-name>.md`
-2. Suivre le format des fichiers existants
-3. Documenter : type system, error handling, architecture, testing, anti-patterns
+#### Exemple de stack-defaults.md généré
+
+```markdown
+# Craft Defaults — TypeScript + React + React Query + Zustand
+
+Généré pour: TypeScript 5.3, React 18.2, React Query v5, Zustand, Zod, Vitest
+
+## Type System
+- strict: true obligatoire
+- Pas de `any` — utiliser `unknown` + type guards
+- Props typées explicitement
+- Zod pour validation runtime + inférence de types
+
+## State Management
+
+### React Query (Server State)
+- Query keys en constantes typées
+- Mutations avec onMutate pour optimistic updates
+- Pas de `useEffect` pour fetch — toujours `useQuery`
+- Prefetch pour les routes prévisibles
+
+### Zustand (Client State)
+- Un store par domaine, pas de store global géant
+- Selectors pour éviter les re-renders
+- Immer middleware si mutations complexes
+- Persist middleware pour le localStorage
+
+## Error Handling
+- Zod pour validation aux boundaries
+- React Query error boundaries
+- Pas de try/catch silencieux
+
+## Testing
+- Vitest + Testing Library
+- MSW pour mocker les API (pas de mock manuel)
+- Test les comportements, pas l'implémentation
+- Query client wrapper pour les tests
+
+## Anti-patterns
+- ❌ useEffect pour fetch (utiliser useQuery)
+- ❌ useState pour server state (utiliser React Query)
+- ❌ Store Zustand pour tout (séparer server/client state)
+- ❌ any dans les schémas Zod
+```
+
+#### Injection complète
+
+```
+Task(
+  subagent_type: "frontend-engineer",
+  prompt: """
+    ## Stack Context
+    TypeScript + React + React Query v5 + Zustand + Zod + Vitest
+
+    ## Craft Defaults (Généré)
+    <contenu de .spectre/stack-defaults.md>
+
+    ## Project Patterns (Appris)
+    <contenu de .spectre/learnings/patterns.json>
+
+    ## Reference Examples
+    <contenu de .spectre/learnings/examples.json>
+
+    ## Task
+    <la tâche demandée>
+  """
+)
+```
+
+#### Avantages du dynamique
+
+| Statique | Dynamique |
+|----------|-----------|
+| 5 fichiers fixes | Infini — ANY stack |
+| "React" générique | "React 18.2 + React Query v5" spécifique |
+| Maintenance manuelle | Auto-génération |
+| Patterns génériques | Patterns pour VOS libs exactes |
+| Mises à jour manuelles | Régénération si deps changent |
 
 ---
 
