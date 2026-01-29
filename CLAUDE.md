@@ -4,64 +4,151 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Spectre Agents is a collection of craft-oriented agents and skills for Claude Code. Every component embodies Software Craftsmanship principles: Clean Architecture, DDD, SOLID, TDD/BDD, and uncompromising technical excellence.
+**Spectre Agents** is a reactive multi-agent system for Claude Code, built on Software Craftsmanship principles.
 
-**Philosophy**: Code is a craft. We favor quality, readability, and maintainability over speed. Each agent guides toward technical excellence with pedagogy and rigor.
+> **Code is a craft. Agents perfect it together.**
+
+## Core Philosophy
+
+### 🛠️ CRAFT — Excellence Without Compromise
+
+Every agent embodies:
+
+| Principle | Meaning |
+|-----------|---------|
+| **Domain First** | Business logic at the center, frameworks at the periphery |
+| **Type Safety** | The type system as safety net and living documentation |
+| **Explicit > Implicit** | No silent exceptions, no magic, no guessing |
+| **Test-Driven** | Tests are executable specifications |
+| **Pedagogy** | Explain the "why" before the "how" |
+
+### 🔄 REACTIVE — Self-Correcting Agents
+
+What makes Spectre different:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                    REACTIVE LOOP                           │
+│                                                            │
+│   QA finds error ──▶ Dev fixes ──▶ QA verifies             │
+│         ▲                              │                   │
+│         └──────────── retry ◀──────────┘                   │
+│                                                            │
+│   Agents collaborate. Errors trigger fixes. Automatically. │
+└────────────────────────────────────────────────────────────┘
+```
+
+- **Auto-correction**: QA error → Dev spawns automatically with context
+- **Shared memory**: `.spectre/` stores state, errors, learnings
+- **Learning**: Successful fixes become patterns for future errors
+- **Retry logic**: Max 3 attempts before asking for help
 
 ## Structure
 
 ```
-.claude/
-├── agents/          # Agent definitions (YAML frontmatter + Markdown)
-└── skills/          # Skill definitions (YAML frontmatter + Markdown)
+spectre-agents/
+├── .claude/
+│   ├── agents/           # Agent definitions
+│   └── skills/           # Skill definitions
+├── scripts/              # Reactive system hooks
+├── templates/            # Project setup templates
+└── docs/
+    └── ARCHITECTURE.md   # Full technical documentation
+```
+
+## Agents — Specialized Experts
+
+| Agent | Role | Expertise |
+|-------|------|-----------|
+| **software-craftsman** | Architect | Clean Architecture, DDD, SOLID, TDD/BDD |
+| **product-owner** | Product | User stories, acceptance criteria, prioritization |
+| **frontend-dev** | Implementation | React, accessibility, state management, testing |
+| **qa-engineer** | Quality | Test strategy, TDD/BDD, test pyramid |
+| **orchestrator** | Coordination | Reactive loop, routing, retry, learnings |
+
+## Skills — Invocable Capabilities
+
+### Craft Skills
+| Skill | Description |
+|-------|-------------|
+| `/typescript-craft` | Strict typing, algebraic types, Result types, pure functions |
+| `/react-craft` | Component design, hooks, accessibility, testing |
+| `/test-craft` | TDD/BDD, test pyramid, proper test doubles |
+
+### Workflow Skills
+| Skill | Description |
+|-------|-------------|
+| `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest project |
+| `/feature` | Complete workflow: PO → Architect → Dev → QA |
+| `/reactive-loop` | **Start the self-correcting agent loop** |
+| `/setup-reactive` | Configure reactive system in your project |
+
+## Reactive System
+
+### Setup
+```bash
+/setup-reactive    # In your project
+```
+
+### Usage
+```bash
+/reactive-loop     # Start building a feature
+```
+
+### How It Works
+
+1. **Define** — Product Owner creates user story
+2. **Design** — Software Craftsman designs solution
+3. **Implement** — Frontend Dev builds it
+4. **Verify** — QA Engineer tests it
+5. **Fix Loop** — If errors: Dev fixes → QA re-verifies (up to 3x)
+6. **Learn** — Successful fixes become patterns
+
+### Shared State (`.spectre/`)
+```
+.spectre/
+├── state.json        # Current workflow phase
+├── errors.jsonl      # Error history
+├── learnings.jsonl   # Patterns from fixes
+└── context.json      # Feature context
 ```
 
 ## Component Format
 
 ### Agents (`.claude/agents/*.md`)
+```yaml
+---
+name: agent-name
+description: "When to use this agent..."
+model: opus | sonnet | haiku
+color: purple | blue | green
+---
 
-YAML frontmatter:
-- `name`: Agent identifier
-- `description`: When to use this agent (displayed in Claude Code)
-- `model`: Claude model to use (`opus`, `sonnet`, `haiku`)
-- `color`: Terminal color
-
-The Markdown body contains the agent's system prompt.
+# System Prompt
+```
 
 ### Skills (`.claude/skills/<name>/SKILL.md`)
+```yaml
+---
+name: skill-name
+description: "What this skill does"
+context: fork | conversation
+agent: executing-agent
+allowed-tools: Read, Write, Edit, Bash
+---
 
-YAML frontmatter:
-- `name`: Skill identifier
-- `description`: What the skill does
-- `context`: Execution context (`fork`, etc.)
-- `agent`: Agent that executes this skill
-- `allowed-tools`: Available tools
+# Skill Instructions
+```
 
-The Markdown body contains the skill's specific instructions.
+## Extending Spectre
 
-## Current Components
+When creating new components:
 
-### Agents
-- **software-craftsman**: Software architect expert in Clean Architecture, DDD, Hexagonal, SOLID, TDD/BDD. Analyzes, designs, and reviews code with a pedagogical approach.
-- **product-owner**: Product expert who transforms vague ideas into clear user stories with acceptance criteria. Prioritizes by value, defines MVP scope.
-- **frontend-dev**: Frontend specialist building accessible, performant, maintainable UIs. Expert in React, state management, testing.
-- **qa-engineer**: Quality expert designing test strategies, writing tests at all levels, ensuring confidence in the codebase.
-- **orchestrator**: Conductor of the reactive multi-agent system. Coordinates agents, manages feedback loops, handles errors and retries.
+1. **Embody Craft** — No shortcuts, explicit over clever
+2. **Enable Reactivity** — Can it participate in the feedback loop?
+3. **Teach** — Explain decisions, guide toward excellence
+4. **Learn** — Record patterns that work
 
-### Skills
-- **typescript-craft**: Applies craft principles to TypeScript — strict typing, algebraic types, immutability, pure functions, Result types, layer separation.
-- **react-craft**: Applies craft principles to React — component design, hooks, state management, accessibility, testing.
-- **test-craft**: TDD/BDD testing principles — test pyramid, behavior-driven tests, proper test doubles.
-- **init-frontend**: Bootstraps a new frontend project with craft setup (React + Vite + TypeScript + Vitest).
-- **feature**: Complete feature workflow orchestrating PO → Architect → Dev → QA with artifacts at each phase.
-- **reactive-loop**: Start the reactive multi-agent loop. Agents auto-collaborate: QA → error → Dev → fix → QA → verify.
-- **setup-reactive**: Set up the Spectre Reactive System in a project (hooks, shared state, scripts).
+---
 
-## Guiding Principles
-
-Every new component must embody:
-1. **Domain First**: Business logic at the center, frameworks at the periphery
-2. **Type Safety**: The type system as safety net and living documentation
-3. **Explicit over Implicit**: Explicit error handling, no silent exceptions
-4. **Test-Driven**: Tests as executable specifications
-5. **Pedagogy**: Explain the "why" before the "how"
+**Full documentation**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
