@@ -1,23 +1,21 @@
 ---
 name: add-skill
-description: "Manage craft skills for agents. Default craft principles always active. Add specialized expertise, remove skills. Everything MUST respect the craft philosophy."
+description: "Add specialized craft skills to agents. Default craft principles always active. Everything MUST respect the craft philosophy."
 context: conversation
 allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 ---
 
-# Spectre Skills — Craft-First Skill Management
+# Spectre Add-Skill — Extend Agent Expertise
 
-**Craft principles are ALWAYS active.** You can add specialized expertise or remove skills, but the craft philosophy is non-negotiable.
+**Craft principles are ALWAYS active.** Add specialized expertise on top.
 
 ## The Craft Foundation
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                  │
-│  🏛️  DEFAULT CRAFT PRINCIPLES (Always Active)                   │
+│  🏛️  CRAFT FOUNDATION (Always Active)                           │
 │  ──────────────────────────────────────────                     │
-│                                                                  │
-│  These are the FOUNDATION. Cannot be removed.                   │
 │                                                                  │
 │  • SOLID Principles — Single responsibility, Open/closed, etc.  │
 │  • Clean Architecture — Dependencies point inward               │
@@ -27,80 +25,26 @@ allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 │  • Immutability — Const by default                              │
 │  • TDD — Tests first, design emerges                            │
 │                                                                  │
-│  ⚠️  These are NON-NEGOTIABLE. Spectre won't work without them.  │
-│                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Adding Specialized Skills
-
-You can ADD specialized expertise on top of the craft foundation.
-
-### Syntax
+## Syntax
 
 ```bash
 /add-skill <agent> <skill> [--scope <path>]
+/add-skill --list                     # Show all active skills
 ```
 
-### Examples
+## Examples
 
 ```bash
 /add-skill architect DDD              # Add DDD expertise to architect
 /add-skill architect CQRS             # Add CQRS patterns
+/add-skill architect CQRS --scope src/orders  # Scoped to a path
 /add-skill backend-engineer Event-Sourcing
 /add-skill frontend-engineer React-Patterns
 /add-skill qa-engineer Property-Testing
-```
-
----
-
-## Removing Skills
-
-You can ONLY remove skills that were added with `/add-skill`.
-
-**Built-in craft principles are PROTECTED and cannot be removed.**
-
-### Syntax
-
-```bash
-/add-skill --remove <agent> <skill>
-/add-skill --list                     # Show all active skills
-/add-skill --reset                    # Remove all added skills (keep craft)
-```
-
-### Examples
-
-```bash
-/add-skill --remove architect CQRS    # ✅ Remove CQRS (was added)
-/add-skill --remove architect SOLID   # ❌ REJECTED: Built-in, cannot remove
-/add-skill --remove architect TDD     # ❌ REJECTED: Built-in, cannot remove
 /add-skill --list                     # See what's active
-/add-skill --reset                    # Back to craft defaults only
-```
-
-### Protected Skills (Built-in)
-
-These skills are ALWAYS active and CANNOT be removed:
-
-| Skill | Why Protected |
-|-------|---------------|
-| `SOLID` | Foundation of OOP design |
-| `Clean-Architecture` | Core structural principle |
-| `Hexagonal` | Domain isolation principle |
-| `Explicit-Errors` | Craft error handling |
-| `Type-Safety` | Compiler as safety net |
-| `Immutability` | Predictable state |
-| `TDD` | Design through tests |
-
-```
-> /add-skill --remove architect SOLID
-
-❌ REJECTED
-
-SOLID is a BUILT-IN craft principle.
-Built-in skills are protected and cannot be removed.
-
-Only skills added with /add-skill can be removed.
 ```
 
 ---
@@ -260,25 +204,6 @@ All these skills have been validated against the craft philosophy:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Removing Skills
-
-```
-> /add-skill --remove architect CQRS
-
-✅ Removed CQRS from architect
-
-Note: Craft foundation skills cannot be removed.
-```
-
-### Resetting
-
-```
-> /add-skill --reset
-
-✅ All added skills removed
-🏛️ Craft foundation remains active
-```
-
 ---
 
 ## Storage
@@ -362,53 +287,13 @@ When agents are spawned, they receive:
 ```typescript
 type Command =
   | { type: 'add'; agent: string; skill: string; scope?: string }
-  | { type: 'remove'; agent: string; skill: string }
-  | { type: 'list' }
-  | { type: 'reset' };
+  | { type: 'list' };
 
 // /add-skill architect DDD → { type: 'add', agent: 'architect', skill: 'DDD' }
-// /add-skill --remove architect DDD → { type: 'remove', ... }
 // /add-skill --list → { type: 'list' }
-// /add-skill --reset → { type: 'reset' }
 ```
 
-### Step 2: Check Built-in Protection (for remove)
-
-```typescript
-const BUILT_IN_SKILLS = [
-  'SOLID',
-  'Clean-Architecture',
-  'Hexagonal',
-  'Explicit-Errors',
-  'Type-Safety',
-  'Immutability',
-  'TDD'
-];
-
-function handleRemove(agent: string, skill: string): Result<void, ProtectedSkillError> {
-  // HARD BLOCK: Built-in skills cannot be removed
-  if (BUILT_IN_SKILLS.includes(skill)) {
-    return err(new ProtectedSkillError(
-      `${skill} is a BUILT-IN craft principle and cannot be removed.`
-    ));
-  }
-
-  // Check if skill was actually added
-  const addedSkills = readContext().addedSkills;
-  const found = addedSkills.find(s => s.name === skill && s.agent === agent);
-
-  if (!found) {
-    return err(new SkillNotFoundError(
-      `${skill} was not added to ${agent}. Nothing to remove.`
-    ));
-  }
-
-  // Safe to remove
-  return ok(removeSkill(agent, skill));
-}
-```
-
-### Step 3: Validate Against Craft (for add)
+### Step 2: Validate Against Craft (for add)
 
 ```
 Task(
@@ -518,15 +403,6 @@ Same reactive flow as before — analyze codebase, propose plan, loop.
 
 ➕ ADDED SKILLS
    • architect: DDD
-
-> /add-skill --remove architect DDD
-
-✅ Removed DDD from architect
-
-> /add-skill --reset
-
-✅ All added skills removed
-🏛️ Craft foundation remains active
 ```
 
 ---
@@ -535,5 +411,5 @@ Same reactive flow as before — analyze codebase, propose plan, loop.
 
 - **Craft-first**: Everything validates against craft principles
 - **Educational**: Explain WHY a skill aligns (or doesn't)
-- **Non-dogmatic**: Added skills are optional enhancements
-- **Protective**: Foundation cannot be compromised
+- **Additive**: Skills enrich, they don't replace
+- **Permanent**: Once added, skills stay (craft accumulates)

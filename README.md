@@ -193,24 +193,20 @@ Architect ───▶ Engineer ───▶ QA
 
 ---
 
-### `/add-skill` — Skill Management
+### `/add-skill` — Extend Agent Expertise
 
 **Craft foundation is ALWAYS active.** Add specialized expertise on top.
 
 ```
-🏛️ CRAFT FOUNDATION (Always Active — Cannot be removed)
+🏛️ CRAFT FOUNDATION (Always Active)
    • SOLID • Clean Architecture • Hexagonal
    • Explicit Errors • Type Safety • Immutability • TDD
 ```
 
-Add, remove, or list skills:
-
 ```bash
 /add-skill architect DDD                  # Add DDD expertise
 /add-skill architect CQRS --scope src/orders
-/add-skill --remove architect CQRS        # Remove a skill
 /add-skill --list                         # Show all active skills
-/add-skill --reset                        # Remove all added (keep foundation)
 ```
 
 **Craft Guard validates every skill:**
