@@ -160,87 +160,86 @@ Détails d'exécution...
 
 #### Le skill `/guide` en détail
 
-Mode interactif qui traduit le besoin utilisateur en configuration d'agents.
+Mode interactif adapté au **contexte de travail** de l'utilisateur.
 
-**Philosophie** : Poser des questions sur le BESOIN, pas sur les options techniques.
+**Philosophie** : Différents contextes = différents workflows.
 
-##### Flow interactif
+##### Étape 1: Contexte de travail
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Étape 1: "What's your situation?"                              │
+│  "What's your work context?"                                    │
 │                                                                 │
-│  [ I want to build something ]    [ Something isn't working ]   │
-│  [ I want to improve code ]       [ I need to think first ]     │
+│  [ Product Team / Enterprise ]  → Specs, process, compliance    │
+│  [ Startup / Small Team ]       → Fast iterations, ship & learn │
+│  [ Freelance / Solo ]           → Efficient, minimal overhead   │
+│  [ Learning / Exploring ]       → Educational, no pressure      │
 └─────────────────────────────────────────────────────────────────┘
-                         │
-        ┌────────────────┼────────────────┬────────────────┐
-        ▼                ▼                ▼                ▼
-     BUILD             FIX            IMPROVE           THINK
-        │                │                │                │
-        ▼                ▼                ▼                ▼
-┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│ Starting from?│ │ What problem? │ │ What improve? │ │ What to think?│
-│               │ │               │ │               │ │               │
-│ • User need   │ │ • Tests fail  │ │ • Add tests   │ │ • Structure   │
-│ • Know what   │ │ • Error/crash │ │ • Refactor    │ │ • Approach    │
-│ • Just code   │ │ • Build broke │ │ • Types       │ │ • Break down  │
-└───────────────┘ │ • Visual bug  │ │ • Performance │ │ • Best practic│
-                  └───────────────┘ └───────────────┘ └───────────────┘
 ```
 
-##### Tables de mapping
+##### Étape 2: Objectif
 
-**Build → Agents**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  "What do you want to do?"                                      │
+│                                                                 │
+│  [ Build something new ]    [ Fix something ]                   │
+│  [ Improve existing code ]  [ Think / Design ]                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-| Starting Point | Domain | Tested | Configuration |
-|----------------|--------|--------|---------------|
-| User need/idea | UI | Yes | `/reactive-loop` (PO → Arch → front → QA) |
-| User need/idea | Backend | Yes | `/reactive-loop` (PO → Arch → back → QA) |
-| User need/idea | Both | Yes | `/reactive-loop` (PO → Arch → back → front → QA) |
-| Know what to build | UI | Yes | `/agent software-craftsman --link frontend-dev,qa-engineer` |
-| Know what to build | Backend | Yes | `/agent software-craftsman --link backend-dev,qa-engineer` |
-| Know what to build | Any | No | `/agent software-craftsman` |
-| Just code it | UI | Yes | `/agent frontend-dev --link qa-engineer` |
-| Just code it | Backend | Yes | `/agent backend-dev --link qa-engineer` |
-| Just code it | Any | No | `/agent <dev>` seul |
+##### Étape 3: Questions contextuelles
 
-**Fix → Agents**
+Les questions s'adaptent au contexte :
 
-| Problem | Diagnosis | Configuration |
-|---------|-----------|---------------|
-| Tests failing | Know/Guess | `/agent frontend-dev --link qa-engineer` |
-| Tests failing | No clue | `/agent qa-engineer --link frontend-dev` |
-| Error in app | Any | `/agent frontend-dev --link qa-engineer` |
-| Build broken | Any | `/agent software-craftsman --link qa-engineer` |
-| Visual bug | Any | `/agent frontend-dev --link qa-engineer` |
+| Contexte | Questions pour "Build" |
+|----------|------------------------|
+| **Product Team** | "PRD ou spec?" "Quel système?" |
+| **Startup** | "Requirements clairs?" "Frontend/Backend?" |
+| **Freelance** | "Stack?" "Testing?" |
+| **Learning** | "Quel domaine?" → Craft skill direct |
 
-**Improve → Agents**
+##### Workflows par contexte
 
-| Improvement | Configuration |
-|-------------|---------------|
-| Add tests | `/agent qa-engineer` |
-| Refactor | `/agent software-craftsman --link qa-engineer` |
-| Types/safety | `/typescript-craft` |
-| Performance | `/agent software-craftsman --link qa-engineer` |
+**🏢 Product Team / Enterprise**
 
-**Think → Agents**
+| Input | Workflow |
+|-------|----------|
+| PRD / Feature Spec | `Architect → Dev → QA` |
+| User Story (à raffiner) | `PO → Architect → Dev → QA` |
+| Concept seul | `PO (spec complète) → Architect → Dev → QA` |
 
-| Thinking | Configuration |
-|----------|---------------|
-| Structure feature | `/agent software-craftsman` |
-| Which approach | `/agent software-craftsman` |
-| Break down task | `/agent product-owner` |
-| Best practices | `/typescript-craft`, `/react-craft`, `/test-craft` |
+Caractéristiques : Reviews obligatoires, documentation, compliance.
 
-##### Raccourcis intelligents
+**🚀 Startup / Small Team**
 
-| Input | Détection | Action |
-|-------|-----------|--------|
-| `/guide add login form` | "add" + "form" = build UI | Demande starting point + testing |
-| `/guide fix failing tests` | "fix" + "tests" = broken | Demande diagnosis |
-| `/guide refactor auth module` | "refactor" = improve | Confirme et lance |
-| `/guide how to design auth` | "how to" + "design" = think | Lance architect |
+| Clarté | Workflow |
+|--------|----------|
+| Crystal clear | `Dev → QA` |
+| Mostly clear | `Architect (quick) → Dev → QA` |
+| Rough idea | `Architect → Dev → QA` |
+
+Caractéristiques : Pas de PO (vous êtes le PO), QA inclus, itérations rapides.
+
+**💼 Freelance / Solo**
+
+| Testing | Workflow |
+|---------|----------|
+| Oui | `Dev → QA` |
+| Non | `Dev` seul |
+
+Caractéristiques : Implémentation directe, overhead minimal.
+
+**📚 Learning / Exploring**
+
+| Domaine | Action |
+|---------|--------|
+| Frontend/React | `/react-craft` |
+| Backend/API | `software-craftsman` guidance |
+| Architecture | `software-craftsman` |
+| Testing | `/test-craft` |
+
+Caractéristiques : Mode éducatif, explications prioritaires.
 
 ---
 

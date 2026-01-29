@@ -1,422 +1,470 @@
 ---
 name: guide
-description: "Interactive guided mode to help you build the right thing. Express your need, Spectre configures the agents."
+description: "Interactive guided mode adapted to your work context. Express your need, Spectre configures the agents."
 context: conversation
 allowed-tools: Read, Bash, Task, AskUserQuestion, Skill
 ---
 
-# Spectre Guide — Express Your Need
+# Spectre Guide — Adapted to Your Context
 
-Guide users through an intuitive flow to understand WHAT they want to build, then configure the right agent chain automatically.
+Guide users based on HOW they work, not just WHAT they want to build.
 
 ## Philosophy
 
-**Don't ask technical questions. Ask about the USER'S journey.**
-
-Bad: "Which agent do you want?"
-Good: "Where are you starting from?"
-
-Bad: "Do you want QA verification?"
-Good: "Should this be tested before shipping?"
+Different contexts need different workflows:
+- **Product Team** → Full process, specs, reviews, compliance
+- **Startup** → Fast iterations, ship & learn
+- **Freelance** → Efficient, focused, no overhead
 
 ---
 
 ## The Flow
 
-### Step 1: What's Your Situation?
+### Step 1: What's Your Work Context?
+
+**First time only** (remember for the session):
 
 ```
-Question: "What's your situation?"
-Header: "Situation"
+Question: "What's your work context?"
+Header: "Context"
 Options:
-  1. "I want to build something"
-     Description: "New feature, component, or functionality"
-  2. "Something isn't working"
-     Description: "Bug, error, failing tests"
-  3. "I want to improve code"
-     Description: "Refactor, add tests, clean up"
-  4. "I need to think first"
-     Description: "Design, architecture, planning"
+  1. "Product Team / Enterprise"
+     Description: "Specs, process, reviews, multiple stakeholders"
+  2. "Startup / Small Team"
+     Description: "Fast iterations, agile, ship & learn"
+  3. "Freelance / Solo"
+     Description: "Efficient, focused, minimal overhead"
+  4. "Learning / Exploring"
+     Description: "Trying things out, no pressure"
 ```
 
 ---
 
-### Branch A: "I want to build something"
-
-#### A1. Where are you starting from?
+### Step 2: What Do You Want to Do?
 
 ```
-Question: "Where are you starting from?"
-Header: "Starting point"
+Question: "What do you want to do?"
+Header: "Goal"
 Options:
-  1. "A user need or idea"
-     Description: "I have a concept but no detailed spec yet"
-  2. "I know exactly what to build"
-     Description: "Requirements are clear, ready to design & code"
-  3. "Just need to code it"
-     Description: "Design is done, I know what to implement"
+  1. "Build something new"
+     Description: "New feature, component, or functionality"
+  2. "Fix something"
+     Description: "Bug, error, failing tests"
+  3. "Improve existing code"
+     Description: "Refactor, add tests, clean up"
+  4. "Think / Design"
+     Description: "Architecture, planning, decisions"
 ```
 
-#### A2. What part of the app?
+---
+
+### Step 3: Context-Specific Questions
+
+#### If "Build something new"
+
+**For Product Team / Enterprise:**
 
 ```
-Question: "What part of the app does this touch?"
+Question: "What do you have to start with?"
+Header: "Input"
+Options:
+  1. "A PRD or feature spec"
+     Description: "Product requirements document, Jira ticket, detailed spec"
+  2. "A user story or brief"
+     Description: "High-level requirement, needs refinement"
+  3. "Just a concept"
+     Description: "Idea that needs to be specced out"
+```
+
+Then:
+```
+Question: "What part of the system?"
 Header: "Domain"
 Options:
-  1. "User interface"
-     Description: "Components, pages, forms, visuals"
+  1. "Frontend / UI"
   2. "Backend / API"
-     Description: "Services, endpoints, data, logic"
-  3. "Both frontend and backend"
-     Description: "Full-stack feature"
+  3. "Full-stack"
 ```
 
-#### A3. Should it be tested?
+**For Startup / Small Team:**
 
 ```
-Question: "Should this be tested before shipping?"
-Header: "Testing"
+Question: "How clear are the requirements?"
+Header: "Clarity"
 Options:
-  1. "Yes, with automated tests (Recommended)"
-     Description: "QA agent verifies and loops until green"
-  2. "No, it's just a prototype"
-     Description: "Quick exploration, no verification needed"
+  1. "Crystal clear — let's build"
+     Description: "I know exactly what to do"
+  2. "Mostly clear — might need quick design"
+     Description: "90% there, need to figure out some details"
+  3. "Rough idea — need to shape it"
+     Description: "Know the goal, need to define the how"
 ```
 
-#### A → Agent Configuration
+Then:
+```
+Question: "Frontend, backend, or both?"
+Header: "Stack"
+Options:
+  1. "Frontend"
+  2. "Backend"
+  3. "Both"
+```
 
-| Starting point | Domain | Testing | Configuration |
-|----------------|--------|---------|---------------|
-| User need/idea | UI | Yes | `/reactive-loop` → PO → Arch → frontend-dev → QA |
-| User need/idea | Backend | Yes | `/reactive-loop` → PO → Arch → backend-dev → QA |
-| User need/idea | Fullstack | Yes | `/reactive-loop` → PO → Arch → back → front → QA |
-| User need/idea | Any | No | `/agent product-owner --link software-craftsman` |
-| Know what to build | UI | Yes | `/agent software-craftsman --link frontend-dev,qa-engineer` |
-| Know what to build | Backend | Yes | `/agent software-craftsman --link backend-dev,qa-engineer` |
-| Know what to build | Fullstack | Yes | `/agent software-craftsman --link backend-dev,frontend-dev,qa-engineer` |
-| Know what to build | Any | No | `/agent software-craftsman` |
-| Just code it | UI | Yes | `/agent frontend-dev --link qa-engineer` |
-| Just code it | Backend | Yes | `/agent backend-dev --link qa-engineer` |
-| Just code it | UI | No | `/agent frontend-dev` |
-| Just code it | Backend | No | `/agent backend-dev` |
+**For Freelance / Solo:**
+
+```
+Question: "What are you building?"
+Header: "Stack"
+Options:
+  1. "UI / Frontend"
+  2. "API / Backend"
+  3. "Full-stack"
+```
+
+Then:
+```
+Question: "Testing?"
+Header: "Quality"
+Options:
+  1. "Yes, with tests (Recommended)"
+     Description: "QA agent verifies your work"
+  2. "No, ship it"
+     Description: "Just the implementation"
+```
+
+**For Learning / Exploring:**
+
+```
+Question: "What are you exploring?"
+Header: "Area"
+Options:
+  1. "Frontend / React"
+  2. "Backend / API"
+  3. "Architecture patterns"
+  4. "Testing practices"
+```
+
+→ Suggest appropriate craft skill directly
 
 ---
 
-### Branch B: "Something isn't working"
+## Mapping Tables
 
-#### B1. What's the problem?
+### Product Team / Enterprise
 
-```
-Question: "What's happening?"
-Header: "Problem"
-Options:
-  1. "Tests are failing"
-     Description: "One or more tests are red"
-  2. "There's an error in the app"
-     Description: "Crash, exception, unexpected behavior"
-  3. "Build won't compile"
-     Description: "TypeScript errors, missing imports, syntax"
-  4. "It doesn't look or behave right"
-     Description: "Visual bug, UX issue, wrong behavior"
-```
+| Input | Domain | Agents Chain |
+|-------|--------|--------------|
+| PRD/Spec | Frontend | `Architect → frontend-dev → QA` |
+| PRD/Spec | Backend | `Architect → backend-dev → QA` |
+| PRD/Spec | Full-stack | `Architect → backend-dev → frontend-dev → QA` |
+| User story/Brief | Any | `PO (refine) → Architect → Dev → QA` |
+| Just a concept | Any | `PO (full spec) → Architect → Dev → QA` |
 
-#### B2. Do you know the cause?
+**Characteristics:**
+- Always includes architect for design review
+- Always includes QA for testing
+- PO refines unclear requirements
+- Full documentation trail
 
-```
-Question: "Do you have an idea what's causing it?"
-Header: "Diagnosis"
-Options:
-  1. "Yes, I know what to fix"
-     Description: "Just need to implement the solution"
-  2. "I have a guess"
-     Description: "Need to verify then fix"
-  3. "No clue"
-     Description: "Need investigation first"
-```
+### Startup / Small Team
 
-#### B → Agent Configuration
+| Clarity | Stack | Agents Chain |
+|---------|-------|--------------|
+| Crystal clear | Frontend | `frontend-dev → QA` |
+| Crystal clear | Backend | `backend-dev → QA` |
+| Crystal clear | Full-stack | `backend-dev → frontend-dev → QA` |
+| Mostly clear | Any | `Architect (quick) → Dev → QA` |
+| Rough idea | Any | `Architect → Dev → QA` |
 
-| Problem | Diagnosis | Configuration |
-|---------|-----------|---------------|
-| Tests failing | Know/Guess | `/agent frontend-dev --link qa-engineer` |
-| Tests failing | No clue | `/agent qa-engineer --link frontend-dev` (QA investigates) |
-| Error in app | Any | `/agent frontend-dev --link qa-engineer` |
-| Build won't compile | Any | `/agent software-craftsman --link qa-engineer` |
-| Visual/UX bug | Any | `/agent frontend-dev --link qa-engineer` |
+**Characteristics:**
+- Skip PO — you ARE the PO
+- Architect only when needed
+- Always QA for quality
+- Fast feedback loop
 
----
+### Freelance / Solo
 
-### Branch C: "I want to improve code"
+| Stack | Testing | Agents Chain |
+|-------|---------|--------------|
+| Frontend | Yes | `frontend-dev → QA` |
+| Frontend | No | `frontend-dev` |
+| Backend | Yes | `backend-dev → QA` |
+| Backend | No | `backend-dev` |
+| Full-stack | Yes | `backend-dev → frontend-dev → QA` |
+| Full-stack | No | `backend-dev → frontend-dev` |
 
-#### C1. What kind of improvement?
+**Characteristics:**
+- Direct to implementation
+- Testing is optional (but recommended)
+- Minimal overhead
+- Maximum efficiency
 
-```
-Question: "What do you want to improve?"
-Header: "Improvement"
-Options:
-  1. "Add tests to existing code"
-     Description: "Improve coverage, add missing tests"
-  2. "Refactor for clarity"
-     Description: "Clean up, rename, restructure"
-  3. "Improve types and safety"
-     Description: "Stricter TypeScript, better type definitions"
-  4. "Optimize performance"
-     Description: "Make it faster or more efficient"
-```
+### Learning / Exploring
 
-#### C → Agent Configuration
+| Area | Action |
+|------|--------|
+| Frontend/React | `/react-craft` |
+| Backend/API | Use `software-craftsman` for guidance |
+| Architecture | `/agent software-craftsman` |
+| Testing | `/test-craft` |
 
-| Improvement | Configuration |
-|-------------|---------------|
-| Add tests | `/agent qa-engineer` |
-| Refactor | `/agent software-craftsman --link qa-engineer` |
-| Types/safety | Invoke `/typescript-craft` directly |
-| Performance | `/agent software-craftsman --link qa-engineer` |
+**Characteristics:**
+- Educational mode
+- Single agent or skill
+- No pressure
+- Explanations prioritized
 
 ---
 
-### Branch D: "I need to think first"
+## Step 4: Get Task Description
 
-#### D1. What do you need to figure out?
+Context-appropriate prompt:
 
+**Product Team:**
 ```
-Question: "What do you need to think through?"
-Header: "Thinking"
-Options:
-  1. "How to structure a feature"
-     Description: "Architecture, components, data flow"
-  2. "Which approach to take"
-     Description: "Comparing options, making a choice"
-  3. "Break down a big task"
-     Description: "Planning, prioritizing, splitting work"
-  4. "Best practices for my case"
-     Description: "Patterns, conventions, how-to"
+"Paste the PRD/spec or describe the feature:"
 ```
 
-#### D → Agent Configuration
-
-| Thinking | Configuration |
-|----------|---------------|
-| Structure | `/agent software-craftsman` (design mode) |
-| Which approach | `/agent software-craftsman` (analysis mode) |
-| Break down task | Start with `/agent product-owner` then suggest full loop |
-| Best practices | Suggest craft skills: `/typescript-craft`, `/react-craft`, `/test-craft` |
-
----
-
-## Step 2: Get Task Description
-
-After determining the configuration, ask for the specifics:
-
-**For building:**
+**Startup:**
 ```
-"Describe what you want to build:"
+"What are you building? (Keep it brief)"
 ```
 
-**For fixing:**
+**Freelance:**
 ```
-"Describe the problem (error message, behavior, etc.):"
-```
-
-**For improving:**
-```
-"Which files or area of the code?"
+"What do you need?"
 ```
 
-**For thinking:**
+**Learning:**
 ```
-"What's the technical challenge or question?"
+"What do you want to learn about?"
 ```
 
 ---
 
-## Step 3: Confirm and Launch
+## Step 5: Confirm and Launch
 
-Always show the plan before executing:
+Show context-appropriate summary:
+
+### Product Team Example
 
 ```markdown
-## Got it! Here's the plan:
+## Workflow for: User Authentication Feature
 
-**Your need:** Add a dark mode toggle to the app header
-**Starting point:** You know what to build, just need to code it
-**Testing:** Yes, with QA verification
+**Context:** Product Team / Enterprise
+**Input:** PRD provided
+**Domain:** Full-stack
 
-### Agents workflow:
+### Agents Pipeline:
 
-┌──────────────┐         ┌──────────────┐
-│  frontend-   │  done   │     qa-      │
-│     dev      │ ──────▶ │   engineer   │
-└──────────────┘         └──────┬───────┘
-       ▲                        │
-       │         error          │
-       └────────────────────────┘
+┌────────────────┐     ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+│   Architect    │ ──▶ │  backend-dev   │ ──▶ │  frontend-dev  │ ──▶ │  qa-engineer   │
+│                │     │                │     │                │     │                │
+│ • Tech design  │     │ • API          │     │ • UI           │     │ • Tests        │
+│ • Data model   │     │ • Auth logic   │     │ • Forms        │     │ • Verification │
+│ • Security     │     │ • Validation   │     │ • State        │     │ • Compliance   │
+└────────────────┘     └────────────────┘     └────────────────┘     └───────┬────────┘
+                                                      ▲                      │
+                                                      └──── fix & retry ─────┘
 
-1. **frontend-dev** implements the toggle
-2. **qa-engineer** writes and runs tests
-3. If errors → frontend-dev fixes → qa-engineer re-verifies
-4. Loop until all tests pass (max 3 retries)
-
-### Ready to start?
+**Output:** Tech spec → Implementation → Tested code
 ```
 
-Then launch:
+### Startup Example
+
+```markdown
+## Quick Build: Login Form
+
+**Context:** Startup / Fast iteration
+**Clarity:** Crystal clear
+**Stack:** Frontend
+
+### Agents:
+
+┌────────────────┐     ┌────────────────┐
+│  frontend-dev  │ ──▶ │  qa-engineer   │
+│                │     │                │
+│ Build it       │     │ Test it        │
+└────────────────┘     └───────┬────────┘
+        ▲                      │
+        └──── loop if needed ──┘
+
+**Time to first feedback:** Fast ⚡
 ```
-/agent frontend-dev --link qa-engineer --task "Add dark mode toggle to app header"
+
+### Freelance Example
+
+```markdown
+## Task: Add Payment Form
+
+**Context:** Freelance / Efficient
+**Stack:** Frontend
+**Testing:** Yes
+
+### Agent:
+
+frontend-dev → qa-engineer (verify)
+
+**Approach:** Direct implementation with quality check.
 ```
 
 ---
 
-## Smart Shortcuts
+## Smart Context Detection
 
-Parse the user's input to skip questions:
+If user provides hints, detect context:
 
-| Input | Detection | Skip to |
-|-------|-----------|---------|
-| `/guide add login form` | "add" = build, "form" = UI | Ask starting point + testing |
-| `/guide fix failing tests` | "fix" + "tests" = broken tests | Ask diagnosis |
-| `/guide refactor auth module` | "refactor" = improve | Confirm and launch |
-| `/guide how to design auth` | "how to" + "design" = thinking | Launch architect |
-| `/guide I have an idea for notifications` | "idea" = user need | Start from A1 with "user need" selected |
+| Signal | Detected Context |
+|--------|------------------|
+| "PRD", "Jira", "spec", "requirements doc" | Product Team |
+| "quick", "MVP", "ship it", "iterate" | Startup |
+| "client", "project", "deadline" | Freelance |
+| "learn", "try", "explore", "understand" | Learning |
+
+---
+
+## Remember Context
+
+Store context for the session:
+
+```json
+// .spectre/context.json
+{
+  "workContext": "startup",
+  "defaultStack": "frontend",
+  "preferTesting": true
+}
+```
+
+On subsequent `/guide` calls, skip Step 1 and use stored context.
+
+To change: `/guide --reset` or answer "Other" to change context.
 
 ---
 
 ## Example Conversations
 
-### Example 1: Building from a user need
+### Product Team: Building from PRD
 
 ```
 User: /guide
 
-Bot: "What's your situation?"
-     [I want to build something] [Something isn't working] [Improve code] [Think first]
+Bot: "What's your work context?"
+     [Product Team] [Startup] [Freelance] [Learning]
 
-User: [I want to build something]
+User: [Product Team / Enterprise]
 
-Bot: "Where are you starting from?"
-     [A user need or idea] [I know exactly what to build] [Just need to code it]
+Bot: "What do you want to do?"
+     [Build something new] [Fix] [Improve] [Think]
 
-User: [A user need or idea]
+User: [Build something new]
 
-Bot: "What part of the app does this touch?"
-     [User interface] [Backend / API] [Both]
+Bot: "What do you have to start with?"
+     [A PRD or feature spec] [A user story] [Just a concept]
 
-User: [User interface]
+User: [A PRD or feature spec]
 
-Bot: "Should this be tested before shipping?"
-     [Yes, with automated tests] [No, just a prototype]
+Bot: "What part of the system?"
+     [Frontend] [Backend] [Full-stack]
 
-User: [Yes, with automated tests]
+User: [Full-stack]
 
-Bot: "Describe what you want to build:"
+Bot: "Paste the PRD or describe the feature:"
 
-User: "Users should be able to reset their password via email"
-
-Bot:
-## Got it! Here's the plan:
-
-**Your need:** Password reset via email
-**Starting point:** From user need → full workflow
-**Testing:** Yes, with QA verification
-
-### Agents workflow:
-
-product-owner → software-craftsman → frontend-dev → qa-engineer
-                                           ↑              │
-                                           └──── error ───┘
-
-1. **product-owner** writes the user story & acceptance criteria
-2. **software-craftsman** designs the technical solution
-3. **frontend-dev** implements it
-4. **qa-engineer** verifies (loops if errors)
-
-Launching: /reactive-loop
-```
-
-### Example 2: Quick fix for failing tests
-
-```
-User: /guide fix tests
-
-Bot: (Detected: something broken + tests)
-     "Do you have an idea what's causing it?"
-     [Yes, I know what to fix] [I have a guess] [No clue]
-
-User: [I have a guess]
-
-Bot: "Describe the problem:"
-
-User: "Login button test fails, I think it's a selector issue"
+User: "User authentication with OAuth2, email/password, and 2FA support.
+       See PRD-2024-AUTH in Confluence."
 
 Bot:
-## Got it! Here's the plan:
+## Enterprise Workflow: Authentication System
 
-**Problem:** Login button test failing (selector issue suspected)
-**Approach:** Dev fixes → QA verifies
+**Context:** Product Team
+**Input:** PRD-2024-AUTH
+**Scope:** Full-stack
 
-### Agents workflow:
+### Pipeline:
 
-┌──────────────┐         ┌──────────────┐
-│  frontend-   │  done   │     qa-      │
-│     dev      │ ──────▶ │   engineer   │
-└──────────────┘         └──────┬───────┘
-       ▲                        │
-       └──────── error ─────────┘
+1. **software-craftsman** — Technical design & security review
+2. **backend-dev** — API, auth logic, OAuth integration
+3. **frontend-dev** — Login UI, forms, state management
+4. **qa-engineer** — Security tests, E2E, compliance
 
-Launching: /agent frontend-dev --link qa-engineer --task "Fix login button test - selector issue"
+Starting software-craftsman...
 ```
 
-### Example 3: Need to design first
+### Startup: Quick Feature
 
 ```
-User: /guide I need to plan the auth system
+User: /guide
 
-Bot: (Detected: thinking + architecture)
-     "What do you need to think through?"
-     [How to structure] [Which approach] [Break down task] [Best practices]
+Bot: "What's your work context?"
 
-User: [How to structure a feature]
+User: [Startup / Small Team]
 
-Bot: "What's the technical challenge?"
+Bot: "What do you want to do?"
 
-User: "Full auth with OAuth, magic links, and session management"
+User: [Build something new]
+
+Bot: "How clear are the requirements?"
+     [Crystal clear] [Mostly clear] [Rough idea]
+
+User: [Crystal clear — let's build]
+
+Bot: "Frontend, backend, or both?"
+
+User: [Frontend]
+
+Bot: "What are you building?"
+
+User: "Dark mode toggle"
 
 Bot:
-## Got it! Here's the plan:
+## Quick Build: Dark Mode Toggle
 
-**Challenge:** Design auth system (OAuth, magic links, sessions)
-**Approach:** Architecture design first
+frontend-dev → qa-engineer
 
-### Agent:
+Starting frontend-dev...
+```
 
-**software-craftsman** will:
-- Analyze requirements
-- Design the architecture
-- Propose component structure
-- Identify technical decisions needed
+### Freelance: Direct Task
 
-Launching: /agent software-craftsman --task "Design auth system: OAuth, magic links, session management"
+```
+User: /guide
 
-💡 After the design is ready, run `/guide` again to implement it!
+User: [Freelance / Solo]
+
+Bot: "What do you want to do?"
+
+User: [Build something new]
+
+Bot: "What are you building?"
+     [UI / Frontend] [API / Backend] [Full-stack]
+
+User: [UI / Frontend]
+
+Bot: "Testing?"
+     [Yes, with tests] [No, ship it]
+
+User: [Yes, with tests]
+
+Bot: "What do you need?"
+
+User: "Contact form with validation"
+
+Bot:
+## Task: Contact Form
+
+frontend-dev → qa-engineer
+
+Starting...
 ```
 
 ---
 
-## Pre-flight Check
+## Tone by Context
 
-Before launching any workflow, check if `.spectre/` exists:
-
-```bash
-if [[ ! -d ".spectre" ]]; then
-  # Suggest setup first
-  "The reactive system isn't set up yet. Run /setup-reactive first?"
-fi
-```
-
----
-
-## Tone
-
-- **Conversational:** Questions should feel like a helpful colleague asking
-- **Progressive:** Each question narrows down the options
-- **Visual:** Always show the agent workflow diagram before launching
-- **Transparent:** User knows exactly what will happen before it happens
+| Context | Tone |
+|---------|------|
+| Product Team | Professional, thorough, documentation-focused |
+| Startup | Energetic, fast, pragmatic |
+| Freelance | Efficient, direct, no fluff |
+| Learning | Patient, educational, encouraging |

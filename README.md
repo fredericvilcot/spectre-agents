@@ -46,91 +46,125 @@ Restart Claude Code after installation.
 /guide
 ```
 
-That's it. Spectre will ask you a few questions and launch the right agents.
+That's it. Spectre adapts to how you work.
 
 ---
 
 ## How `/guide` Works
 
-Express your need, Spectre configures the agents.
+### Step 1: Your Work Context
 
 ```
-/guide
-   │
-   ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  "What's your situation?"                                       │
+│  "What's your work context?"                                    │
 │                                                                 │
-│  [ I want to build something ]    [ Something isn't working ]   │
-│  [ I want to improve code ]       [ I need to think first ]     │
-└─────────────────────────────────────────────────────────────────┘
-                    │
-                    ▼ (if "build")
-┌─────────────────────────────────────────────────────────────────┐
-│  "Where are you starting from?"                                 │
+│  [ Product Team / Enterprise ]                                  │
+│    → Specs, process, reviews, compliance                        │
 │                                                                 │
-│  [ A user need or idea ]     → Full workflow with PO            │
-│  [ I know what to build ]    → Architect designs first          │
-│  [ Just need to code it ]    → Dev implements directly          │
-└─────────────────────────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  "What part of the app?"                                        │
+│  [ Startup / Small Team ]                                       │
+│    → Fast iterations, ship & learn                              │
 │                                                                 │
-│  [ User interface ]    [ Backend / API ]    [ Both ]            │
-└─────────────────────────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  "Should this be tested before shipping?"                       │
+│  [ Freelance / Solo ]                                           │
+│    → Efficient, minimal overhead                                │
 │                                                                 │
-│  [ Yes, with automated tests ]    [ No, just a prototype ]      │
-└─────────────────────────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  "Describe what you want to build:"                             │
-│                                                                 │
-│  > "Password reset via email"                                   │
-└─────────────────────────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  ## Got it! Here's the plan:                                    │
-│                                                                 │
-│  product-owner → software-craftsman → frontend-dev → qa         │
-│                                             ↑            │      │
-│                                             └── error ───┘      │
-│                                                                 │
-│  Agents start working...                                        │
+│  [ Learning / Exploring ]                                       │
+│    → No pressure, educational                                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### What Happens Based on Your Answers
+### Step 2: What You Want to Do
 
-| Situation | Starting Point | Testing | What Spectre Does |
-|-----------|----------------|---------|-------------------|
-| **Build** | User need/idea | Yes | PO writes spec → Architect designs → Dev builds → QA tests |
-| **Build** | Know what to build | Yes | Architect designs → Dev builds → QA tests |
-| **Build** | Just code it | Yes | Dev builds → QA tests (loops if errors) |
-| **Build** | Any | No | Single agent works, no verification |
-| **Fix** | Tests failing | — | Dev fixes → QA re-verifies → loops until green |
-| **Fix** | Build broken | — | Architect analyzes → fixes types/structure |
-| **Improve** | Add tests | — | QA writes tests |
-| **Improve** | Refactor | — | Architect refactors → QA verifies |
-| **Think** | Architecture | — | Architect analyzes and proposes design |
-
-### Smart Shortcuts
-
-Skip questions by providing context:
-
-```bash
-/guide add login form       # → build + UI flow
-/guide fix failing tests    # → fix + tests flow
-/guide refactor auth        # → improve flow
-/guide how to design auth   # → think flow
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│  "What do you want to do?"                                      │
+│                                                                 │
+│  [ Build something new ]    [ Fix something ]                   │
+│  [ Improve existing code ]  [ Think / Design ]                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Step 3: Context-Specific Questions
+
+The questions adapt to your context:
+
+| Context | Questions |
+|---------|-----------|
+| **Product Team** | "Do you have a PRD?" "What part of the system?" |
+| **Startup** | "How clear are the requirements?" "Frontend/Backend?" |
+| **Freelance** | "What stack?" "Testing?" |
+| **Learning** | "What area?" → Suggests craft skill |
+
+### Step 4: Agents Start Working
+
+Spectre shows the plan and launches the right agents:
+
+```
+## Workflow for: User Authentication
+
+Context: Product Team / Enterprise
+Input: PRD provided
+
+Pipeline:
+┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
+│ Architect  │ ─▶ │ backend-   │ ─▶ │ frontend-  │ ─▶ │    QA      │
+│            │    │    dev     │    │    dev     │    │            │
+└────────────┘    └────────────┘    └────────────┘    └─────┬──────┘
+                                          ▲                  │
+                                          └── fix & retry ───┘
+
+Starting...
+```
+
+---
+
+## Workflows by Context
+
+### 🏢 Product Team / Enterprise
+
+Full process with specs, design reviews, and compliance.
+
+| Input | Workflow |
+|-------|----------|
+| PRD / Feature Spec | `Architect → Dev → QA` |
+| User Story (needs refinement) | `PO → Architect → Dev → QA` |
+| Just a Concept | `PO (full spec) → Architect → Dev → QA` |
+
+**Always includes:** Architecture review, comprehensive testing, documentation.
+
+### 🚀 Startup / Small Team
+
+Fast iterations, ship and learn.
+
+| Clarity | Workflow |
+|---------|----------|
+| Crystal Clear | `Dev → QA` |
+| Mostly Clear | `Architect (quick) → Dev → QA` |
+| Rough Idea | `Architect → Dev → QA` |
+
+**Skips:** PO (you are the PO), heavy process.
+**Keeps:** Quality (QA always included).
+
+### 💼 Freelance / Solo
+
+Maximum efficiency, minimal overhead.
+
+| Testing | Workflow |
+|---------|----------|
+| Yes | `Dev → QA` |
+| No | `Dev` alone |
+
+**Focus:** Get it done right, fast.
+
+### 📚 Learning / Exploring
+
+Educational mode, no pressure.
+
+| Area | Suggestion |
+|------|------------|
+| Frontend/React | `/react-craft` |
+| Backend/API | Architect guidance |
+| Architecture | `software-craftsman` |
+| Testing | `/test-craft` |
 
 ---
 
@@ -159,7 +193,6 @@ What makes Spectre unique: **agents that fix their own mistakes**.
 3. **Dev fixes** the issue
 4. **QA re-verifies** automatically
 5. **Loop until success** (max 3 retries)
-6. **Learning recorded** for future reference
 
 ---
 
@@ -169,8 +202,8 @@ Specialized experts that `/guide` orchestrates for you.
 
 | Agent | Role | Expertise |
 |-------|------|-----------|
-| **software-craftsman** | 🏗️ Architect | Clean Architecture, DDD, Hexagonal, SOLID, TDD/BDD |
-| **product-owner** | 📋 Product | User stories, acceptance criteria, prioritization |
+| **software-craftsman** | 🏗️ Architect | Clean Architecture, DDD, SOLID, TDD/BDD |
+| **product-owner** | 📋 Product | User stories, acceptance criteria, PRD refinement |
 | **frontend-dev** | ⚛️ Frontend | React, accessibility, state management, testing |
 | **backend-dev** | 🔧 Backend | APIs, services, data layer, integration |
 | **qa-engineer** | 🧪 Quality | Test strategy, TDD/BDD, test pyramid, coverage |
@@ -179,7 +212,7 @@ Specialized experts that `/guide` orchestrates for you.
 
 ## Craft Skills
 
-Apply excellence to specific areas (invoked automatically by `/guide` or manually):
+Apply excellence to specific areas:
 
 | Skill | What It Does |
 |-------|--------------|
@@ -198,17 +231,17 @@ Apply excellence to specific areas (invoked automatically by `/guide` or manuall
 |-----------|---------------|
 | **Domain First** | Business logic at the center, frameworks at the periphery |
 | **Type Safety** | Types are documentation and safety net |
-| **Explicit > Implicit** | No magic, no silent failures, no guessing |
-| **Test-Driven** | Tests are specifications, not afterthoughts |
+| **Explicit > Implicit** | No magic, no silent failures |
+| **Test-Driven** | Tests are specifications |
 | **Pedagogy** | Explain the "why" before the "how" |
 
 ### 🔄 Reactive Principles
 
 | Principle | What It Means |
 |-----------|---------------|
-| **Auto-Correction** | Errors trigger fixes without human intervention |
+| **Auto-Correction** | Errors trigger fixes automatically |
 | **Shared Memory** | Agents communicate through shared state |
-| **Learning** | Every successful fix becomes a pattern |
+| **Learning** | Successful fixes become patterns |
 | **Bounded Retry** | Max 3 attempts, then ask for help |
 
 ---
