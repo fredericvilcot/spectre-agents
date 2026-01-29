@@ -1,15 +1,13 @@
 ---
 name: craft
-description: "Craft something new. Smart adaptive flow. ALL agents ALWAYS intervene: PO → Architect → Dev+QA. No shortcuts, no unnecessary questions."
+description: "Craft something. Smart professional flow: spec first, then adapt. ALL agents ALWAYS run."
 context: conversation
 allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 ---
 
-# Spectre Craft — Smart Adaptive Flow
+# Spectre Craft — Professional Flow
 
-**Two rules:**
-1. Ask only what's needed
-2. ALL agents ALWAYS run
+**Spec first. Always ask. All agents run.**
 
 ---
 
@@ -22,132 +20,226 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 │       │                                                          │
 │       ▼                                                          │
 │   ┌─────────────────────────────────────┐                       │
-│   │  AUTO-DETECT                        │                       │
-│   │  - Project exists? Stack?           │                       │
-│   │  - Patterns? (.spectre/learnings)   │                       │
+│   │  Q1: "Do you have a spec?"          │ ← FIRST QUESTION      │
 │   └─────────────────┬───────────────────┘                       │
 │                     │                                            │
 │            ┌────────┴────────┐                                  │
 │            │                 │                                  │
-│         PROJECT           EMPTY                                  │
+│           YES               NO                                   │
 │            │                 │                                  │
-│            │                 ▼                                  │
-│            │        ┌───────────────┐                           │
-│            │        │ "What stack?" │                           │
-│            │        └───────┬───────┘                           │
-│            │                │                                   │
-│            └────────┬───────┘                                   │
-│                     │                                            │
-│                     ▼                                            │
-│         ┌───────────────────────┐                               │
-│         │ "What do you want?"   │                               │
-│         └───────────┬───────────┘                               │
-│                     │                                            │
-│                     ▼                                            │
-│   ══════════════════════════════════════════════════════════    │
-│   │  MANDATORY CHAIN (NO EXCEPTIONS)                        │   │
-│   ══════════════════════════════════════════════════════════    │
-│                     │                                            │
-│                     ▼                                            │
-│              ┌──────────┐                                       │
-│              │    PO    │ → .spectre/spec.md                    │
-│              └────┬─────┘                                       │
-│                   │                                              │
-│                   ▼                                              │
-│              ┌──────────┐                                       │
-│              │ Architect│ → .spectre/design.md                  │
-│              └────┬─────┘                                       │
-│                   │                                              │
-│                   ▼                                              │
-│              ┌──────────────────┐                               │
-│              │   Dev ⇄ QA       │                               │
-│              │   (parallel)     │                               │
-│              └──────────────────┘                               │
+│            ▼                 ▼                                  │
+│   ┌────────────────┐  ┌────────────────┐                       │
+│   │ Q2: "Where?"   │  │ Q2: "What do   │                       │
+│   │ (file/Jira/URL)│  │ you want?"     │                       │
+│   └───────┬────────┘  └───────┬────────┘                       │
+│           │                   │                                  │
+│           │                   ▼                                  │
+│           │          ┌────────────────┐                         │
+│           │          │ PROJECT EXISTS?│                         │
+│           │          └───────┬────────┘                         │
+│           │                  │                                   │
+│           │         ┌────────┴────────┐                         │
+│           │         │                 │                         │
+│           │        YES               NO                          │
+│           │         │                 │                         │
+│           │         ▼                 ▼                         │
+│           │   Auto-detect      ┌────────────┐                   │
+│           │   stack            │ Q3: Stack? │                   │
+│           │         │          └─────┬──────┘                   │
+│           │         │                │                          │
+│           └─────────┴────────────────┘                          │
+│                          │                                       │
+│                          ▼                                       │
+│   ════════════════════════════════════════════════════════════  │
+│   │           MANDATORY CHAIN (ALL AGENTS)                  │   │
+│   ════════════════════════════════════════════════════════════  │
+│                          │                                       │
+│                          ▼                                       │
+│                   ┌──────────┐                                  │
+│                   │    PO    │ → .spectre/spec.md               │
+│                   └────┬─────┘   (validates or creates)         │
+│                        │                                         │
+│                        ▼                                         │
+│                   ┌──────────┐                                  │
+│                   │ Architect│ → .spectre/design.md             │
+│                   └────┬─────┘   (CRAFT tech spec)              │
+│                        │                                         │
+│                        ▼                                         │
+│                   ┌──────────────────┐                          │
+│                   │   Dev ⇄ QA       │                          │
+│                   │   (parallel)     │                          │
+│                   └──────────────────┘                          │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Step 1: Auto-Detect (No Questions)
+## Step 1: Do You Have a Spec?
 
-Silently detect:
+**ALWAYS ask this first.**
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "Do you have a spec or requirements document?",
+    header: "Spec",
+    options: [
+      { label: "Yes, I have a spec", description: "File, Jira ticket, URL, or document" },
+      { label: "No, just an idea", description: "I'll describe what I want" }
+    ]
+  }]
+)
+```
+
+---
+
+## Step 2a: If YES → Where Is the Spec?
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "Where is your spec?",
+    header: "Source",
+    options: [
+      { label: "Local file", description: "Path to .md, .yml, or .json file" },
+      { label: "Jira / Linear / GitHub", description: "Ticket URL or ID" },
+      { label: "Paste it", description: "I'll paste the content" }
+    ]
+  }]
+)
+```
+
+Then:
+- **Local file** → Ask for path, read file
+- **Jira/Linear/GitHub** → Ask for URL/ID, fetch content
+- **Paste** → Ask user to paste
+
+---
+
+## Step 2b: If NO → What Do You Want?
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "What do you want to build?",
+    header: "Goal",
+    options: [
+      { label: "New feature", description: "Build something new" },
+      { label: "Fix a bug", description: "Something is broken" },
+      { label: "Refactor", description: "Improve existing code" },
+      { label: "Other", description: "Something else" }
+    ]
+  }]
+)
+```
+
+Then ask for details (free text).
+
+---
+
+## Step 3: Stack (Only If No Project)
+
+**Auto-detect first. Ask only if empty.**
 
 ```bash
-# Project exists?
+# Check for project
 if [ -f "package.json" ]; then
-  STACK="typescript"
-  # Read package.json for framework
-fi
-
-if [ -f "go.mod" ]; then
+  # Read and detect: React? Node? Both?
+  STACK=$(detect_from_package_json)
+elif [ -f "go.mod" ]; then
   STACK="go"
+elif [ -f "Cargo.toml" ]; then
+  STACK="rust"
+else
+  # No project → must ask
+  ASK_STACK=true
 fi
-
-# Patterns learned?
-if [ -f ".spectre/learnings/patterns.json" ]; then
-  PATTERNS=$(cat .spectre/learnings/patterns.json)
-fi
 ```
 
-**No question if detectable.**
-
----
-
-## Step 2: Ask Stack (Only If Empty Project)
-
+If `ASK_STACK`:
 ```
-# ONLY if no project detected
-Question: "What stack?"
-Options:
-  1. "TypeScript + React" - Frontend
-  2. "TypeScript + Node" - Backend
-  3. "Full-stack TypeScript" - Both
-  4. "Go" - Backend
+AskUserQuestion(
+  questions: [{
+    question: "What stack are you using?",
+    header: "Stack",
+    options: [
+      { label: "TypeScript + React", description: "Frontend application" },
+      { label: "TypeScript + Node", description: "Backend API" },
+      { label: "Full-stack TypeScript", description: "Frontend + Backend" },
+      { label: "Go", description: "Backend service" }
+    ]
+  }]
+)
 ```
-
-**Skip if project exists.**
-
----
-
-## Step 3: Ask What to Build (Always)
-
-```
-Question: "What do you want to build?"
-# Free text, examples:
-# - "a pokemon list with search"
-# - "user authentication"
-# - "fix the login bug"
-# - "refactor the auth module"
-```
-
-**This is the ONLY required question.**
 
 ---
 
 ## Step 4: PO — ALWAYS RUNS
 
-Creates or validates `.spectre/spec.md`.
+### If User Provided Spec
 
 ```
 Task(
   subagent_type: "product-owner",
   prompt: """
-    USER WANTS: <user input>
-    STACK: <detected or chosen>
-    EXISTING PATTERNS: <from .spectre/learnings if any>
+    USER PROVIDED SPEC:
+    <spec content>
 
     ## Your Job
-    Create a clear, actionable spec.
+    1. VALIDATE the spec has:
+       - Clear objective
+       - Acceptance criteria (testable)
+       - Edge cases
+    2. If complete → approve and copy to .spectre/spec.md
+    3. If incomplete → complete missing parts, then save
+
+    ## Output
+    Write validated/completed spec to .spectre/spec.md
+
+    Format:
+    ```markdown
+    # Spec: [Title]
+
+    ## Objective
+    [What we're building and why]
+
+    ## Acceptance Criteria
+    - [ ] [Criterion 1]
+    - [ ] [Criterion 2]
+
+    ## Edge Cases
+    - [Case 1]
+    - [Case 2]
+
+    ## Out of Scope
+    - [What we're NOT doing]
+    ```
+  """
+)
+```
+
+### If User Gave Idea
+
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    USER WANTS: <user's description>
+    TYPE: <feature/fix/refactor>
+    STACK: <stack>
+
+    ## Your Job
+    Create a clear, professional spec.
 
     ## Output: .spectre/spec.md
 
+    Format:
     ```markdown
-    # Spec: [Feature Name]
+    # Spec: [Title]
 
-    ## User Story
-    As a [user], I want [what]
-    so that [why].
+    ## Objective
+    [What we're building and why]
 
     ## Acceptance Criteria
     - [ ] [Criterion 1 - specific, testable]
@@ -155,15 +247,14 @@ Task(
     - [ ] [Criterion 3]
 
     ## Edge Cases
-    - [Edge case 1]
-    - [Edge case 2]
+    - [Case 1]
+    - [Case 2]
 
     ## Out of Scope
     - [What we're NOT doing]
     ```
 
-    Keep it concise. Focus on WHAT, not HOW.
-    Write to .spectre/spec.md.
+    Be concise. Professional. Actionable.
   """
 )
 ```
@@ -172,62 +263,65 @@ Task(
 
 ## Step 5: Architect — ALWAYS RUNS
 
-Creates `.spectre/design.md`.
-
 ```
 Task(
   subagent_type: "architect",
   prompt: """
     SPEC: Read .spectre/spec.md
     STACK: <stack>
-    PATTERNS: <from .spectre/learnings if any>
 
     ## Your Job
-    Design the technical solution. CRAFT principles mandatory.
+    Design the CRAFT technical solution.
 
-    ## CRAFT Rules
-    - Strict TypeScript (no `any`)
+    ## CRAFT Rules (Mandatory)
+    - Strict TypeScript (no any)
     - Result<T, E> for errors (no throw)
     - Domain at center (hexagonal)
     - Tests colocated
 
     ## Output: .spectre/design.md
 
+    Format:
     ```markdown
-    # Design: [Feature Name]
+    # Design: [Title]
 
-    ## Architecture
-    [Brief approach]
+    ## Approach
+    [Brief technical approach]
 
-    ## Files to Create
-
+    ## File Structure
     ```
-    src/features/<name>/
-    ├── domain/
-    │   └── [Entity].ts
-    ├── application/
-    │   └── use[UseCase].ts
-    ├── infrastructure/
-    │   └── [Adapter].ts
-    └── ui/
-        ├── [Component].tsx
-        └── [Component].test.tsx
+    src/
+    └── features/
+        └── <feature>/
+            ├── domain/
+            │   └── [files]
+            ├── application/
+            │   └── [files]
+            ├── infrastructure/
+            │   └── [files]
+            └── ui/
+                └── [files]
     ```
 
-    ## Implementation Notes
+    ## Implementation
 
     ### [File path]
     - Purpose: ...
     - Exports: ...
     - Pattern: Result<T, E>
 
-    ## Tests (for QA)
-    - [ ] "[test description]"
-    - [ ] "[test description]"
+    ## Tests
+    - [ ] "[test 1]"
+    - [ ] "[test 2]"
+
+    ## CRAFT Checklist
+    - [ ] No any
+    - [ ] Result<T, E> for errors
+    - [ ] Domain isolated
+    - [ ] Tests colocated
     ```
 
-    Write to .spectre/design.md.
-    Dev and QA will implement this EXACTLY.
+    Dev and QA implement this EXACTLY.
   """
 )
 ```
@@ -237,21 +331,13 @@ Task(
 ## Step 6: Dev + QA — ALWAYS RUN IN PARALLEL
 
 ```
-# Ensure .spectre exists
-mkdir -p .spectre
-
-# Launch both
 Task(
-  subagent_type: "frontend-engineer",  # or backend based on stack
+  subagent_type: "frontend-engineer",  # or backend
   prompt: """
     SPEC: .spectre/spec.md
     DESIGN: .spectre/design.md
 
     Implement EXACTLY what design.md specifies.
-    - Create the exact files listed
-    - Use the exact patterns specified
-    - No improvisation
-
     CRAFT: strict TS, Result<T,E>, domain isolated.
   """
 )
@@ -262,8 +348,8 @@ Task(
     SPEC: .spectre/spec.md
     DESIGN: .spectre/design.md
 
-    Write the tests specified in design.md.
-    Run them as Dev completes files.
+    Write tests from design.md.
+    Run as Dev completes.
     Report failures to .spectre/failures.md.
   """
 )
@@ -271,76 +357,99 @@ Task(
 
 ---
 
-## Reactive Loop
+## Example: With Spec
 
 ```
-Dev completes file
-       │
-       ▼
-QA runs tests
-       │
-   ┌───┴───┐
-   │       │
-  PASS    FAIL
-   │       │
-   ▼       ▼
- Done    Dev fixes → QA re-runs
+> /craft
+
+"Do you have a spec?"
+> Yes, I have a spec
+
+"Where is your spec?"
+> Local file
+
+"File path?"
+> docs/user-auth-spec.md
+
+═══════════════════════════════════════════════════════════════
+
+👤 PO: Validating spec...
+   ✓ Objective clear
+   ✓ 5 acceptance criteria
+   ⚠️ Missing edge cases → adding
+   ✓ .spectre/spec.md ready
+
+🏗️ Architect: Designing...
+   ✓ Hexagonal architecture
+   ✓ 8 files planned
+   ✓ Result<T, E> patterns
+   ✓ .spectre/design.md ready
+
+💻 Dev + 🧪 QA: Building...
+   ✓ Domain layer
+   ✓ Application layer
+   ✓ UI components
+   ✓ 6/6 tests passing
+
+✨ Done.
 ```
 
-Max 3 retries, then escalate.
+---
+
+## Example: Without Spec
+
+```
+> /craft
+
+"Do you have a spec?"
+> No, just an idea
+
+"What do you want to build?"
+> New feature
+
+"Describe it:"
+> User authentication with email/password and OAuth
+
+🔍 Detected: TypeScript + React + Node (monorepo)
+
+═══════════════════════════════════════════════════════════════
+
+👤 PO: Creating spec...
+   ✓ Objective defined
+   ✓ 7 acceptance criteria
+   ✓ Edge cases covered
+   ✓ .spectre/spec.md ready
+
+🏗️ Architect: Designing...
+   ✓ Auth module structure
+   ✓ 12 files planned
+   ✓ Security patterns
+   ✓ .spectre/design.md ready
+
+💻 Dev + 🧪 QA: Building...
+   ✓ Implementing...
+   ✗ Test failed: OAuth callback
+   🔧 Fixing...
+   ✓ 8/8 tests passing
+
+✨ Done.
+```
 
 ---
 
 ## Summary
 
-| Question | When Asked |
-|----------|------------|
-| "What stack?" | Only if empty project |
-| "What do you want?" | Always |
+| Step | Question | When |
+|------|----------|------|
+| 1 | "Do you have a spec?" | **ALWAYS** |
+| 2a | "Where is it?" | If has spec |
+| 2b | "What do you want?" | If no spec |
+| 3 | "What stack?" | Only if no project |
 
 | Agent | Runs | Output |
 |-------|------|--------|
 | PO | **ALWAYS** | `.spectre/spec.md` |
 | Architect | **ALWAYS** | `.spectre/design.md` |
-| Dev + QA | **ALWAYS** | Implementation + Tests |
+| Dev + QA | **ALWAYS** | Implementation |
 
-**Smart. Minimal. Complete.**
-
----
-
-## Example
-
-```
-> /craft
-
-🔍 Detected: TypeScript + React (from package.json)
-📐 Patterns: Feature folders, Result types (from .spectre/learnings)
-
-"What do you want to build?"
-> a pokemon list with search
-
-═══════════════════════════════════════════════════════════════
-
-👤 PO → .spectre/spec.md
-   ✓ User story
-   ✓ 4 acceptance criteria
-   ✓ Edge cases defined
-
-🏗️ Architect → .spectre/design.md
-   ✓ 6 files planned
-   ✓ 4 tests specified
-   ✓ CRAFT patterns applied
-
-💻 Dev + 🧪 QA (parallel)
-   ✓ Pokemon.ts
-   ✓ usePokemonList.ts
-   ✓ PokemonList.tsx
-   🧪 Running tests...
-   ✓ 4/4 passing
-
-═══════════════════════════════════════════════════════════════
-
-✨ Done!
-```
-
-**One question. Full chain. Craft code.**
+**Professional. Smart. Complete.**
