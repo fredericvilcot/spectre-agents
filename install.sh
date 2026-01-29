@@ -94,13 +94,8 @@ main() {
     echo ""
     success "Installation complete!"
     echo ""
-    echo "Available agents:"
-    echo "  • software-craftsman - Expert in Clean Architecture, DDD, SOLID, TDD/BDD"
-    echo ""
-    echo "Available skills:"
-    echo "  • /typescript-craft - Apply craft principles to TypeScript"
-    echo ""
     echo "Restart Claude Code to load the new components."
+    echo "See https://github.com/fvilcot/spectre-agents for documentation."
 }
 
 main "$@"

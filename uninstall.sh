@@ -5,28 +5,43 @@ set -euo pipefail
 
 CLAUDE_DIR="$HOME/.claude"
 
-RED='\033[0;31m'
 GREEN='\033[0;32m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-info() { echo -e "→ $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
 
 echo -e "${BOLD}Spectre Agents Uninstaller${NC}"
 echo ""
 
+# Spectre agents list
+AGENTS=(
+    "software-craftsman"
+    "product-owner"
+    "frontend-dev"
+    "qa-engineer"
+)
+
+# Spectre skills list
+SKILLS=(
+    "typescript-craft"
+)
+
 # Remove agents
-if [[ -f "$CLAUDE_DIR/agents/software-craftsman.md" ]]; then
-    rm "$CLAUDE_DIR/agents/software-craftsman.md"
-    success "Removed agent: software-craftsman"
-fi
+for agent in "${AGENTS[@]}"; do
+    if [[ -f "$CLAUDE_DIR/agents/$agent.md" ]]; then
+        rm "$CLAUDE_DIR/agents/$agent.md"
+        success "Removed agent: $agent"
+    fi
+done
 
 # Remove skills
-if [[ -d "$CLAUDE_DIR/skills/typescript-craft" ]]; then
-    rm -rf "$CLAUDE_DIR/skills/typescript-craft"
-    success "Removed skill: typescript-craft"
-fi
+for skill in "${SKILLS[@]}"; do
+    if [[ -d "$CLAUDE_DIR/skills/$skill" ]]; then
+        rm -rf "$CLAUDE_DIR/skills/$skill"
+        success "Removed skill: $skill"
+    fi
+done
 
 echo ""
 success "Uninstallation complete!"
