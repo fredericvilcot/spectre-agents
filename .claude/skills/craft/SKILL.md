@@ -175,7 +175,17 @@ AskUserQuestion(
 
 ---
 
-## Step 4: PO — ALWAYS RUNS
+## Step 4: PO — ALWAYS RUNS (with User Validation)
+
+**Specs are VERSIONED. User MUST approve before Architect starts.**
+
+```
+.spectre/
+└── specs/
+    ├── spec-v1.md      # Original
+    ├── spec-v2.md      # After PO improvements (if needed)
+    └── spec-latest.md  # Approved version → goes to Architect
+```
 
 ### If User Provided Spec
 
@@ -187,39 +197,53 @@ Task(
     <spec content>
 
     ## Your Job
-    1. VALIDATE the spec has:
-       - Clear objective
-       - Acceptance criteria (testable)
-       - Edge cases
-    2. If complete → approve and copy to .spectre/spec.md
-    3. If incomplete → complete missing parts, then save
+    1. Create .spectre/specs/ folder
+    2. Save user spec as spec-v1.md
+    3. REVIEW against CRAFT checklist:
+       - [ ] User story present? (As a... I want... So that...)
+       - [ ] Acceptance criteria testable? (Given/When/Then)
+       - [ ] Edge cases covered?
+       - [ ] Error scenarios defined?
+       - [ ] Business rules explicit?
+       - [ ] Out of scope clear?
+       - [ ] NO technical details? (that's Architect's job)
+
+    4. If ALL checked → Approve v1, copy to spec-latest.md
+    5. If ANY unchecked → Create spec-v2.md with improvements
+
+    ## If Creating v2
+    Show user what's missing and propose changes:
+    - List what's missing
+    - Show the improved version
+    - ASK USER TO VALIDATE before proceeding
 
     ## Output
-    Write validated/completed spec to .spectre/spec.md
+    - .spectre/specs/spec-v1.md (original)
+    - .spectre/specs/spec-v2.md (if improvements needed)
+    - .spectre/specs/spec-latest.md (approved version)
 
-    Format:
-    ```markdown
-    # Spec: [Title]
-
-    ## Objective
-    [What we're building and why]
-
-    ## Acceptance Criteria
-    - [ ] [Criterion 1]
-    - [ ] [Criterion 2]
-
-    ## Edge Cases
-    - [Case 1]
-    - [Case 2]
-
-    ## Out of Scope
-    - [What we're NOT doing]
-    ```
+    IMPORTANT: Do NOT proceed to Architect until user approves spec-latest.md
   """
 )
 ```
 
-### If User Gave Idea
+### After PO Review → User Validation
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "PO reviewed your spec. Accept the changes?",
+    header: "Spec",
+    options: [
+      { label: "Accept v2", description: "Use PO's improved version" },
+      { label: "Keep v1", description: "Use my original spec as-is" },
+      { label: "Discuss", description: "I have questions" }
+    ]
+  }]
+)
+```
+
+### If User Gave Idea (No Spec)
 
 ```
 Task(
@@ -227,36 +251,80 @@ Task(
   prompt: """
     USER WANTS: <user's description>
     TYPE: <feature/fix/refactor>
-    STACK: <stack>
 
     ## Your Job
-    Create a clear, professional spec.
+    Create a CRAFT-compliant functional spec.
 
-    ## Output: .spectre/spec.md
+    ## IMPORTANT
+    - 100% FUNCTIONAL — no technical details
+    - No stack, no architecture, no patterns
+    - Focus on WHAT user wants, not HOW to build it
+
+    ## Output: .spectre/specs/spec-v1.md
 
     Format:
     ```markdown
     # Spec: [Title]
 
-    ## Objective
-    [What we're building and why]
+    **Version:** v1
+    **Status:** Draft
+    **Author:** PO
+    **Date:** <today>
+
+    ---
+
+    > [One-line user benefit]
+
+    ## Problem
+    [User problem we're solving]
+
+    ## User Story
+    As a [persona],
+    I want [goal],
+    So that [benefit].
 
     ## Acceptance Criteria
-    - [ ] [Criterion 1 - specific, testable]
-    - [ ] [Criterion 2]
-    - [ ] [Criterion 3]
 
-    ## Edge Cases
-    - [Case 1]
-    - [Case 2]
+    ### Happy Path
+    - [ ] Given [context], when [action], then [result]
+
+    ### Edge Cases
+    - [ ] Given [edge], when [action], then [behavior]
+
+    ### Error Cases
+    - [ ] Given [error], when [action], then [handling]
+
+    ## Business Rules
+    - [Rule 1]
 
     ## Out of Scope
     - [What we're NOT doing]
+
+    ## Success Metrics
+    - [How we measure success]
     ```
 
-    Be concise. Professional. Actionable.
+    Then ASK USER to validate before proceeding.
   """
 )
+```
+
+### User Validates Spec
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "Review the spec. Ready to proceed?",
+    header: "Validate",
+    options: [
+      { label: "Approve", description: "Spec is good, proceed to Architect" },
+      { label: "Changes needed", description: "I want to modify something" }
+    ]
+  }]
+)
+
+# If approved → copy to spec-latest.md → proceed to Architect
+# If changes needed → iterate with user
 ```
 
 ---

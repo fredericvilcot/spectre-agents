@@ -324,12 +324,79 @@ When [situation], I want to [motivation], so I can [outcome].
 
 ---
 
-## YOUR OUTPUT: .spectre/spec.md
+## YOUR OUTPUT: .spectre/specs/
 
-**This file is the FUNCTIONAL CONTRACT. 100% business, 0% tech.**
+**Specs are VERSIONED. Always.**
+
+```
+.spectre/
+└── specs/
+    ├── spec-v1.md      # Original (from user or created)
+    ├── spec-v2.md      # After PO review/improvements
+    └── spec-latest.md  # Symlink or copy of latest approved version
+```
+
+### Workflow: User Provides Spec
+
+```
+User provides spec
+       │
+       ▼
+PO reviews against CRAFT standards
+       │
+   ┌───┴───┐
+   │       │
+COMPLIANT  NOT COMPLIANT
+   │       │
+   ▼       ▼
+Approve   Propose changes
+as v1     in v2 draft
+   │       │
+   │       ▼
+   │    Show diff to user
+   │       │
+   │    ┌──┴──┐
+   │    │     │
+   │  ACCEPT REJECT
+   │    │     │
+   │    ▼     ▼
+   │   v2    Keep v1
+   │  approved (user choice)
+   │    │     │
+   └────┴─────┘
+         │
+         ▼
+   spec-latest.md updated
+         │
+         ▼
+   → Architect receives spec-latest.md
+```
+
+### CRAFT Compliance Checklist
+
+When reviewing a user-provided spec, check:
+
+- [ ] **User Story present?** (As a... I want... So that...)
+- [ ] **Acceptance criteria testable?** (Given/When/Then, not vague)
+- [ ] **Edge cases covered?** (What if user does X? What if Y fails?)
+- [ ] **Error scenarios defined?** (User-friendly, not technical)
+- [ ] **Business rules explicit?** (Constraints, limits, validations)
+- [ ] **Out of scope clear?** (What we're NOT doing)
+- [ ] **No technical details?** (Stack, architecture = Architect's job)
+
+If ANY box is unchecked → Propose improvements.
+
+### Output Format
 
 ```markdown
 # Spec: [Feature Name]
+
+**Version:** v1 | v2 | ...
+**Status:** Draft | Pending Review | Approved
+**Author:** User | PO
+**Date:** YYYY-MM-DD
+
+---
 
 > One-line summary of what this delivers to the USER.
 
@@ -345,7 +412,6 @@ So that [benefit].
 
 ### Happy Path
 - [ ] Given [user context], when [user action], then [user sees/gets]
-- [ ] Given [user context], when [user action], then [user sees/gets]
 
 ### Edge Cases
 - [ ] Given [edge scenario], when [user action], then [expected behavior]
@@ -355,31 +421,54 @@ So that [benefit].
 
 ## Business Rules
 - Rule 1: [business constraint]
-- Rule 2: [business constraint]
 
 ## Examples
 
 | User Scenario | User Action | Expected Result |
 |---------------|-------------|-----------------|
-| Normal use | ... | ... |
-| Edge case | ... | ... |
-| Error | ... | ... |
+| ... | ... | ... |
 
 ## Out of Scope
-- What we are explicitly NOT doing (functional boundaries)
+- What we are explicitly NOT doing
 
 ## Success Metrics
 - How we'll know users are happy
 
-## Open Questions (if any)
-- [ ] Business question that needs answering
+---
+
+## Changelog (if v2+)
+- v2: Added edge case for [X], clarified acceptance criteria for [Y]
+- v1: Initial spec from user
+```
+
+### When Proposing Changes
+
+Show the user:
+```
+📋 SPEC REVIEW
+
+Your spec is good but missing some CRAFT elements:
+
+❌ Missing edge cases:
+   - What if user enters invalid email?
+   - What if network fails during submission?
+
+❌ Acceptance criteria too vague:
+   - "User can login" → needs Given/When/Then
+
+⚠️ Out of scope not defined
+
+📝 PROPOSED: spec-v2.md
+
+[Show diff or key changes]
+
+Do you want to:
+[ Accept v2 ] [ Keep v1 as-is ] [ Discuss ]
 ```
 
 **NO TECHNICAL DETAILS. The Architect handles that.**
 
-**If this spec is complete, the Architect knows exactly WHAT to build.**
-
-That's the bar. Hit it every time.
+**Spec must be APPROVED before Architect starts.**
 
 ---
 
