@@ -34,8 +34,9 @@ Spectre Agents est une bibliothèque d'agents et skills pour Claude Code, orient
 │  │ • product-owner │  │ • react-craft   │  │ • shared state          │ │
 │  │ • frontend-dev  │  │ • test-craft    │  │ • auto-correction loop  │ │
 │  │ • qa-engineer   │  │ • init-frontend │  │ • learnings             │ │
-│  │ • orchestrator  │  │ • feature       │  │                         │ │
+│  │ • orchestrator  │  │ • feature       │  │ • agent links           │ │
 │  │                 │  │ • reactive-loop │  │                         │ │
+│  │                 │  │ • agent         │  │                         │ │
 │  └─────────────────┘  └─────────────────┘  └─────────────────────────┘ │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -149,6 +150,7 @@ Détails d'exécution...
 | **/init-frontend** | software-craftsman | fork | Bootstrap projet React |
 | **/feature** | software-craftsman | fork | Workflow complet PO→Arch→Dev→QA |
 | **/reactive-loop** | orchestrator | fork | Boucle réactive auto-corrective |
+| **/agent** | — | conversation | Démarre un agent avec liens réactifs optionnels |
 | **/setup-reactive** | — | conversation | Configure le système réactif |
 
 #### Context: fork vs conversation
@@ -178,12 +180,21 @@ Le cerveau du système réactif — **routage intelligent** basé sur le type d'
 ./scripts/spectre-router.sh <action> [args]
 
 Actions:
+  agent <name> [options]     # Démarre un agent avec liens réactifs
   agent-complete <agent>     # Appelé quand un agent termine
   test-result                # Analyse les résultats de tests (stdin)
   error <agent> [message]    # Enregistre une erreur
   ownership <agent> <files>  # Track qui a modifié quels fichiers
   status                     # Affiche l'état actuel
+  links                      # Affiche la configuration des liens
   init <feature> [stack]     # Initialise un workflow (frontend|backend|fullstack)
+
+Options pour 'agent':
+  --link, -l <agents>        # Agents à lier (séparés par virgule)
+  --stack, -s <stack>        # Contexte stack (frontend|backend|fullstack)
+  --task, -t <description>   # Description de la tâche
+
+Raccourcis agents: front, back, arch, qa, po
 ```
 
 **Détection des types d'erreur** :
@@ -340,6 +351,7 @@ Dans `.claude/settings.json` du projet :
 ├── events.jsonl      # Log des événements
 ├── learnings.jsonl   # Patterns appris
 ├── ownership.json    # Qui a modifié quels fichiers
+├── links.json        # Configuration des liens réactifs (/agent)
 ├── context.json      # Contexte de la feature courante
 └── trigger           # Fichier de déclenchement (transitoire)
 ```
@@ -388,6 +400,42 @@ Dans `.claude/settings.json` du projet :
 ```
 
 Le routeur utilise ownership pour router les erreurs vers l'agent qui a écrit le code.
+
+#### links.json
+
+Créé par `/agent` pour configurer les liens réactifs :
+
+```json
+{
+  "primary": "frontend-dev",
+  "links": ["qa-engineer"],
+  "stack": "frontend",
+  "task": "Build login form"
+}
+```
+
+| Champ | Description |
+|-------|-------------|
+| `primary` | Agent principal qui travaille |
+| `links` | Agents à déclencher après (chaîne réactive) |
+| `stack` | Contexte stack (frontend, backend, fullstack) |
+| `task` | Description de la tâche |
+
+**Exemple de chaîne réactive** :
+```
+primary: frontend-dev, links: [qa-engineer]
+
+frontend-dev → qa-engineer → (error?) → frontend-dev → qa-engineer → ...
+```
+
+### Mode Agent vs Mode Workflow
+
+| Aspect | `/reactive-loop` | `/agent` |
+|--------|------------------|----------|
+| Workflow | PO → Arch → Dev → QA | Agent choisi + liens |
+| Flexibilité | Fixe | Configurable |
+| Usage | Feature complète | Tâche spécifique |
+| Liens | Implicites | Explicites (--link) |
 
 ### Phases du Workflow
 
@@ -590,6 +638,7 @@ Crée :
     ├── init-frontend/SKILL.md
     ├── feature/SKILL.md
     ├── reactive-loop/SKILL.md
+    ├── agent/SKILL.md
     └── setup-reactive/SKILL.md
 
 project/
@@ -598,6 +647,7 @@ project/
 │   ├── errors.jsonl
 │   ├── events.jsonl
 │   ├── learnings.jsonl
+│   ├── links.json
 │   └── context.json
 ├── .claude/
 │   └── settings.json    # Hooks config
@@ -618,7 +668,8 @@ project/
 
 | Commande | Description |
 |----------|-------------|
-| `/reactive-loop` | Démarre la boucle réactive pour une feature |
+| `/reactive-loop` | Démarre la boucle réactive pour une feature complète |
+| `/agent <name> [options]` | Démarre un agent avec liens réactifs optionnels |
 | `/setup-reactive` | Configure le projet pour le système réactif |
 | `/feature` | Workflow linéaire (sans auto-correction) |
 | `/init-frontend` | Bootstrap un projet React craft |
@@ -635,9 +686,13 @@ project/
 # 2. Configurer le système réactif
 /setup-reactive
 
-# 3. Développer une feature avec auto-correction
+# 3a. Développer une feature complète avec auto-correction
 /reactive-loop
 > "I want to build a user login form with email and password"
+
+# 3b. Ou démarrer un agent spécifique avec liens
+/agent frontend-dev --link qa-engineer --task "Add password validation"
+/agent arch --link front,qa --task "Design auth architecture"
 
 # 4. Les agents collaborent automatiquement
 #    PO → Architect → Dev → QA → [fix loop] → Complete

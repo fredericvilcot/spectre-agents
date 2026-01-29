@@ -46,6 +46,10 @@ Restart Claude Code after installation.
 # Start a feature with the reactive loop
 /reactive-loop
 
+# Or start any agent with optional reactive links
+/agent frontend-dev --link qa-engineer
+/agent arch --link front,qa --task "Build login"
+
 # Or use individual skills
 /typescript-craft
 /react-craft
@@ -133,7 +137,35 @@ Invoke with `/skill-name` in Claude Code.
 | `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest with craft structure |
 | `/feature` | Linear workflow: PO → Architect → Dev → QA (manual progression) |
 | `/reactive-loop` | **Full reactive loop with auto-correction** |
+| `/agent` | **Start any agent with optional reactive links** |
 | `/setup-reactive` | Configure your project for the reactive system |
+
+### The `/agent` Skill — Flexible Agent Linking
+
+Start any agent and optionally connect it to others for reactive collaboration.
+
+```bash
+# Start frontend-dev alone (no reactive loop)
+/agent frontend-dev
+
+# Start frontend-dev linked to QA (reactive loop)
+/agent frontend-dev --link qa-engineer
+
+# Start architect linked to dev and QA with a task
+/agent software-craftsman --link frontend-dev,qa-engineer --task "Build authentication"
+
+# Shorthand names: front, back, arch, qa, po
+/agent arch --link front,qa
+```
+
+**Link Behaviors:**
+```
+frontend-dev → qa-engineer:
+  Dev works → QA verifies → error → Dev fixes → loop
+
+software-craftsman → frontend-dev → qa-engineer:
+  Architect designs → Dev implements → QA verifies → errors route back
+```
 
 ---
 
@@ -195,6 +227,7 @@ cd spectre-agents
     ├── init-frontend/
     ├── feature/
     ├── reactive-loop/
+    ├── agent/
     └── setup-reactive/
 ```
 

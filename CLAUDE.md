@@ -81,6 +81,7 @@ spectre-agents/
 | `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest project |
 | `/feature` | Complete workflow: PO → Architect → Dev → QA |
 | `/reactive-loop` | **Start the self-correcting agent loop** |
+| `/agent` | **Start any agent with optional reactive links** |
 | `/setup-reactive` | Configure reactive system in your project |
 
 ## Reactive System
@@ -92,7 +93,11 @@ spectre-agents/
 
 ### Usage
 ```bash
-/reactive-loop     # Start building a feature
+/reactive-loop     # Full workflow: PO → Arch → Dev → QA with auto-correction
+
+# Or start specific agents with links
+/agent frontend-dev --link qa-engineer           # Dev + QA reactive loop
+/agent arch --link front,qa --task "Build login" # Architect + Dev + QA
 ```
 
 ### How It Works
