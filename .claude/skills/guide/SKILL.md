@@ -11,150 +11,147 @@ Guide users through an intuitive flow to understand WHAT they want to build, the
 
 ## Philosophy
 
-**Don't ask technical questions. Ask about the USER'S need.**
+**Don't ask technical questions. Ask about the USER'S journey.**
 
-Bad: "Which agent do you want to use?"
-Good: "What are you trying to build?"
+Bad: "Which agent do you want?"
+Good: "Where are you starting from?"
 
 Bad: "Do you want QA verification?"
-Good: "How critical is this feature?"
+Good: "Should this be tested before shipping?"
+
+---
 
 ## The Flow
 
-### Step 1: What's the Situation?
-
-Start with a high-level question about context:
+### Step 1: What's Your Situation?
 
 ```
-Question: "What's your situation right now?"
-Header: "Context"
+Question: "What's your situation?"
+Header: "Situation"
 Options:
-  1. "I have an idea to build"
-     Description: "New feature, new component, new functionality"
-  2. "Something is broken"
-     Description: "Bug, failing tests, error to fix"
-  3. "I want to improve existing code"
-     Description: "Refactor, optimize, clean up, add tests"
-  4. "I need to think before coding"
-     Description: "Design, architecture, technical decision"
+  1. "I want to build something"
+     Description: "New feature, component, or functionality"
+  2. "Something isn't working"
+     Description: "Bug, error, failing tests"
+  3. "I want to improve code"
+     Description: "Refactor, add tests, clean up"
+  4. "I need to think first"
+     Description: "Design, architecture, planning"
 ```
 
 ---
 
-### Step 2: Branch by Situation
+### Branch A: "I want to build something"
 
-#### If "I have an idea to build"
-
-Ask about scope:
+#### A1. Where are you starting from?
 
 ```
-Question: "How big is what you want to build?"
-Header: "Scope"
+Question: "Where are you starting from?"
+Header: "Starting point"
 Options:
-  1. "A complete feature"
-     Description: "User-facing functionality with multiple components"
-  2. "A specific component or function"
-     Description: "One piece of the puzzle, focused scope"
-  3. "A quick addition"
-     Description: "Small change, minor enhancement"
+  1. "A user need or idea"
+     Description: "I have a concept but no detailed spec yet"
+  2. "I know exactly what to build"
+     Description: "Requirements are clear, ready to design & code"
+  3. "Just need to code it"
+     Description: "Design is done, I know what to implement"
 ```
 
-Then ask about domain:
+#### A2. What part of the app?
 
 ```
-Question: "What part of the app does it touch?"
+Question: "What part of the app does this touch?"
 Header: "Domain"
 Options:
   1. "User interface"
-     Description: "Components, pages, forms, interactions"
+     Description: "Components, pages, forms, visuals"
   2. "Backend / API"
-     Description: "Services, endpoints, data processing"
+     Description: "Services, endpoints, data, logic"
   3. "Both frontend and backend"
      Description: "Full-stack feature"
-  4. "Core logic / Architecture"
-     Description: "Business rules, domain model, structure"
 ```
 
-Then ask about quality needs:
+#### A3. Should it be tested?
 
 ```
-Question: "How critical is quality for this?"
-Header: "Quality"
+Question: "Should this be tested before shipping?"
+Header: "Testing"
 Options:
-  1. "Very important — needs thorough testing"
-     Description: "User-facing, payment, auth, core business"
-  2. "Normal — standard quality"
-     Description: "Regular feature, should work correctly"
-  3. "Exploratory — just trying something"
-     Description: "Prototype, spike, proof of concept"
+  1. "Yes, with automated tests (Recommended)"
+     Description: "QA agent verifies and loops until green"
+  2. "No, it's just a prototype"
+     Description: "Quick exploration, no verification needed"
 ```
 
-**Mapping:**
+#### A → Agent Configuration
 
-| Scope | Domain | Quality | Result |
-|-------|--------|---------|--------|
-| Complete feature | Any | Very important | `/reactive-loop` (full PO→Arch→Dev→QA) |
-| Complete feature | Any | Normal | `/agent software-craftsman --link <dev>,qa-engineer` |
-| Specific component | UI | Very/Normal | `/agent frontend-dev --link qa-engineer` |
-| Specific component | Backend | Very/Normal | `/agent backend-dev --link qa-engineer` |
-| Specific component | Both | Any | `/agent software-craftsman --link frontend-dev,backend-dev,qa-engineer` |
-| Specific component | Core | Any | `/agent software-craftsman --link qa-engineer` |
-| Quick addition | UI | Any | `/agent frontend-dev` (no loop, quick) |
-| Quick addition | Backend | Any | `/agent backend-dev` |
-| Any | Any | Exploratory | Agent alone, no QA link |
+| Starting point | Domain | Testing | Configuration |
+|----------------|--------|---------|---------------|
+| User need/idea | UI | Yes | `/reactive-loop` → PO → Arch → frontend-dev → QA |
+| User need/idea | Backend | Yes | `/reactive-loop` → PO → Arch → backend-dev → QA |
+| User need/idea | Fullstack | Yes | `/reactive-loop` → PO → Arch → back → front → QA |
+| User need/idea | Any | No | `/agent product-owner --link software-craftsman` |
+| Know what to build | UI | Yes | `/agent software-craftsman --link frontend-dev,qa-engineer` |
+| Know what to build | Backend | Yes | `/agent software-craftsman --link backend-dev,qa-engineer` |
+| Know what to build | Fullstack | Yes | `/agent software-craftsman --link backend-dev,frontend-dev,qa-engineer` |
+| Know what to build | Any | No | `/agent software-craftsman` |
+| Just code it | UI | Yes | `/agent frontend-dev --link qa-engineer` |
+| Just code it | Backend | Yes | `/agent backend-dev --link qa-engineer` |
+| Just code it | UI | No | `/agent frontend-dev` |
+| Just code it | Backend | No | `/agent backend-dev` |
 
 ---
 
-#### If "Something is broken"
+### Branch B: "Something isn't working"
 
-Ask what kind of problem:
+#### B1. What's the problem?
 
 ```
 Question: "What's happening?"
 Header: "Problem"
 Options:
   1. "Tests are failing"
-     Description: "Red tests, need to make them green"
+     Description: "One or more tests are red"
   2. "There's an error in the app"
-     Description: "Runtime error, crash, unexpected behavior"
-  3. "Build is broken"
-     Description: "Compilation errors, type errors, can't start"
-  4. "Something doesn't look/work right"
-     Description: "UI issue, UX problem, visual bug"
+     Description: "Crash, exception, unexpected behavior"
+  3. "Build won't compile"
+     Description: "TypeScript errors, missing imports, syntax"
+  4. "It doesn't look or behave right"
+     Description: "Visual bug, UX issue, wrong behavior"
 ```
 
-Then ask about confidence:
+#### B2. Do you know the cause?
 
 ```
-Question: "Do you know what's causing it?"
+Question: "Do you have an idea what's causing it?"
 Header: "Diagnosis"
 Options:
   1. "Yes, I know what to fix"
-     Description: "Just need help implementing the fix"
+     Description: "Just need to implement the solution"
   2. "I have a guess"
-     Description: "Need to verify and then fix"
-  3. "No idea"
+     Description: "Need to verify then fix"
+  3. "No clue"
      Description: "Need investigation first"
 ```
 
-**Mapping:**
+#### B → Agent Configuration
 
-| Problem | Diagnosis | Result |
-|---------|-----------|--------|
-| Tests failing | Know/Guess | `/agent frontend-dev --link qa-engineer` (fix + verify) |
-| Tests failing | No idea | `/agent qa-engineer --link frontend-dev` (QA investigates first) |
-| Error in app | Any | `/agent frontend-dev --link qa-engineer` with error context |
-| Build broken | Any | `/agent software-craftsman` (type/architecture issues) |
-| UI issue | Any | `/agent frontend-dev --link qa-engineer` |
+| Problem | Diagnosis | Configuration |
+|---------|-----------|---------------|
+| Tests failing | Know/Guess | `/agent frontend-dev --link qa-engineer` |
+| Tests failing | No clue | `/agent qa-engineer --link frontend-dev` (QA investigates) |
+| Error in app | Any | `/agent frontend-dev --link qa-engineer` |
+| Build won't compile | Any | `/agent software-craftsman --link qa-engineer` |
+| Visual/UX bug | Any | `/agent frontend-dev --link qa-engineer` |
 
 ---
 
-#### If "I want to improve existing code"
+### Branch C: "I want to improve code"
 
-Ask what kind of improvement:
+#### C1. What kind of improvement?
 
 ```
-Question: "What kind of improvement?"
+Question: "What do you want to improve?"
 Header: "Improvement"
 Options:
   1. "Add tests to existing code"
@@ -162,207 +159,264 @@ Options:
   2. "Refactor for clarity"
      Description: "Clean up, rename, restructure"
   3. "Improve types and safety"
-     Description: "Better TypeScript, stricter types"
-  4. "Performance optimization"
-     Description: "Make it faster, more efficient"
+     Description: "Stricter TypeScript, better type definitions"
+  4. "Optimize performance"
+     Description: "Make it faster or more efficient"
 ```
 
-**Mapping:**
+#### C → Agent Configuration
 
-| Improvement | Result |
-|-------------|--------|
-| Add tests | `/agent qa-engineer` with target files |
+| Improvement | Configuration |
+|-------------|---------------|
+| Add tests | `/agent qa-engineer` |
 | Refactor | `/agent software-craftsman --link qa-engineer` |
-| Types/safety | Use `/typescript-craft` skill directly |
+| Types/safety | Invoke `/typescript-craft` directly |
 | Performance | `/agent software-craftsman --link qa-engineer` |
 
 ---
 
-#### If "I need to think before coding"
+### Branch D: "I need to think first"
 
-Ask what needs thinking:
+#### D1. What do you need to figure out?
 
 ```
-Question: "What do you need to figure out?"
-Header: "Decision"
+Question: "What do you need to think through?"
+Header: "Thinking"
 Options:
-  1. "How to structure this feature"
+  1. "How to structure a feature"
      Description: "Architecture, components, data flow"
   2. "Which approach to take"
-     Description: "Multiple options, need to choose"
-  3. "How to break down a big task"
-     Description: "Need a plan, steps, priorities"
-  4. "Best practices for this case"
-     Description: "Patterns, conventions, standards"
+     Description: "Comparing options, making a choice"
+  3. "Break down a big task"
+     Description: "Planning, prioritizing, splitting work"
+  4. "Best practices for my case"
+     Description: "Patterns, conventions, how-to"
 ```
 
-**Mapping:**
+#### D → Agent Configuration
 
-| Decision | Result |
-|----------|--------|
+| Thinking | Configuration |
+|----------|---------------|
 | Structure | `/agent software-craftsman` (design mode) |
-| Approach | `/agent software-craftsman` (analysis mode) |
-| Break down | `/reactive-loop` starting with product-owner |
-| Best practices | Use craft skills: `/typescript-craft`, `/react-craft`, `/test-craft` |
+| Which approach | `/agent software-craftsman` (analysis mode) |
+| Break down task | Start with `/agent product-owner` then suggest full loop |
+| Best practices | Suggest craft skills: `/typescript-craft`, `/react-craft`, `/test-craft` |
 
 ---
 
-### Step 3: Get the Details
+## Step 2: Get Task Description
 
-After determining the right configuration, ask for specifics:
+After determining the configuration, ask for the specifics:
 
+**For building:**
 ```
-Question: "Describe what you want to do in a few words:"
-Header: "Task"
-Options:
-  1. (Let user type via "Other")
+"Describe what you want to build:"
 ```
 
-Or if context is clear, ask a more specific question:
+**For fixing:**
+```
+"Describe the problem (error message, behavior, etc.):"
+```
 
-- For features: "What should this feature do?"
-- For bugs: "What's the error message or behavior?"
-- For refactoring: "Which files or components?"
-- For architecture: "What's the technical challenge?"
+**For improving:**
+```
+"Which files or area of the code?"
+```
+
+**For thinking:**
+```
+"What's the technical challenge or question?"
+```
 
 ---
 
-### Step 4: Confirm and Launch
+## Step 3: Confirm and Launch
 
-Show the user what will happen:
+Always show the plan before executing:
 
 ```markdown
-## Here's what I understood:
+## Got it! Here's the plan:
 
-**Your need:** Build a login form with email/password validation
-**Approach:** Frontend implementation with QA verification
+**Your need:** Add a dark mode toggle to the app header
+**Starting point:** You know what to build, just need to code it
+**Testing:** Yes, with QA verification
 
-## The agents that will work on this:
+### Agents workflow:
 
-1. **frontend-dev** — Implements the UI
-   - React components
-   - Form handling
-   - Validation logic
+┌──────────────┐         ┌──────────────┐
+│  frontend-   │  done   │     qa-      │
+│     dev      │ ──────▶ │   engineer   │
+└──────────────┘         └──────┬───────┘
+       ▲                        │
+       │         error          │
+       └────────────────────────┘
 
-2. **qa-engineer** — Verifies the work
-   - Tests the implementation
-   - If errors → sends back to frontend-dev
-   - Loops until all tests pass
+1. **frontend-dev** implements the toggle
+2. **qa-engineer** writes and runs tests
+3. If errors → frontend-dev fixes → qa-engineer re-verifies
+4. Loop until all tests pass (max 3 retries)
 
-## Starting the workflow...
-
-`/agent frontend-dev --link qa-engineer --task "Build login form with email/password validation"`
+### Ready to start?
 ```
 
-Then actually execute the skill/command.
+Then launch:
+```
+/agent frontend-dev --link qa-engineer --task "Add dark mode toggle to app header"
+```
 
 ---
 
 ## Smart Shortcuts
 
-If the user provides context upfront, skip questions:
+Parse the user's input to skip questions:
 
-| Input | Detected | Action |
-|-------|----------|--------|
-| `/guide login form` | Feature + UI | Ask only about quality, then launch |
-| `/guide fix tests` | Broken + Tests | Ask about diagnosis, then launch |
-| `/guide refactor auth` | Improve + Refactor | Confirm scope, then launch |
-| `/guide how to structure` | Think + Architecture | Launch architect directly |
-
----
-
-## Configuration Translation Table
-
-### For Features
-
-| Quality | Stack | Chain |
-|---------|-------|-------|
-| Critical | frontend | `product-owner → software-craftsman → frontend-dev → qa-engineer` |
-| Critical | backend | `product-owner → software-craftsman → backend-dev → qa-engineer` |
-| Critical | fullstack | `product-owner → software-craftsman → backend-dev → frontend-dev → qa-engineer` |
-| Normal | frontend | `software-craftsman → frontend-dev → qa-engineer` |
-| Normal | backend | `software-craftsman → backend-dev → qa-engineer` |
-| Exploratory | any | `<dev-agent>` alone |
-
-### For Fixes
-
-| Problem | Chain |
-|---------|-------|
-| Tests failing | `frontend-dev ↔ qa-engineer` (loop) |
-| Runtime error | `frontend-dev ↔ qa-engineer` (loop) |
-| Build/Type error | `software-craftsman → qa-engineer` |
-| Investigation needed | `qa-engineer → frontend-dev → qa-engineer` |
-
-### For Improvements
-
-| Type | Chain |
-|------|-------|
-| Add tests | `qa-engineer` |
-| Refactor | `software-craftsman ↔ qa-engineer` |
-| Types | `/typescript-craft` |
-| Performance | `software-craftsman → qa-engineer` |
+| Input | Detection | Skip to |
+|-------|-----------|---------|
+| `/guide add login form` | "add" = build, "form" = UI | Ask starting point + testing |
+| `/guide fix failing tests` | "fix" + "tests" = broken tests | Ask diagnosis |
+| `/guide refactor auth module` | "refactor" = improve | Confirm and launch |
+| `/guide how to design auth` | "how to" + "design" = thinking | Launch architect |
+| `/guide I have an idea for notifications` | "idea" = user need | Start from A1 with "user need" selected |
 
 ---
 
-## Example Flows
+## Example Conversations
 
-### Example 1: "I want to add a dark mode toggle"
-
-```
-Step 1: "I have an idea to build"
-Step 2: Scope → "A specific component"
-        Domain → "User interface"
-        Quality → "Normal"
-Step 3: Task → "Dark mode toggle in the header"
-
-Result: /agent frontend-dev --link qa-engineer --task "Dark mode toggle in the header"
-```
-
-### Example 2: "The checkout is broken"
+### Example 1: Building from a user need
 
 ```
-Step 1: "Something is broken"
-Step 2: Problem → "There's an error in the app"
-        Diagnosis → "I have a guess"
-Step 3: Details → "Payment fails on submit, console shows network error"
+User: /guide
 
-Result: /agent frontend-dev --link qa-engineer --task "Fix payment submit - network error on checkout"
+Bot: "What's your situation?"
+     [I want to build something] [Something isn't working] [Improve code] [Think first]
+
+User: [I want to build something]
+
+Bot: "Where are you starting from?"
+     [A user need or idea] [I know exactly what to build] [Just need to code it]
+
+User: [A user need or idea]
+
+Bot: "What part of the app does this touch?"
+     [User interface] [Backend / API] [Both]
+
+User: [User interface]
+
+Bot: "Should this be tested before shipping?"
+     [Yes, with automated tests] [No, just a prototype]
+
+User: [Yes, with automated tests]
+
+Bot: "Describe what you want to build:"
+
+User: "Users should be able to reset their password via email"
+
+Bot:
+## Got it! Here's the plan:
+
+**Your need:** Password reset via email
+**Starting point:** From user need → full workflow
+**Testing:** Yes, with QA verification
+
+### Agents workflow:
+
+product-owner → software-craftsman → frontend-dev → qa-engineer
+                                           ↑              │
+                                           └──── error ───┘
+
+1. **product-owner** writes the user story & acceptance criteria
+2. **software-craftsman** designs the technical solution
+3. **frontend-dev** implements it
+4. **qa-engineer** verifies (loops if errors)
+
+Launching: /reactive-loop
 ```
 
-### Example 3: "I need to plan the authentication system"
+### Example 2: Quick fix for failing tests
 
 ```
-Step 1: "I need to think before coding"
-Step 2: Decision → "How to structure this feature"
-Step 3: Details → "Full auth system with OAuth, email, session management"
+User: /guide fix tests
 
-Result: /agent software-craftsman --task "Design authentication system architecture"
-        (Then suggest /reactive-loop for implementation)
+Bot: (Detected: something broken + tests)
+     "Do you have an idea what's causing it?"
+     [Yes, I know what to fix] [I have a guess] [No clue]
+
+User: [I have a guess]
+
+Bot: "Describe the problem:"
+
+User: "Login button test fails, I think it's a selector issue"
+
+Bot:
+## Got it! Here's the plan:
+
+**Problem:** Login button test failing (selector issue suspected)
+**Approach:** Dev fixes → QA verifies
+
+### Agents workflow:
+
+┌──────────────┐         ┌──────────────┐
+│  frontend-   │  done   │     qa-      │
+│     dev      │ ──────▶ │   engineer   │
+└──────────────┘         └──────┬───────┘
+       ▲                        │
+       └──────── error ─────────┘
+
+Launching: /agent frontend-dev --link qa-engineer --task "Fix login button test - selector issue"
+```
+
+### Example 3: Need to design first
+
+```
+User: /guide I need to plan the auth system
+
+Bot: (Detected: thinking + architecture)
+     "What do you need to think through?"
+     [How to structure] [Which approach] [Break down task] [Best practices]
+
+User: [How to structure a feature]
+
+Bot: "What's the technical challenge?"
+
+User: "Full auth with OAuth, magic links, and session management"
+
+Bot:
+## Got it! Here's the plan:
+
+**Challenge:** Design auth system (OAuth, magic links, sessions)
+**Approach:** Architecture design first
+
+### Agent:
+
+**software-craftsman** will:
+- Analyze requirements
+- Design the architecture
+- Propose component structure
+- Identify technical decisions needed
+
+Launching: /agent software-craftsman --task "Design auth system: OAuth, magic links, session management"
+
+💡 After the design is ready, run `/guide` again to implement it!
 ```
 
 ---
 
-## Tone Guidelines
+## Pre-flight Check
 
-- **Conversational**: "What are you trying to build?" not "Select input type"
-- **Supportive**: "Got it! Here's the plan..." not "Executing command..."
-- **Clear**: Always show what will happen before doing it
-- **Helpful**: If unsure, err on the side of more quality (add QA link)
+Before launching any workflow, check if `.spectre/` exists:
+
+```bash
+if [[ ! -d ".spectre" ]]; then
+  # Suggest setup first
+  "The reactive system isn't set up yet. Run /setup-reactive first?"
+fi
+```
 
 ---
 
-## After Launch
+## Tone
 
-Once the agents start working, remind the user:
-
-```markdown
-The agents are now working. Here's what to expect:
-
-- **frontend-dev** is implementing your feature
-- When done, **qa-engineer** will automatically verify
-- If there are errors, they'll be fixed automatically (up to 3 attempts)
-- You'll see the final result when everything passes
-
-You can check progress anytime with:
-`cat .spectre/state.json | jq .`
-```
+- **Conversational:** Questions should feel like a helpful colleague asking
+- **Progressive:** Each question narrows down the options
+- **Visual:** Always show the agent workflow diagram before launching
+- **Transparent:** User knows exactly what will happen before it happens
