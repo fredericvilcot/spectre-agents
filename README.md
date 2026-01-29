@@ -9,27 +9,80 @@
 </p>
 
 <p align="center">
-  <a href="#-three-commands-thats-it"><img src="https://img.shields.io/badge/Commands-3-success?style=flat-square" alt="3 Commands"/></a>
-  <a href="#-the-team"><img src="https://img.shields.io/badge/Agents-5-blue?style=flat-square" alt="5 Agents"/></a>
-  <a href="#-reactive-links"><img src="https://img.shields.io/badge/Reactive_Links-8-orange?style=flat-square" alt="8 Links"/></a>
-  <a href="#-philosophy"><img src="https://img.shields.io/badge/Philosophy-Craft-red?style=flat-square" alt="Craft"/></a>
+  <em>A reactive multi-agent system for <a href="https://claude.ai/code">Claude Code</a><br/>that writes clean, tested, architected code.</em>
 </p>
 
 <p align="center">
-  <em>A reactive multi-agent system for <a href="https://claude.ai/code">Claude Code</a> that adapts to how YOU work.</em>
+  <a href="#-why-spectre"><img src="https://img.shields.io/badge/Why-Spectre-blueviolet?style=flat-square" alt="Why"/></a>
+  <a href="#-philosophy"><img src="https://img.shields.io/badge/Philosophy-Craft-red?style=flat-square" alt="Craft"/></a>
+  <a href="#-craft--the-command"><img src="https://img.shields.io/badge/Command-/craft-success?style=flat-square" alt="/craft"/></a>
+  <a href="#-the-team"><img src="https://img.shields.io/badge/Agents-5-blue?style=flat-square" alt="5 Agents"/></a>
 </p>
 
 ---
 
-<h2 align="center">⚡ ONE COMMAND TO RULE THEM ALL</h2>
-
-```bash
-/craft    # 🔨 Create something new — THE main command
-```
+## 💎 WHY SPECTRE?
 
 <p align="center">
-  <strong>No configuration. No learning curve. Just results.</strong>
+  <strong>Because AI coding without craft is just fast garbage.</strong>
 </p>
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│   🤖 Other AI tools:                                                   │
+│                                                                        │
+│      You prompt → AI dumps code → You debug → You fix → You cry        │
+│                                                                        │
+│   👻 Spectre:                                                          │
+│                                                                        │
+│      You describe → Agents collaborate → Agents test →                 │
+│      Agents fix themselves → You ship                                  │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+| Problem | Other tools | Spectre |
+|:--------|:------------|:--------|
+| ❌ **AI writes garbage** | You fix it manually | 🧪 QA agent catches & fixes |
+| ❌ **No architecture** | Spaghetti code | 🏗️ Architect designs first |
+| ❌ **No tests** | "I'll add them later" | 🧪 Tests are mandatory |
+| ❌ **Context switching** | Re-explain everything | 🔗 Agents share context |
+| ❌ **One-size-fits-all** | Same prompts for everyone | 🎯 Adapts to YOUR workflow |
+
+<p align="center">
+  <strong>🎯 Spectre doesn't just write code. It crafts software.</strong>
+</p>
+
+---
+
+## 🏛️ PHILOSOPHY
+
+<p align="center">
+  <strong>Code is a craft. Not a race.</strong>
+</p>
+
+| Principle | What it means |
+|:----------|:--------------|
+| 🎯 **Domain First** | Business logic at center, frameworks at edges |
+| 🔒 **Type Safety** | Types are documentation that compiles |
+| 👁️ **Explicit > Implicit** | No magic, no surprises |
+| 🧪 **Test-Driven** | Tests are specs that run |
+| 🔄 **Self-Correcting** | Agents fix their own mistakes |
+
+---
+
+## 📦 INSTALL
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
+```
+
+**Restart Claude Code. Done.** ✅
+
+---
+
+<h2 align="center">⚡ ONE COMMAND TO RULE THEM ALL</h2>
 
 ---
 
@@ -69,80 +122,6 @@ Then describe what you want. **Spectre assembles the right team:**
 
 ---
 
-<h2 align="center">🎁 BONUS COMMANDS</h2>
-
-<p align="center">
-  <em>Because <code>/craft</code> isn't always enough...</em>
-</p>
-
----
-
-## 💊 `/heal` — Fix Everything Automatically
-
-Something broke? **Don't debug. Just heal.**
-
-```bash
-/heal           # 🔧 Fix everything
-/heal tests     # 🧪 Fix failing tests
-/heal types     # 📝 Fix TypeScript errors
-/heal spec      # 📋 Sync spec ↔ code
-```
-
-```
-> /heal
-
-🔍 Diagnosing...
-
-  ❌ 3 tests failing
-  ❌ 2 type errors
-
-🔧 Healing...
-
-  → 🏗️ software-craftsman fixed type errors
-  → 💻 frontend-dev fixed tests
-  → 🧪 qa-engineer verified
-
-✅ All systems healthy.
-```
-
----
-
-## 🧠 `/learn` — Adapt to YOUR Project
-
-**Agents learn YOUR conventions.** Not generic best practices — YOUR patterns.
-
-```bash
-# 📖 Manual mode
-/learn                       # Full analysis
-/learn --example <file>      # "THIS is my gold standard"
-
-# 🤖 Auto mode (intelligent)
-/learn --auto                # Scan with craft guard
-/learn --auto --generate     # Generate custom skills
-```
-
-```
-> /learn --auto
-
-🤖 Scanning codebase...
-
-  ✅ Architecture: Hexagonal
-  ✅ Error handling: Result<T, E>
-  ✅ Testing: Vitest + co-located
-
-  🛑 STOPPING — Craft violation detected!
-
-  📁 File: src/services/PaymentService.ts
-  ⚠️  Issue: God class (847 lines)
-  🚫 Violates: Single Responsibility
-
-  [ 🔧 Fix it ]  [ ⏭️ Ignore ]  [ 🛑 Stop ]
-```
-
-> **⚠️ Auto-learn will NEVER learn anti-patterns.** It stops and asks you first.
-
----
-
 ## 🔗 REACTIVE LINKS
 
 <p align="center">
@@ -165,27 +144,9 @@ Something broke? **Don't debug. Just heal.**
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| When... | Then... |
-|:--------|:--------|
-| 🧪 QA finds **test failure** | 💻 Dev who wrote the code fixes it |
-| 🧪 QA finds **design flaw** | 🏗️ Architect redesigns |
-| 💻 Dev is **blocked** | 🏗️ Architect adjusts |
-| 💻 Dev finds **spec gap** | 👤 PO completes |
-| 🏗️ Architect finds **contradiction** | 👤 PO decides |
-
 <p align="center">
   <strong>🎯 The right expert handles each problem. Automatically.</strong>
 </p>
-
----
-
-## 📦 INSTALL
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
-```
-
-**Restart Claude Code. Done.** ✅
 
 ---
 
@@ -202,59 +163,73 @@ curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install
 </table>
 
 <p align="center">
-  <em>You don't manage them. <code>/craft</code> and <code>/heal</code> do.</em>
+  <em>You don't manage them. <code>/craft</code> does.</em>
 </p>
 
 ---
 
-## 💎 WHY SPECTRE?
-
-<p align="center">
-  <strong>Because AI coding without craft is just fast garbage.</strong>
-</p>
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                                                                        │
-│   🤖 Other AI tools:                                                   │
-│                                                                        │
-│      You prompt → AI dumps code → You debug → You fix → You cry        │
-│                                                                        │
-│   👻 Spectre:                                                          │
-│                                                                        │
-│      You describe → Agents collaborate → Agents test →                 │
-│      Agents fix themselves → You ship                                  │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-| Problem | Other tools | Spectre |
-|:--------|:------------|:--------|
-| ❌ **AI writes garbage** | You fix it manually | 🧪 QA agent catches & fixes |
-| ❌ **No architecture** | Spaghetti code | 🏗️ Architect designs first |
-| ❌ **No tests** | "I'll add them later" | 🧪 Tests are mandatory |
-| ❌ **Context lost** | Re-explain everything | 🧠 Agents share context |
-| ❌ **One-size-fits-all** | Same prompts for everyone | 🎯 Adapts to YOUR workflow |
-
-<p align="center">
-  <strong>🎯 Spectre doesn't just write code. It crafts software.</strong>
-</p>
+<h2 align="center">🎁 BONUS COMMANDS</h2>
 
 ---
 
-## 🏛️ PHILOSOPHY
+## 💊 `/heal` — Auto-Fix Everything
 
-<p align="center">
-  <strong>Code is a craft. Not a race.</strong>
-</p>
+Something broke? **Don't debug. Just heal.**
 
-| Principle | Meaning |
-|:----------|:--------|
-| 🎯 **Domain First** | Business logic at center, frameworks at edges |
-| 🔒 **Type Safety** | Types are documentation that compiles |
-| 👁️ **Explicit > Implicit** | No magic, no surprises |
-| 🧪 **Test-Driven** | Tests are specs that run |
-| 🔄 **Self-Correcting** | Agents fix their own mistakes |
+```bash
+/heal           # 🔧 Fix everything (tests, build, types, specs)
+/heal tests     # 🧪 Fix failing tests
+/heal types     # 📝 Fix TypeScript errors
+/heal spec      # 📋 Sync spec ↔ code
+```
+
+```
+> /heal
+
+🔍 Diagnosing...
+  ❌ 3 tests failing
+  ❌ 2 type errors
+
+🔧 Healing...
+  → 🏗️ software-craftsman fixed type errors
+  → 💻 frontend-dev fixed tests
+  → 🧪 qa-engineer verified
+
+✅ All systems healthy.
+```
+
+---
+
+## 🧠 `/learn` — Adapt to YOUR Project
+
+**Agents learn YOUR conventions.** Not generic best practices — YOUR patterns.
+
+```bash
+/learn                       # 📖 Full project analysis
+/learn --example <file>      # 🌟 "THIS is my gold standard"
+/learn --auto                # 🤖 Intelligent scan with craft guard
+/learn --auto --generate     # ⚡ Generate custom skills from patterns
+```
+
+```
+> /learn --auto
+
+🤖 Scanning codebase...
+
+  ✅ Architecture: Hexagonal
+  ✅ Error handling: Result<T, E>
+  ✅ Testing: Vitest + co-located
+
+  🛑 STOPPING — Craft violation detected!
+
+  📁 File: src/services/PaymentService.ts
+  ⚠️  Issue: God class (847 lines)
+  🚫 Violates: Single Responsibility
+
+  [ 🔧 Fix it ]  [ ⏭️ Ignore ]  [ 🛑 Stop ]
+```
+
+> **⚠️ Auto-learn will NEVER learn anti-patterns.** It stops and asks you first.
 
 ---
 
@@ -286,11 +261,6 @@ BSD 3-Clause
 
 <p align="center">
   <img src="https://img.shields.io/badge/🔨_/craft-CREATE-success?style=for-the-badge&labelColor=black" alt="/craft"/>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/💊_/heal-fix-gray?style=flat-square" alt="/heal"/>
-  <img src="https://img.shields.io/badge/🧠_/learn-adapt-gray?style=flat-square" alt="/learn"/>
 </p>
 
 <p align="center">
