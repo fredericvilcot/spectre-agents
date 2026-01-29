@@ -365,7 +365,7 @@ Agents communicate through `.spectre/`:
 
 ```bash
 # One-liner install
-curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/fredericvilcot/spectre-agents/main/install.sh | bash
 
 # Restart Claude Code
 ```

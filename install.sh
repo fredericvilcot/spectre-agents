@@ -4,7 +4,7 @@ set -euo pipefail
 # Spectre Agents Installer
 # Installs craft-oriented agents and skills for Claude Code
 
-REPO_URL="https://github.com/fvilcot/spectre-agents"
+REPO_URL="https://github.com/fredericvilcot/spectre-agents"
 CLAUDE_DIR="$HOME/.claude"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -95,7 +95,7 @@ main() {
     success "Installation complete!"
     echo ""
     echo "Restart Claude Code to load the new components."
-    echo "See https://github.com/fvilcot/spectre-agents for documentation."
+    echo "See https://github.com/fredericvilcot/spectre-agents for documentation."
 }
 
 main "$@"

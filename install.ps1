@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$RepoUrl = "https://github.com/fvilcot/spectre-agents"
+$RepoUrl = "https://github.com/fredericvilcot/spectre-agents"
 $ClaudeDir = "$env:USERPROFILE\.claude"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
@@ -83,4 +83,4 @@ Write-Host ""
 Write-Success "Installation complete!"
 Write-Host ""
 Write-Host "Restart Claude Code to load the new components."
-Write-Host "See https://github.com/fvilcot/spectre-agents for documentation."
+Write-Host "See https://github.com/fredericvilcot/spectre-agents for documentation."
