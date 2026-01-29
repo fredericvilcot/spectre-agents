@@ -1,6 +1,7 @@
 ---
 name: feature
 description: "Complete feature workflow: from user story to tested implementation. Orchestrates product-owner → software-craftsman → frontend-dev → qa-engineer"
+user-invocable: false
 context: fork
 agent: software-craftsman
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Task

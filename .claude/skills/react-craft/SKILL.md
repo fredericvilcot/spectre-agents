@@ -1,6 +1,7 @@
 ---
 name: react-craft
 description: "Apply software craftsmanship principles to React code: component design, hooks, state management, accessibility, and testing"
+user-invocable: false
 context: fork
 agent: frontend-dev
 allowed-tools: Read, Grep, Glob, Edit, Write

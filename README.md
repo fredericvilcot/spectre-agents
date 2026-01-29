@@ -259,19 +259,6 @@ When violations are detected, a detailed report is generated:
 
 ---
 
-## 🎨 CRAFT SKILLS
-
-Apply craft principles to specific areas:
-
-| Skill | What it does |
-|:------|:-------------|
-| `/typescript-craft` | Strict types, Result patterns, pure functions |
-| `/react-craft` | Component design, hooks, accessibility |
-| `/test-craft` | TDD/BDD, test pyramid, proper mocks |
-| `/init-frontend` | Bootstrap React + Vite + TS + Vitest |
-
----
-
 ## 📄 LICENSE
 
 BSD 3-Clause

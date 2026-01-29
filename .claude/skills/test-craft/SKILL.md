@@ -1,6 +1,7 @@
 ---
 name: test-craft
 description: "Apply TDD/BDD testing principles: test pyramid, behavior-driven tests, proper test doubles, and maintainable test suites"
+user-invocable: false
 context: fork
 agent: qa-engineer
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash

@@ -1,6 +1,7 @@
 ---
 name: reactive-loop
 description: "Start the Spectre reactive multi-agent loop. Agents collaborate with smart routing: test failures → Dev, design flaws → Architect, spec gaps → PO. Full mesh of reactive links."
+user-invocable: false
 context: fork
 agent: orchestrator
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task

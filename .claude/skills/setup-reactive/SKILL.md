@@ -1,6 +1,7 @@
 ---
 name: setup-reactive
 description: "Set up the Spectre Reactive System in the current project. Configures hooks, shared state, and scripts for the multi-agent feedback loop"
+user-invocable: false
 context: conversation
 allowed-tools: Read, Write, Bash, Glob
 ---

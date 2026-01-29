@@ -1,6 +1,7 @@
 ---
 name: typescript-craft
 description: "Apply software craftsmanship principles to TypeScript code: type safety, functional patterns, clean architecture, and best practices"
+user-invocable: false
 context: fork
 agent: software-craftsman
 allowed-tools: Read, Grep, Glob, Edit, Write

@@ -1,6 +1,7 @@
 ---
 name: agent
 description: "Start a Spectre agent with optional reactive links. Examples: /agent frontend-dev, /agent frontend-dev --link qa-engineer, /agent software-craftsman --link frontend-dev,qa-engineer"
+user-invocable: false
 context: conversation
 allowed-tools: Read, Write, Bash, Task
 ---
