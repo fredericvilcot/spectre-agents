@@ -67,6 +67,30 @@ What's your work context?
   📚 Learning       →  One agent explains step by step
 ```
 
+**Starting from scratch?** Spectre guides you through stack selection:
+
+```
+> /craft
+
+No project detected. What stack?
+
+  ⚡ TypeScript + React    →  Vite, Vitest, TailwindCSS
+  🟢 TypeScript + Node     →  Express/Fastify, Zod
+  🐹 Go                    →  Standard lib or Gin/Echo
+  🦀 Rust                  →  Cargo, async runtime
+  🐍 Python                →  FastAPI/Django
+
+> TypeScript + React
+
+Setting up with craft defaults...
+  ✓ Strict TypeScript
+  ✓ Vitest + Testing Library
+  ✓ ESLint + Prettier
+  ✓ Path aliases configured
+
+Ready. What do you want to build?
+```
+
 Describe what you need. Spectre assembles the team:
 
 ```
@@ -136,30 +160,29 @@ Test failures go to the dev who wrote the code. Type errors go to the Architect.
 
 ## Learn
 
-> `/learn` — Adapt to YOUR codebase. Refuse anti-patterns.
+> **Active by default.** Spectre auto-detects your stack and learns your patterns.
+
+You don't need to run `/learn` — it happens automatically when you use `/craft` or `/heal`.
 
 ```bash
-/learn                  # Analyze entire project
-/learn src/features/    # Learn from specific folder
-/learn --example <file> # "This is my gold standard"
-/learn --auto           # Intelligent scan
+/learn                  # Re-learn entire project (refresh)
+/learn --only <path>    # Learn ONLY from this file/folder
+/learn --off            # Disable auto-learning
+/learn --on             # Re-enable (default)
+/learn --show           # Show current learnings
 ```
 
-Spectre learns your patterns: your architecture, your naming conventions, your error handling style, your test structure. Then it applies them consistently.
+**Works with any stack.** TypeScript, Go, Rust, Python, Java — Spectre detects it and adapts.
 
 **But it won't learn garbage.**
 
 ```
-> /learn src/services/
+> /craft "Add user service"
 
-🔍 Analyzing...
+🔍 Auto-detecting stack... Node.js + TypeScript + React
+🔍 Learning patterns...
 
 🛑 CRAFT VIOLATIONS DETECTED
-
-   src/services/PaymentService.ts
-   → God class: 847 lines, 23 methods
-   → Violates: Single Responsibility
-   → Fix: Split into focused services
 
    src/services/UserService.ts:45
    → throw new Error('User not found')
@@ -168,10 +191,10 @@ Spectre learns your patterns: your architecture, your naming conventions, your e
 
 📋 Report: .spectre/violations-report.md
 
-❌ Nothing learned. Fix violations first.
+❌ Pattern NOT learned. Fix violation first.
 ```
 
-The guard is always on. Every mode. No exceptions. We don't generate skills from code that violates craft principles.
+The guard is always on. Every stack. No exceptions.
 
 ---
 
@@ -219,7 +242,7 @@ Every problem goes to the expert who can solve it. Automatically.
                     ▼                   ▼
              ┌───────────┐       ┌───────────┐
              │  Frontend │       │  Backend  │
-             │    Dev    │       │    Dev    │
+             │  Engineer │       │  Engineer │
              └─────┬─────┘       └─────┬─────┘
                    └─────────┬─────────┘
                              ▼

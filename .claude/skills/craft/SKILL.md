@@ -18,6 +18,113 @@ Different contexts need different workflows:
 
 ---
 
+## Step 0: Auto-Detect Stack OR Guide Stack Selection
+
+**Before asking any questions**, check for existing project:
+
+### Case A: Existing Project → Auto-Detect
+
+```bash
+# Check for stack indicators
+if [ -f "package.json" ]; then
+  STACK="node"
+  grep -q "react" package.json && FRAMEWORK="react"
+  grep -q "vue" package.json && FRAMEWORK="vue"
+  [ -f "tsconfig.json" ] && LANGUAGE="typescript" || LANGUAGE="javascript"
+elif [ -f "go.mod" ]; then
+  STACK="go" && LANGUAGE="go"
+elif [ -f "Cargo.toml" ]; then
+  STACK="rust" && LANGUAGE="rust"
+elif [ -f "pyproject.toml" ]; then
+  STACK="python" && LANGUAGE="python"
+elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
+  STACK="jvm" && LANGUAGE="java"
+fi
+```
+
+### Case B: Empty/New Project → Guide Stack Selection
+
+If no stack detected, **ask the user**:
+
+```
+Question: "What stack are you building with?"
+Header: "Stack"
+Options:
+  1. "TypeScript + React"
+     Description: "Frontend with React, Vite, Vitest"
+  2. "TypeScript + Node"
+     Description: "Backend with Node.js, Express/Fastify"
+  3. "Go"
+     Description: "Backend with Go, standard library or Gin/Echo"
+  4. "Rust"
+     Description: "Systems or backend with Rust"
+  5. "Python"
+     Description: "Backend with FastAPI/Django/Flask"
+  6. "Other"
+     Description: "Specify your stack"
+```
+
+Then ask for more specifics:
+
+```
+# If TypeScript + React:
+Question: "Any preferences?"
+Header: "Setup"
+Options:
+  1. "Full setup (Recommended)"
+     Description: "Vite + Vitest + TailwindCSS + strict TS"
+  2. "Minimal"
+     Description: "Just React + TypeScript"
+  3. "With state management"
+     Description: "Add Zustand + React Query"
+```
+
+### Store Context
+
+```bash
+mkdir -p .spectre
+
+cat > .spectre/context.json << EOF
+{
+  "stack": {
+    "language": "$LANGUAGE",
+    "runtime": "$STACK",
+    "framework": "$FRAMEWORK",
+    "setup": "$SETUP"
+  },
+  "learning": {
+    "enabled": true,
+    "scope": "project"
+  },
+  "fromScratch": true,
+  "detectedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+```
+
+### Agent Skill Injection
+
+Based on stack, inject relevant knowledge into agents:
+
+| Stack | Architect Knows | Engineers Know |
+|-------|-----------------|----------------|
+| **TS + React** | React patterns, hooks, component design | JSX, Testing Library, a11y |
+| **TS + Node** | Express/Fastify patterns, middleware | API design, Zod validation |
+| **Go** | Go idioms, error handling, interfaces | Standard lib, testing |
+| **Rust** | Ownership, traits, Result/Option | Cargo, testing, async |
+| **Python** | FastAPI/Django patterns, typing | pytest, type hints |
+
+### Auto-Learn (if existing code)
+
+If `learning.enabled: true` AND project has code:
+- Scan codebase for patterns
+- Apply craft guard (stop on violations)
+- Store learnings in `.spectre/learnings/`
+
+**This happens silently** — user only sees output if violations are found or stack needs selection.
+
+---
+
 ## The Flow
 
 ### Step 1: What's Your Work Context?

@@ -9,6 +9,23 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Skill
 
 Detects what's broken and fixes it automatically. Code, tests, or specs.
 
+## Pre-flight: Auto-Detect Stack
+
+Before diagnosing, ensure stack context exists:
+
+```bash
+# If .spectre/context.json doesn't exist, detect stack first
+if [ ! -f ".spectre/context.json" ]; then
+  # Same detection logic as /craft
+  # Detect language, runtime, framework
+  # Store in .spectre/context.json
+fi
+```
+
+This ensures agents know the stack when fixing issues.
+
+---
+
 ## Usage
 
 ```bash
