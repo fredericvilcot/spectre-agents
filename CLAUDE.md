@@ -78,6 +78,7 @@ spectre-agents/
 ### Workflow Skills
 | Skill | Description |
 |-------|-------------|
+| `/guide` | **Interactive guided mode — start here if unsure** |
 | `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest project |
 | `/feature` | Complete workflow: PO → Architect → Dev → QA |
 | `/reactive-loop` | **Start the self-correcting agent loop** |

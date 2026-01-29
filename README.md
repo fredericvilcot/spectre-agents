@@ -43,6 +43,9 @@ Restart Claude Code after installation.
 ### Use
 
 ```bash
+# Don't know where to start? Use the guided mode
+/guide
+
 # Start a feature with the reactive loop
 /reactive-loop
 
@@ -134,6 +137,7 @@ Invoke with `/skill-name` in Claude Code.
 
 | Skill | What It Does |
 |-------|--------------|
+| `/guide` | **Interactive guided mode — start here if unsure** |
 | `/init-frontend` | Bootstrap React + Vite + TypeScript + Vitest with craft structure |
 | `/feature` | Linear workflow: PO → Architect → Dev → QA (manual progression) |
 | `/reactive-loop` | **Full reactive loop with auto-correction** |
@@ -228,6 +232,7 @@ cd spectre-agents
     ├── feature/
     ├── reactive-loop/
     ├── agent/
+    ├── guide/
     └── setup-reactive/
 ```
 

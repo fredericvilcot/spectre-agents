@@ -144,6 +144,7 @@ Détails d'exécution...
 
 | Skill | Agent | Context | Description |
 |-------|-------|---------|-------------|
+| **/guide** | — | conversation | Mode guidé interactif pour choisir le bon workflow |
 | **/typescript-craft** | software-craftsman | fork | Principes craft TypeScript |
 | **/react-craft** | frontend-dev | fork | Principes craft React |
 | **/test-craft** | qa-engineer | fork | TDD/BDD, test pyramid |
@@ -632,6 +633,7 @@ Crée :
 │   ├── qa-engineer.md
 │   └── orchestrator.md
 └── skills/
+    ├── guide/SKILL.md
     ├── typescript-craft/SKILL.md
     ├── react-craft/SKILL.md
     ├── test-craft/SKILL.md
@@ -668,6 +670,7 @@ project/
 
 | Commande | Description |
 |----------|-------------|
+| `/guide` | **Mode guidé interactif — commencez ici si vous ne savez pas** |
 | `/reactive-loop` | Démarre la boucle réactive pour une feature complète |
 | `/agent <name> [options]` | Démarre un agent avec liens réactifs optionnels |
 | `/setup-reactive` | Configure le projet pour le système réactif |
