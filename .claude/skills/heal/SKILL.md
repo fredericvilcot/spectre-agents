@@ -75,6 +75,10 @@ This ensures agents know the stack when fixing issues.
 /heal spec      # Fix spec/implementation mismatch
 ```
 
+> **`/heal` ≠ `npm test`**
+>
+> `/heal` relance la **boucle d'agents**. Il diagnostique, route vers le bon agent (Dev, Architect, PO), l'agent fix automatiquement, QA vérifie, et loop jusqu'à tout vert.
+
 ## What Can Be Healed
 
 ### 🔧 Code Issues
