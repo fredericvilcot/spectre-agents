@@ -1,6 +1,6 @@
 ---
 name: react-craft
-description: "Apply software craftsmanship principles to React code: component design, hooks, state management, accessibility, and testing"
+description: "Apply craftsmanship principles to React code: component design, hooks, state management, accessibility, and testing"
 user-invocable: false
 context: fork
 agent: frontend-dev
@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob, Edit, Write
 
 # React Craft Skill
 
-You are applying software craftsmanship principles to React code. Follow these guidelines rigorously.
+You are applying craftsmanship principles to React code. Follow these guidelines rigorously.
 
 ## Component Design
 

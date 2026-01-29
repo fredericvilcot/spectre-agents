@@ -3,13 +3,13 @@ name: init-frontend
 description: "Bootstrap a new frontend project with craft principles: React + Vite + TypeScript + Vitest + clean architecture"
 user-invocable: false
 context: fork
-agent: software-craftsman
+agent: architect
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Init Frontend Skill
 
-You are bootstrapping a new frontend project following software craftsmanship principles.
+You are bootstrapping a new frontend project following craftsmanship principles.
 
 ## Project Setup Checklist
 

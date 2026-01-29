@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 
 # Test Craft Skill
 
-You are applying software craftsmanship principles to testing. Follow these guidelines rigorously.
+You are applying craftsmanship principles to testing. Follow these guidelines rigorously.
 
 ## TDD Workflow
 

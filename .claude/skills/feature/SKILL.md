@@ -1,9 +1,9 @@
 ---
 name: feature
-description: "Complete feature workflow: from user story to tested implementation. Orchestrates product-owner → software-craftsman → frontend-dev → qa-engineer"
+description: "Complete feature workflow: from user story to tested implementation. Orchestrates product-owner → architect → frontend-dev → qa-engineer"
 user-invocable: false
 context: fork
-agent: software-craftsman
+agent: architect
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Task
 ---
 
@@ -303,7 +303,7 @@ When starting this workflow:
 1. **Ask the user** what feature they want to build
 2. **Phase 1**: Create the user story document (use product-owner mindset)
 3. **Review with user** before proceeding
-4. **Phase 2**: Create the technical design (use software-craftsman mindset)
+4. **Phase 2**: Create the technical design (use architect mindset)
 5. **Review with user** before proceeding
 6. **Phase 3**: Implement the feature (use frontend-dev mindset)
 7. **Phase 4**: Verify and test (use qa-engineer mindset)
@@ -316,7 +316,7 @@ At each phase transition, **pause and confirm with the user** before proceeding.
 During workflow execution, you can delegate to specialized agents:
 
 - **Discovery**: "Use the product-owner agent to refine this user story"
-- **Design**: "Use the software-craftsman agent to review this architecture"
+- **Design**: "Use the architect agent to review this architecture"
 - **Implement**: "Use the frontend-dev agent to implement this component"
 - **Verify**: "Use the qa-engineer agent to verify test coverage"
 

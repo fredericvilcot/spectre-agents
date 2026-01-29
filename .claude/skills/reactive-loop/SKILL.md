@@ -17,7 +17,7 @@ When you invoke `/reactive-loop`:
 
 1. **Initialize** — Set up `.spectre/` shared state
 2. **Define** — Product Owner creates user story
-3. **Design** — Software Craftsman designs the solution
+3. **Design** — Architect designs the solution
 4. **Implement** — Frontend Dev builds the feature
 5. **Verify** — QA Engineer runs tests
 6. **Fix Loop** — If tests fail, Dev fixes and QA re-verifies (up to 3 retries)
@@ -156,7 +156,7 @@ Fix the error and ensure tests pass.
 
 #### 6b. Design Flaws → Architect
 ```
-Use the software-craftsman agent to fix this design issue:
+Use the architect agent to fix this design issue:
 
 Problem: <DESIGN_ISSUE>
 Detection: <HOW_IT_WAS_FOUND>
@@ -200,7 +200,7 @@ Decide on the tradeoff and update the spec.
 
 #### 6f. Design Blocks → Architect
 ```
-Use the software-craftsman agent to adjust the design:
+Use the architect agent to adjust the design:
 
 Blocker: <WHAT_CANT_BE_IMPLEMENTED>
 Current Design: <DESIGN_DECISION>
@@ -218,12 +218,12 @@ Adjust the design to unblock implementation.
 │  1. Parse error message                                         │
 │  2. Detect error type:                                          │
 │     - test_failure    → Check ownership → Route to owner dev    │
-│     - type_error      → Route to software-craftsman             │
-│     - design_flaw     → Route to software-craftsman             │
+│     - type_error      → Route to architect             │
+│     - design_flaw     → Route to architect             │
 │     - spec_gap        → Route to product-owner                  │
 │     - unclear_criteria→ Route to product-owner                  │
 │     - contradiction   → Route to product-owner                  │
-│     - blocked_by_design → Route to software-craftsman           │
+│     - blocked_by_design → Route to architect           │
 │  3. Spawn agent with error context                              │
 │  4. After fix, re-verify with qa-engineer                       │
 │                                                                 │
@@ -295,7 +295,7 @@ The loop creates:
 ```
 docs/features/<feature-name>/
 ├── user-story.md        # From product-owner
-├── technical-design.md  # From software-craftsman
+├── technical-design.md  # From architect
 └── qa-report.md         # From qa-engineer
 
 .spectre/

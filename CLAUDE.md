@@ -2,11 +2,12 @@
 
 > **Stop prompting. Start crafting.**
 
-## Two Commands
+## Three Commands
 
 ```bash
-/craft    # Create something new
-/heal     # Fix what's broken
+/craft    # Build features with the right agent team
+/heal     # Auto-fix everything (tests, build, types)
+/learn    # Adapt to YOUR codebase patterns
 ```
 
 ## `/craft`
@@ -29,7 +30,7 @@ Adapts to your work context:
 
 ## `/heal`
 
-Auto-repair everything:
+Auto-repair with smart routing:
 
 ```bash
 /heal           # Fix all (tests, build, types, specs)
@@ -38,32 +39,31 @@ Auto-repair everything:
 /heal spec      # Sync spec ↔ code
 ```
 
+## `/learn`
+
+Learn YOUR patterns, refuse anti-patterns:
+
+```bash
+/learn              # Full project analysis
+/learn <file>       # Learn from specific file
+/learn --auto       # Intelligent scan (STOPS on violations)
+```
+
 ## Agents
 
 | Agent | Role |
 |-------|------|
 | **product-owner** | Specs, user stories |
-| **software-craftsman** | Architecture, design |
+| **architect** | Architecture, design, code review |
 | **frontend-dev** | UI, React, accessibility |
-| **backend-dev** | APIs, services |
+| **backend-dev** | APIs, services, security |
 | **qa-engineer** | Tests, verification |
-
-## Craft Skills
-
-```bash
-/typescript-craft    # Types, Result patterns
-/react-craft         # Components, hooks
-/test-craft          # TDD/BDD
-/init-frontend       # Bootstrap project
-```
 
 ## Philosophy
 
 - **Domain First** — Business logic at center
 - **Type Safety** — Types are documentation
-- **Explicit > Implicit** — No magic
-- **Test-Driven** — Tests are specs
-
----
-
-[Full documentation](docs/ARCHITECTURE.md)
+- **Explicit > Implicit** — No magic, Result<T, E>
+- **Test-Driven** — Tests are specs that run
+- **Self-Correcting** — Agents fix their own bugs
+- **Adaptive** — Learns YOUR patterns, guards against anti-patterns

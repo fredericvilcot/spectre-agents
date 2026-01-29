@@ -58,16 +58,16 @@ cat .spectre/context.json
 | Detection | Problem Type | Primary Agent | Fallback |
 |-----------|--------------|---------------|----------|
 | `FAIL`, `expect`, `assertion` | Test failure | Dev (owner) | stack dev |
-| `error TS`, `not assignable` | Type error | `software-craftsman` | — |
-| `Build failed`, `Module not found` | Build error | `software-craftsman` | dev |
+| `error TS`, `not assignable` | Type error | `architect` | — |
+| `Build failed`, `Module not found` | Build error | `architect` | dev |
 | `eslint`, `prettier` | Lint error | Last active dev | — |
 | Spec vs code mismatch | Spec drift | `product-owner` | — |
 | Missing acceptance criteria | Incomplete spec | `product-owner` | — |
-| Implementation gaps | Missing features | `software-craftsman` → dev | — |
-| `circular`, `race condition` | Design flaw | `software-craftsman` | — |
+| Implementation gaps | Missing features | `architect` → dev | — |
+| `circular`, `race condition` | Design flaw | `architect` | — |
 | `ambiguous`, `not specified` | Unclear criteria | `product-owner` | — |
 | `contradiction`, `impossible` | Spec contradiction | `product-owner` | — |
-| `cannot implement`, `blocked` | Design block | `software-craftsman` | — |
+| `cannot implement`, `blocked` | Design block | `architect` | — |
 | `edge case`, `not covered` | Spec gap | `product-owner` | — |
 
 ### Smart Routing Logic
@@ -435,7 +435,7 @@ Found 2 issues:
 
 🔧 Healing types first...
 
-software-craftsman is analyzing...
+architect is analyzing...
   → Fixed: Added missing type for UserResponse
 
 🔧 Healing tests...
@@ -540,9 +540,9 @@ Task tool:
 | Error Type | subagent_type | Prompt Template |
 |------------|---------------|-----------------|
 | Test failure | `frontend-dev` or `backend-dev` | "Fix failing test:\n<test output>" |
-| Type error | `software-craftsman` | "Fix TypeScript error:\n<tsc output>" |
-| Build error | `software-craftsman` | "Fix build error:\n<build output>" |
-| Design flaw | `software-craftsman` | "Redesign to fix:\n<issue description>" |
+| Type error | `architect` | "Fix TypeScript error:\n<tsc output>" |
+| Build error | `architect` | "Fix build error:\n<build output>" |
+| Design flaw | `architect` | "Redesign to fix:\n<issue description>" |
 | Spec gap | `product-owner` | "Complete spec for:\n<missing requirement>" |
 | Unclear criteria | `product-owner` | "Clarify:\n<ambiguous criterion>" |
 

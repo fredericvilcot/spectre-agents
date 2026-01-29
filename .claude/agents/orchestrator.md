@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: "Use this agent to coordinate the reactive multi-agent loop. It manages the flow between product-owner, software-craftsman, frontend-dev, and qa-engineer agents, handling errors and retries automatically. Use when starting a feature workflow or when you need agents to collaborate reactively."
+description: "Use this agent to coordinate the reactive multi-agent loop. It manages the flow between product-owner, architect, frontend-dev, and qa-engineer agents, handling errors and retries automatically. Use when starting a feature workflow or when you need agents to collaborate reactively."
 model: sonnet
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, Task
@@ -58,7 +58,7 @@ All agents communicate through `.spectre/`:
   "maxRetries": 3,
   "agents": {
     "lastActive": "frontend-dev",
-    "history": ["product-owner", "software-craftsman", "frontend-dev", "qa-engineer", "frontend-dev"]
+    "history": ["product-owner", "architect", "frontend-dev", "qa-engineer", "frontend-dev"]
   },
   "status": "in_progress"
 }
@@ -69,7 +69,7 @@ All agents communicate through `.spectre/`:
 | Phase | Agent | Output |
 |-------|-------|--------|
 | `define` | product-owner | User story with acceptance criteria |
-| `design` | software-craftsman | Technical design document |
+| `design` | architect | Technical design document |
 | `implement` | frontend-dev | Working code |
 | `verify` | qa-engineer | Test results |
 | `fix` | frontend-dev | Bug fixes |
@@ -160,9 +160,9 @@ Context from .spectre/context.json:
 <context>
 ```
 
-### To Software Craftsman
+### To Architect
 ```
-Use the software-craftsman agent to design the technical approach.
+Use the architect agent to design the technical approach.
 
 User Story:
 <story from previous phase>

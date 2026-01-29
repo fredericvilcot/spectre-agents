@@ -295,7 +295,7 @@ What's your work context?
 
 ───────────────────────────────────────────────────
 
-🏗️ software-craftsman is designing...
+🏗️ architect is designing...
 
   ✓ Component: PaymentForm (controlled, accessible)
   ✓ Validation: Zod schema with card number, expiry, CVV
@@ -392,7 +392,7 @@ Spectre doesn't just throw code at problems. It **routes each issue to the right
 
 ───────────────────────────────────────────────────
 
-🏗️ software-craftsman fixing type errors...
+🏗️ architect fixing type errors...
 
   Error: Type 'string' is not assignable to 'UserId'
   File:  src/features/auth/AuthService.ts:45
@@ -537,7 +537,7 @@ Prioritization
 </td>
 <td align="center" width="20%">
 <h3>🏗️</h3>
-<strong>Software Craftsman</strong>
+<strong>Architect</strong>
 <br/><br/>
 <sub>
 Clean Architecture<br/>

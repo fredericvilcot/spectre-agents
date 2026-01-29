@@ -1,6 +1,6 @@
 ---
 name: agent
-description: "Start a Spectre agent with optional reactive links. Examples: /agent frontend-dev, /agent frontend-dev --link qa-engineer, /agent software-craftsman --link frontend-dev,qa-engineer"
+description: "Start a Spectre agent with optional reactive links. Examples: /agent frontend-dev, /agent frontend-dev --link qa-engineer, /agent architect --link frontend-dev,qa-engineer"
 user-invocable: false
 context: conversation
 allowed-tools: Read, Write, Bash, Task
@@ -43,7 +43,7 @@ Example agent output:
 BLOCKED: Cannot implement real-time sync without WebSocket infrastructure.
 Need architectural decision on connection strategy.
 ```
-→ Automatically routes to software-craftsman
+→ Automatically routes to architect
 
 ## Examples
 
@@ -61,7 +61,7 @@ Frontend works → QA verifies → error → Frontend fixes → loop
 
 ### Start architect linked to dev and QA
 ```
-/agent software-craftsman --link frontend-dev,qa-engineer
+/agent architect --link frontend-dev,qa-engineer
 ```
 Architect designs → Frontend implements → QA verifies → errors route back
 
@@ -74,10 +74,10 @@ Architect designs → Frontend implements → QA verifies → errors route back
 
 | Agent | Role | Common Links |
 |-------|------|--------------|
-| `software-craftsman` | Architecture, design | `frontend-dev`, `backend-dev` |
-| `product-owner` | User stories | `software-craftsman` |
-| `frontend-dev` | UI implementation | `qa-engineer`, `software-craftsman` |
-| `backend-dev` | API implementation | `qa-engineer`, `software-craftsman` |
+| `architect` | Architecture, design | `frontend-dev`, `backend-dev` |
+| `product-owner` | User stories | `architect` |
+| `frontend-dev` | UI implementation | `qa-engineer`, `architect` |
+| `backend-dev` | API implementation | `qa-engineer`, `architect` |
 | `qa-engineer` | Testing, verification | `frontend-dev`, `backend-dev` |
 
 ## Reactive Links — Full Matrix
@@ -345,11 +345,11 @@ When the primary agent completes:
 ```
 → Starts frontend-dev, QA verifies after, errors loop back
 
-### `/agent frontend-dev --link qa-engineer,software-craftsman --task "Build login"`
+### `/agent frontend-dev --link qa-engineer,architect --task "Build login"`
 ```json
 {
   "primary": "frontend-dev",
-  "links": ["qa-engineer", "software-craftsman"],
+  "links": ["qa-engineer", "architect"],
   "stack": "frontend",
   "task": "Build login"
 }
@@ -364,7 +364,7 @@ For convenience, also support:
 |-----------|------------|
 | `/agent front` | `/agent frontend-dev` |
 | `/agent back` | `/agent backend-dev` |
-| `/agent arch` | `/agent software-craftsman` |
+| `/agent arch` | `/agent architect` |
 | `/agent qa` | `/agent qa-engineer` |
 | `/agent po` | `/agent product-owner` |
 

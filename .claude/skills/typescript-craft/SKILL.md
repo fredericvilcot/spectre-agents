@@ -1,15 +1,15 @@
 ---
 name: typescript-craft
-description: "Apply software craftsmanship principles to TypeScript code: type safety, functional patterns, clean architecture, and best practices"
+description: "Apply craftsmanship principles to TypeScript code: type safety, functional patterns, clean architecture, and best practices"
 user-invocable: false
 context: fork
-agent: software-craftsman
+agent: architect
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---
 
 # TypeScript Craft Skill
 
-You are applying software craftsmanship principles to TypeScript code. Follow these guidelines rigorously.
+You are applying craftsmanship principles to TypeScript code. Follow these guidelines rigorously.
 
 ## Type Safety First
 

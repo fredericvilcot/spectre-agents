@@ -174,7 +174,7 @@ Run these commands to address violations:
 /heal types
 
 # Let the architect redesign the God class
-/agent software-craftsman --task "Refactor PaymentService into focused services"
+/agent architect --task "Refactor PaymentService into focused services"
 \`\`\`
 
 ---

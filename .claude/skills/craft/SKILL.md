@@ -205,7 +205,7 @@ Options:
 |------|-------|
 | Frontend/React | `frontend-dev` (educational mode) |
 | Backend/API | `backend-dev` (educational mode) |
-| Architecture | `software-craftsman` (design mode) |
+| Architecture | `architect` (design mode) |
 | Testing | `qa-engineer` (educational mode) |
 
 **Characteristics:**
@@ -383,12 +383,12 @@ Bot:
 
 ### Pipeline:
 
-1. **software-craftsman** — Technical design & security review
+1. **architect** — Technical design & security review
 2. **backend-dev** — API, auth logic, OAuth integration
 3. **frontend-dev** — Login UI, forms, state management
 4. **qa-engineer** — Security tests, E2E, compliance
 
-Starting software-craftsman...
+Starting architect...
 ```
 
 ### Startup: Quick Feature
@@ -479,7 +479,7 @@ Use the **Task tool** with the appropriate `subagent_type`:
 
 ```
 Task tool:
-  subagent_type: "software-craftsman"
+  subagent_type: "architect"
   prompt: "Design the technical architecture for: <task>"
 ```
 
@@ -488,7 +488,7 @@ Task tool:
 | Agent | subagent_type | Use For |
 |-------|---------------|---------|
 | Product Owner | `product-owner` | User stories, specs, acceptance criteria |
-| Architect | `software-craftsman` | Architecture, design, code review |
+| Architect | `architect` | Architecture, design, code review |
 | Frontend Dev | `frontend-dev` | UI implementation, React, components |
 | Backend Dev | `backend-dev` | API implementation, services, data |
 | QA Engineer | `qa-engineer` | Tests, verification, quality |
