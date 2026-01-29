@@ -49,6 +49,9 @@ The Markdown body contains the skill's specific instructions.
 
 ### Skills
 - **typescript-craft**: Applies craft principles to TypeScript — strict typing, algebraic types, immutability, pure functions, Result types, layer separation.
+- **react-craft**: Applies craft principles to React — component design, hooks, state management, accessibility, testing.
+- **test-craft**: TDD/BDD testing principles — test pyramid, behavior-driven tests, proper test doubles.
+- **init-frontend**: Bootstraps a new frontend project with craft setup (React + Vite + TypeScript + Vitest).
 
 ## Guiding Principles
 

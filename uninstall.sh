@@ -25,6 +25,9 @@ AGENTS=(
 # Spectre skills list
 SKILLS=(
     "typescript-craft"
+    "react-craft"
+    "test-craft"
+    "init-frontend"
 )
 
 # Remove agents

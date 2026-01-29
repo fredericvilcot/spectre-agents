@@ -44,6 +44,9 @@ After installation, **restart Claude Code** to load the new components.
 | Skill | Description |
 |-------|-------------|
 | **/typescript-craft** | Applies craft principles to TypeScript: strict typing, algebraic types, immutability, pure functions, Result types, layer separation. |
+| **/react-craft** | Applies craft principles to React: component design, hooks, state management, accessibility, and testing. |
+| **/test-craft** | TDD/BDD testing principles: test pyramid, behavior-driven tests, proper test doubles, maintainable test suites. |
+| **/init-frontend** | Bootstraps a new frontend project with craft setup: React + Vite + TypeScript + Vitest + clean architecture. |
 
 ## Usage
 
