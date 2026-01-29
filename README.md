@@ -69,6 +69,11 @@
 | 👁️ **Explicit > Implicit** | No magic, no surprises |
 | 🧪 **Test-Driven** | Tests are specs that run |
 | 🔄 **Self-Correcting** | Agents fix their own mistakes |
+| 🧠 **Adaptive** | Learns YOUR patterns, not generic best practices |
+
+<p align="center">
+  <em>Spectre adapts to your codebase. It learns your architecture, your conventions,<br/>your style — and refuses to learn anti-patterns.</em>
+</p>
 
 ---
 
