@@ -202,11 +202,15 @@ Architect├──── design flaw ◀───── QA
 Agents learn YOUR conventions. Not generic best practices — YOUR patterns.
 
 ```bash
+# Manual mode
 /learn                       # Full project analysis
-/learn code                  # Learn architecture & imports
-/learn tests                 # Learn testing style
 /learn <file>                # Learn from exemplary file
 /learn --example <file>      # Mark as gold standard
+
+# Auto mode (intelligent)
+/learn --auto                # Scan & learn with craft guard
+/learn --auto --generate     # Also generate custom skills
+/learn --violations          # Show detected anti-patterns
 ```
 
 ```
@@ -234,6 +238,28 @@ Agents learn YOUR conventions. Not generic best practices — YOUR patterns.
 ```
 
 Agents will now reference YOUR gold standard files when writing similar code.
+
+**Auto-learn with Craft Guard:**
+
+```
+> /learn --auto
+
+🔍 Scanning codebase...
+
+  ✅ Architecture: Hexagonal
+  ✅ Error handling: Result<T, E>
+  ✅ Testing: Vitest + co-located
+
+  🛑 STOPPING — Craft violation detected!
+
+  File: src/services/PaymentService.ts
+  Issue: God class (847 lines)
+  Violates: Single Responsibility
+
+  [ Fix it ]  [ Ignore ]  [ Stop ]
+```
+
+**Auto-learn will NEVER learn anti-patterns.** It stops and asks you first.
 
 **Before `/learn`:**
 ```typescript

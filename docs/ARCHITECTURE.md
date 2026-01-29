@@ -341,19 +341,21 @@ Auto-apprentissage des conventions du projet. Les agents s'adaptent à VOS prati
 ##### Usage
 
 ```bash
+# Mode manuel
 /learn                       # Analyse complète du projet
-/learn code                  # Architecture & patterns de code
-/learn tests                 # Conventions de test
-/learn specs                 # Format des specs
-/learn style                 # Naming & formatting
 /learn <file>                # Apprendre d'un fichier exemplaire
-/learn <folder>              # Apprendre d'un dossier spécifique
 /learn --example <file>      # Marquer comme gold standard
 /learn --show                # Afficher les apprentissages
-/learn --reset               # Reset
+
+# Mode auto (intelligent avec garde-fou craft)
+/learn --auto                # Scan avec détection d'anti-patterns
+/learn --auto --generate     # Génère aussi des skills custom
+/learn --auto --watch        # Mode continu (re-scan sur changements)
+/learn --violations          # Voir les anti-patterns détectés
+/learn --stop                # Arrêter l'auto-learn
 ```
 
-##### Fine-Tuning
+##### Fine-Tuning (Manuel)
 
 | Scope | Confiance | Usage |
 |-------|-----------|-------|
@@ -362,12 +364,52 @@ Auto-apprentissage des conventions du projet. Les agents s'adaptent à VOS prati
 | `--example` | 0.95 | "C'est LE standard" |
 | Correction user | 0.99 | Override explicite |
 
-```bash
-# Marquer un fichier comme référence
-/learn --example src/features/auth/AuthService.ts
+##### Auto-Learn avec Craft Guard
 
-# Les agents référenceront ce fichier pour écrire des services similaires
+Le mode `--auto` est intelligent : il apprend les patterns MAIS **s'arrête immédiatement** si un anti-pattern craft est détecté.
+
+**Règles de compliance Craft :**
+
+| Principe | ✅ Compliant | ❌ Violation |
+|----------|-------------|-------------|
+| Type Safety | Strict types, Result<T,E> | `any`, type assertions |
+| Error Handling | Result types explicites | Exceptions throwées |
+| Architecture | Layers, DI, ports/adapters | God class, couplage fort |
+| SOLID | Single responsibility | Classe de 800+ lignes |
+| Immutabilité | Const, readonly, pure | Mutations partout |
+
+**Sévérité des violations :**
+
+| Sévérité | Action | Exemples |
+|----------|--------|----------|
+| 🔴 Critique | STOP immédiat | `any` partout, God class |
+| 🟠 Warning | Avertir, continuer | Exception isolée |
+| 🟡 Info | Logger | Style inconsistant |
+
+**Exemple de STOP :**
+
 ```
+🛑 CRAFT VIOLATION DETECTED
+
+File: src/services/PaymentService.ts
+Issue: God class (847 lines, 23 methods)
+Violates: Single Responsibility Principle
+
+[ Fix it ]  [ Ignore once ]  [ Stop auto-learn ]
+```
+
+##### Génération de Skills
+
+Avec `--generate`, les patterns craft-compliant deviennent des skills :
+
+```
+.spectre/generated-skills/
+├── project-service-pattern.md
+├── project-component-pattern.md
+└── index.json
+```
+
+Utilisables : `/project-service-pattern`
 
 ##### Ce qui est appris
 

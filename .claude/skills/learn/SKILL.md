@@ -1,8 +1,8 @@
 ---
 name: learn
-description: "Auto-learn project patterns. Use /learn for full project, /learn <file> for exemplary file, /learn --example <file> for gold standard."
+description: "Learn project patterns. Manual: /learn, /learn <file>. Auto: /learn --auto (stops on craft violations). Generates custom skills from your codebase."
 context: conversation
-allowed-tools: Read, Bash, Glob, Grep, Write, Task
+allowed-tools: Read, Bash, Glob, Grep, Write, Task, AskUserQuestion
 ---
 
 # Spectre Learn — Adaptive Intelligence
@@ -12,7 +12,7 @@ Analyze the project to learn its patterns. Agents then adapt their output to mat
 ## Usage
 
 ```bash
-/learn                        # Full project analysis
+/learn                        # Full project analysis (manual)
 /learn code                   # Learn architecture & code patterns
 /learn tests                  # Learn testing conventions
 /learn specs                  # Learn spec/PRD format
@@ -28,6 +28,338 @@ Analyze the project to learn its patterns. Agents then adapt their output to mat
 /learn <folder>               # Learn from a specific folder only
 /learn --from <file>          # Use this file as the reference standard
 /learn --example <file>       # "This is how I want it done"
+```
+
+---
+
+## Auto-Learn Mode (Intelligent)
+
+### Commands
+
+```bash
+/learn --auto                 # Start intelligent auto-learning
+/learn --auto --watch         # Continuous mode (re-scan on changes)
+/learn --auto --generate      # Also generate custom skills from patterns
+/learn --stop                 # Stop auto-learning
+/learn --violations           # Show detected anti-patterns
+```
+
+### How It Works
+
+Auto-learn scans the codebase and:
+1. **Detects patterns** in real-time
+2. **Evaluates against Craft principles**
+3. **Learns** craft-compliant patterns
+4. **STOPS and WARNS** on anti-patterns
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        AUTO-LEARN FLOW                                   │
+│                                                                          │
+│  Scan codebase                                                           │
+│       │                                                                  │
+│       ▼                                                                  │
+│  ┌─────────────┐                                                         │
+│  │  Detect     │                                                         │
+│  │  Pattern    │                                                         │
+│  └──────┬──────┘                                                         │
+│         │                                                                │
+│         ▼                                                                │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │                    CRAFT COMPLIANCE CHECK                         │   │
+│  │                                                                   │   │
+│  │  ✅ Clean Architecture?    ✅ Type Safety?                        │   │
+│  │  ✅ SOLID principles?      ✅ Explicit errors?                    │   │
+│  │  ✅ Domain-first?          ✅ Testable?                           │   │
+│  │                                                                   │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+│         │                                                                │
+│         ├─────────────────────────────────────────┐                      │
+│         │                                         │                      │
+│         ▼                                         ▼                      │
+│  ┌─────────────┐                          ┌─────────────┐                │
+│  │  COMPLIANT  │                          │  VIOLATION  │                │
+│  │             │                          │             │                │
+│  │  → Learn    │                          │  → STOP     │                │
+│  │  → Generate │                          │  → WARN     │                │
+│  │    skill    │                          │  → Ask user │                │
+│  └─────────────┘                          └─────────────┘                │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Craft Compliance Rules
+
+| Principle | Compliant ✅ | Violation ❌ |
+|-----------|-------------|-------------|
+| **Type Safety** | Strict types, generics, Result<T,E> | `any`, `unknown` abuse, type assertions |
+| **Error Handling** | Result types, explicit errors | Thrown exceptions, silent catches |
+| **Architecture** | Layers, ports/adapters, DI | God classes, circular deps, tight coupling |
+| **Domain First** | Business logic isolated | Framework code in domain |
+| **Immutability** | Const, readonly, pure functions | Mutations, side effects everywhere |
+| **Testing** | Testable design, DI | Untestable code, hidden deps |
+| **SOLID** | Single responsibility, DIP | God objects, concrete dependencies |
+| **Explicitness** | Named exports, clear contracts | Magic strings, implicit behavior |
+
+### Anti-Pattern Detection
+
+When auto-learn detects an anti-pattern:
+
+```
+⚠️  CRAFT VIOLATION DETECTED
+
+File: src/services/UserService.ts
+Line: 45
+
+Pattern detected: Thrown exception in business logic
+Code: throw new Error('User not found')
+
+This violates: Explicit Error Handling
+Craft approach: Use Result<User, NotFoundError>
+
+┌─────────────────────────────────────────────────────────┐
+│  What do you want to do?                                │
+│                                                         │
+│  [ Ignore this once ]     Skip, continue learning       │
+│  [ Ignore this pattern ]  Never warn about this again   │
+│  [ Stop auto-learn ]      Review codebase first         │
+│  [ Fix it ]               Let me fix this violation     │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Violation Severity
+
+| Severity | Action | Examples |
+|----------|--------|----------|
+| 🔴 **Critical** | STOP immediately | `any` everywhere, no types, God class |
+| 🟠 **Warning** | Warn, continue | Occasional throw, minor coupling |
+| 🟡 **Info** | Log, continue | Style inconsistency, missing JSDoc |
+
+### Configuration
+
+```json
+// .spectre/learn-config.json
+{
+  "autoLearn": {
+    "enabled": true,
+    "mode": "watch",
+    "generateSkills": true,
+    "strictness": "strict",  // "strict" | "moderate" | "lenient"
+    "stopOnViolation": true,
+    "ignoredPatterns": [
+      "test/**",
+      "*.spec.ts"
+    ],
+    "ignoredRules": []
+  }
+}
+```
+
+### Strictness Levels
+
+| Level | Behavior |
+|-------|----------|
+| **strict** | Stop on ANY violation, no exceptions |
+| **moderate** | Stop on critical, warn on others |
+| **lenient** | Warn only, never stop (not recommended) |
+
+---
+
+## Skill Generation
+
+When `--generate` is enabled, auto-learn creates custom skills from detected patterns.
+
+### Example: Detected Pattern → Generated Skill
+
+**Detected:**
+```
+Pattern: All services use constructor DI with interfaces
+Confidence: 0.95
+Files: 12 services follow this pattern
+```
+
+**Generated Skill:**
+
+```markdown
+# .spectre/skills/project-service-pattern/SKILL.md
+
+---
+name: project-service-pattern
+description: "Create a service following this project's DI pattern"
+generated: true
+source: auto-learn
+confidence: 0.95
+---
+
+# Service Pattern (Auto-Generated)
+
+When creating a service in this project, follow this pattern:
+
+## Structure
+
+\`\`\`typescript
+interface IUserRepository {
+  findById(id: string): Promise<Result<User, NotFoundError>>
+}
+
+class UserService {
+  constructor(
+    private readonly userRepo: IUserRepository,
+    private readonly logger: ILogger
+  ) {}
+
+  async getUser(id: string): Promise<Result<User, NotFoundError>> {
+    return this.userRepo.findById(id)
+  }
+}
+\`\`\`
+
+## Rules
+- Constructor injection only
+- Depend on interfaces, not implementations
+- Return Result types, never throw
+- Private readonly for all dependencies
+```
+
+### Generated Skills Location
+
+```
+.spectre/
+└── generated-skills/
+    ├── project-service-pattern.md
+    ├── project-component-pattern.md
+    ├── project-test-pattern.md
+    └── index.json  # Registry of generated skills
+```
+
+### Using Generated Skills
+
+Generated skills are automatically available:
+
+```bash
+/project-service-pattern    # Use the learned pattern
+/project-component-pattern  # Use learned component structure
+```
+
+---
+
+## Auto-Learn Output
+
+### Starting Auto-Learn
+
+```
+> /learn --auto
+
+🤖 Starting intelligent auto-learn...
+
+Configuration:
+  Mode: scan-once
+  Strictness: strict
+  Generate skills: yes
+  Stop on violation: yes
+
+🔍 Scanning codebase...
+
+  Analyzing src/... (47 files)
+  Analyzing tests/... (23 files)
+  Analyzing docs/... (5 files)
+```
+
+### Learning Progress
+
+```
+📚 Learning patterns...
+
+  ✅ Architecture: Hexagonal (ports/adapters)
+  ✅ Error handling: Result<T, E> pattern
+  ✅ DI: Constructor injection with interfaces
+  ✅ Testing: Co-located, describe/it, MSW
+  ✅ Exports: Named exports, barrel files
+
+  ⚠️  Warning: Found 2 files with `any` type
+      → src/legacy/oldService.ts:12
+      → src/utils/helpers.ts:45
+```
+
+### Violation Stop
+
+```
+🛑 STOPPING AUTO-LEARN
+
+Critical violation detected:
+
+  File: src/services/PaymentService.ts
+  Issue: God class (847 lines, 23 methods)
+
+  This violates: Single Responsibility Principle
+
+  Recommendations:
+  1. Split into PaymentProcessor, PaymentValidator, PaymentNotifier
+  2. Extract domain logic to Payment entity
+  3. Use command pattern for operations
+
+What do you want to do?
+  [ Fix it ]  [ Ignore once ]  [ Ignore pattern ]  [ Stop ]
+```
+
+### Successful Completion
+
+```
+✅ Auto-learn complete!
+
+Learned:
+  • 12 code patterns
+  • 5 test patterns
+  • 3 spec conventions
+
+Generated skills:
+  • /project-service-pattern
+  • /project-component-pattern
+  • /project-hook-pattern
+
+Warnings (non-blocking):
+  • 2 files with `any` type (legacy)
+
+Violations: 0 critical, 2 warnings
+
+💾 Saved to .spectre/learnings/
+```
+
+---
+
+## Violations Report
+
+```bash
+/learn --violations
+```
+
+Shows all detected anti-patterns:
+
+```
+📋 Craft Violations Report
+
+🔴 Critical (0)
+   None! 🎉
+
+🟠 Warnings (3)
+   1. src/legacy/oldService.ts:12
+      Type: `any` usage
+      Suggestion: Add proper typing or use `unknown`
+
+   2. src/utils/helpers.ts:45
+      Type: `any` usage
+      Suggestion: Add proper typing
+
+   3. src/api/client.ts:78
+      Type: Thrown exception
+      Suggestion: Use Result type
+
+🟡 Info (5)
+   • 3 files missing JSDoc on public methods
+   • 2 files with inconsistent naming
+
+Run `/heal types` to auto-fix type issues.
+Run `/heal` to fix all fixable violations.
 ```
 
 ### Examples
