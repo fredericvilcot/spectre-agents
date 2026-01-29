@@ -52,6 +52,7 @@ The Markdown body contains the skill's specific instructions.
 - **react-craft**: Applies craft principles to React — component design, hooks, state management, accessibility, testing.
 - **test-craft**: TDD/BDD testing principles — test pyramid, behavior-driven tests, proper test doubles.
 - **init-frontend**: Bootstraps a new frontend project with craft setup (React + Vite + TypeScript + Vitest).
+- **feature**: Complete feature workflow orchestrating PO → Architect → Dev → QA with artifacts at each phase.
 
 ## Guiding Principles
 

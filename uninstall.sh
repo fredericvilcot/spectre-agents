@@ -28,6 +28,7 @@ SKILLS=(
     "react-craft"
     "test-craft"
     "init-frontend"
+    "feature"
 )
 
 # Remove agents

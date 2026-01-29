@@ -47,6 +47,7 @@ After installation, **restart Claude Code** to load the new components.
 | **/react-craft** | Applies craft principles to React: component design, hooks, state management, accessibility, and testing. |
 | **/test-craft** | TDD/BDD testing principles: test pyramid, behavior-driven tests, proper test doubles, maintainable test suites. |
 | **/init-frontend** | Bootstraps a new frontend project with craft setup: React + Vite + TypeScript + Vitest + clean architecture. |
+| **/feature** | Complete feature workflow: PO → Architect → Dev → QA. Creates user story, technical design, implementation, and QA verification. |
 
 ## Usage
 
