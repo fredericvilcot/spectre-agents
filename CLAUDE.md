@@ -1,120 +1,69 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> **Stop prompting. Start crafting.**
 
-## Project Overview
-
-**Spectre Agents** is a reactive multi-agent system for Claude Code, built on Software Craftsmanship principles.
-
-> **Code is a craft. Agents perfect it together.**
-
-## Usage
-
-### Two Commands
+## Two Commands
 
 ```bash
-/craft    # Build something — adapts to your context
-/heal     # Fix something — auto-repair
+/craft    # Create something new
+/heal     # Fix what's broken
 ```
 
-### `/heal` — Auto-Repair
+## `/craft`
 
-```bash
-/heal           # Detect and fix everything (code + specs)
-/heal tests     # Fix failing tests
-/heal build     # Fix build errors
-/heal types     # Fix TypeScript errors
-/heal spec      # Fix spec/implementation mismatch
-```
-
-- **Code:** Diagnoses → Fixes → Verifies → Loops until healed
-- **Specs:** Compares spec vs code → Syncs or updates
-
-### `/craft` — Guided Build
-
-Spectre adapts to your work context and configures the right agents.
-
-### The Flow
+Adapts to your work context:
 
 ```
 /craft
-   │
-   ├─→ "What's your work context?"
-   │      [ Product Team ]  → Full process, specs, compliance
-   │      [ Startup ]       → Fast iterations, ship & learn
-   │      [ Freelance ]     → Efficient, minimal overhead
-   │      [ Learning ]      → Educational, no pressure
-   │
-   ├─→ "What do you want to do?"
-   │      [ Build ] [ Fix ] [ Improve ] [ Think ]
-   │
-   ├─→ Context-specific questions...
-   │
-   └─→ Agents start working
+  → Context? [ Product Team | Startup | Freelance | Learning ]
+  → What do you need?
+  → Agents assemble and work
 ```
 
-### Workflows by Context
+| Context | Workflow |
+|---------|----------|
+| Product Team | `PO → Architect → Dev → QA` |
+| Startup | `Architect → Dev → QA` |
+| Freelance | `Dev → QA` |
+| Learning | Single agent, educational |
 
-| Context | Build Workflow |
-|---------|----------------|
-| **Product Team** | `PO → Architect → Dev → QA` (full spec, reviews) |
-| **Startup** | `Dev → QA` or `Architect → Dev → QA` (fast, quality) |
-| **Freelance** | `Dev` or `Dev → QA` (efficient) |
-| **Learning** | Single agent or craft skill (educational) |
+## `/heal`
 
-## Core Philosophy
+Auto-repair everything:
 
-### 🛠️ CRAFT
-
-| Principle | Meaning |
-|-----------|---------|
-| **Domain First** | Business logic at the center |
-| **Type Safety** | Types as safety net and documentation |
-| **Explicit > Implicit** | No silent exceptions, no magic |
-| **Test-Driven** | Tests are executable specifications |
-| **Pedagogy** | Explain the "why" before the "how" |
-
-### 🔄 REACTIVE
-
-```
-QA finds error ──▶ Dev fixes ──▶ QA verifies
-      ▲                              │
-      └──────────── retry ◀──────────┘
-
-Agents collaborate. Errors trigger fixes. Automatically.
+```bash
+/heal           # Fix all (tests, build, types, specs)
+/heal tests     # Fix tests only
+/heal types     # Fix TypeScript errors
+/heal spec      # Sync spec ↔ code
 ```
 
 ## Agents
 
-| Agent | Role | Expertise |
-|-------|------|-----------|
-| **software-craftsman** | Architect | Clean Architecture, DDD, SOLID, TDD/BDD |
-| **product-owner** | Product | User stories, acceptance criteria |
-| **frontend-dev** | Frontend | React, accessibility, testing |
-| **backend-dev** | Backend | APIs, services, data layer |
-| **qa-engineer** | Quality | Test strategy, TDD/BDD |
+| Agent | Role |
+|-------|------|
+| **product-owner** | Specs, user stories |
+| **software-craftsman** | Architecture, design |
+| **frontend-dev** | UI, React, accessibility |
+| **backend-dev** | APIs, services |
+| **qa-engineer** | Tests, verification |
 
 ## Craft Skills
 
-| Skill | Description |
-|-------|-------------|
-| `/typescript-craft` | Strict typing, algebraic types, pure functions |
-| `/react-craft` | Component design, hooks, accessibility |
-| `/test-craft` | TDD/BDD, test pyramid |
-| `/init-frontend` | Bootstrap React + Vite + TypeScript project |
-
-## Structure
-
+```bash
+/typescript-craft    # Types, Result patterns
+/react-craft         # Components, hooks
+/test-craft          # TDD/BDD
+/init-frontend       # Bootstrap project
 ```
-spectre-agents/
-├── .claude/
-│   ├── agents/           # Agent definitions
-│   └── skills/           # Skill definitions
-├── scripts/              # Reactive system hooks
-└── docs/
-    └── ARCHITECTURE.md   # Full technical documentation
-```
+
+## Philosophy
+
+- **Domain First** — Business logic at center
+- **Type Safety** — Types are documentation
+- **Explicit > Implicit** — No magic
+- **Test-Driven** — Tests are specs
 
 ---
 
-**Full documentation**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+[Full documentation](docs/ARCHITECTURE.md)
