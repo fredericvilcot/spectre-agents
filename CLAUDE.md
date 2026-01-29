@@ -55,8 +55,8 @@ Learn YOUR patterns, refuse anti-patterns:
 |-------|------|
 | **product-owner** | Specs, user stories |
 | **architect** | Architecture, design, code review |
-| **frontend-dev** | UI, React, accessibility |
-| **backend-dev** | APIs, services, security |
+| **frontend-engineer** | UI, React, accessibility |
+| **backend-engineer** | APIs, services, security |
 | **qa-engineer** | Tests, verification |
 
 ## Philosophy

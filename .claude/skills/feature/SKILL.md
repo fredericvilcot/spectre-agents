@@ -1,6 +1,6 @@
 ---
 name: feature
-description: "Complete feature workflow: from user story to tested implementation. Orchestrates product-owner → architect → frontend-dev → qa-engineer"
+description: "Complete feature workflow: from user story to tested implementation. Orchestrates product-owner → architect → frontend-engineer → qa-engineer"
 user-invocable: false
 context: fork
 agent: architect
@@ -305,7 +305,7 @@ When starting this workflow:
 3. **Review with user** before proceeding
 4. **Phase 2**: Create the technical design (use architect mindset)
 5. **Review with user** before proceeding
-6. **Phase 3**: Implement the feature (use frontend-dev mindset)
+6. **Phase 3**: Implement the feature (use frontend-engineer mindset)
 7. **Phase 4**: Verify and test (use qa-engineer mindset)
 8. **Final review** with user
 
@@ -317,7 +317,7 @@ During workflow execution, you can delegate to specialized agents:
 
 - **Discovery**: "Use the product-owner agent to refine this user story"
 - **Design**: "Use the architect agent to review this architecture"
-- **Implement**: "Use the frontend-dev agent to implement this component"
+- **Implement**: "Use the frontend-engineer agent to implement this component"
 - **Verify**: "Use the qa-engineer agent to verify test coverage"
 
 ## Artifacts Location

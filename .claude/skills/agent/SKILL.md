@@ -1,6 +1,6 @@
 ---
 name: agent
-description: "Start a Spectre agent with optional reactive links. Examples: /agent frontend-dev, /agent frontend-dev --link qa-engineer, /agent architect --link frontend-dev,qa-engineer"
+description: "Start a Spectre agent with optional reactive links. Examples: /agent frontend-engineer, /agent frontend-engineer --link qa-engineer, /agent architect --link frontend-engineer,qa-engineer"
 user-invocable: false
 context: conversation
 allowed-tools: Read, Write, Bash, Task
@@ -20,7 +20,7 @@ Start any Spectre agent with optional reactive connections to other agents.
 
 | Argument | Description | Example |
 |----------|-------------|---------|
-| `<agent-name>` | Agent to start | `frontend-dev`, `qa-engineer` |
+| `<agent-name>` | Agent to start | `frontend-engineer`, `qa-engineer` |
 | `--link <agents>` | Agents to link reactively (comma-separated) | `--link qa-engineer` |
 | `--stack <stack>` | Stack context | `--stack frontend` |
 | `--task <desc>` | Task description | `--task "Build login form"` |
@@ -47,38 +47,38 @@ Need architectural decision on connection strategy.
 
 ## Examples
 
-### Start frontend-dev alone
+### Start frontend-engineer alone
 ```
-/agent frontend-dev
+/agent frontend-engineer
 ```
 Agent works, no reactive loop.
 
-### Start frontend-dev linked to QA
+### Start frontend-engineer linked to QA
 ```
-/agent frontend-dev --link qa-engineer
+/agent frontend-engineer --link qa-engineer
 ```
 Frontend works → QA verifies → error → Frontend fixes → loop
 
 ### Start architect linked to dev and QA
 ```
-/agent architect --link frontend-dev,qa-engineer
+/agent architect --link frontend-engineer,qa-engineer
 ```
 Architect designs → Frontend implements → QA verifies → errors route back
 
 ### Start with task description
 ```
-/agent frontend-dev --link qa-engineer --task "Build user authentication form"
+/agent frontend-engineer --link qa-engineer --task "Build user authentication form"
 ```
 
 ## Available Agents
 
 | Agent | Role | Common Links |
 |-------|------|--------------|
-| `architect` | Architecture, design | `frontend-dev`, `backend-dev` |
+| `architect` | Architecture, design | `frontend-engineer`, `backend-engineer` |
 | `product-owner` | User stories | `architect` |
-| `frontend-dev` | UI implementation | `qa-engineer`, `architect` |
-| `backend-dev` | API implementation | `qa-engineer`, `architect` |
-| `qa-engineer` | Testing, verification | `frontend-dev`, `backend-dev` |
+| `frontend-engineer` | UI implementation | `qa-engineer`, `architect` |
+| `backend-engineer` | API implementation | `qa-engineer`, `architect` |
+| `qa-engineer` | Testing, verification | `frontend-engineer`, `backend-engineer` |
 
 ## Reactive Links — Full Matrix
 
@@ -323,38 +323,38 @@ When the primary agent completes:
 
 ## Examples of Parsed Commands
 
-### `/agent frontend-dev`
+### `/agent frontend-engineer`
 ```json
 {
-  "primary": "frontend-dev",
+  "primary": "frontend-engineer",
   "links": [],
   "stack": "frontend",
   "task": null
 }
 ```
-→ Starts frontend-dev alone, no reactive loop
+→ Starts frontend-engineer alone, no reactive loop
 
-### `/agent frontend-dev --link qa-engineer`
+### `/agent frontend-engineer --link qa-engineer`
 ```json
 {
-  "primary": "frontend-dev",
+  "primary": "frontend-engineer",
   "links": ["qa-engineer"],
   "stack": "frontend",
   "task": null
 }
 ```
-→ Starts frontend-dev, QA verifies after, errors loop back
+→ Starts frontend-engineer, QA verifies after, errors loop back
 
-### `/agent frontend-dev --link qa-engineer,architect --task "Build login"`
+### `/agent frontend-engineer --link qa-engineer,architect --task "Build login"`
 ```json
 {
-  "primary": "frontend-dev",
+  "primary": "frontend-engineer",
   "links": ["qa-engineer", "architect"],
   "stack": "frontend",
   "task": "Build login"
 }
 ```
-→ Starts frontend-dev with full context, linked to both QA and architect
+→ Starts frontend-engineer with full context, linked to both QA and architect
 
 ## Shorthand Commands
 
@@ -362,8 +362,8 @@ For convenience, also support:
 
 | Shorthand | Equivalent |
 |-----------|------------|
-| `/agent front` | `/agent frontend-dev` |
-| `/agent back` | `/agent backend-dev` |
+| `/agent front` | `/agent frontend-engineer` |
+| `/agent back` | `/agent backend-engineer` |
 | `/agent arch` | `/agent architect` |
 | `/agent qa` | `/agent qa-engineer` |
 | `/agent po` | `/agent product-owner` |

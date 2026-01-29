@@ -72,14 +72,14 @@ Describe what you need. Spectre assembles the team:
 ```
 > "User authentication with OAuth and magic links"
 
-Assembling: Architect → Frontend Dev → QA Engineer
+Assembling: Architect → Frontend Engineer → QA Engineer
 
 🏗️ Architect designing auth flow...
    ✓ OAuth2 + PKCE for security
    ✓ Magic link with short-lived tokens
    ✓ Session management strategy
 
-💻 Frontend Dev implementing...
+💻 Frontend Engineer implementing...
    ✓ Type-safe auth context
    ✓ Protected route wrapper
    ✓ Login/callback components
@@ -120,7 +120,7 @@ Spectre doesn't just throw code at problems. It routes each issue to the right e
    → Missing branded type at API boundary
    ✓ Fixed
 
-💻 Frontend Dev fixing tests...
+💻 Frontend Engineer fixing tests...
    → Error state not announced to screen readers
    ✓ Fixed
 
@@ -183,9 +183,9 @@ Six specialists. Each with deep expertise. Working together.
 
 **🏗️ Architect** — Designs systems that scale. Clean Architecture. Domain-Driven Design. SOLID principles. Code review with teeth.
 
-**💻 Frontend Dev** — Builds interfaces users love. Accessible. Performant. Type-safe. Components that compose well.
+**💻 Frontend Engineer** — Builds interfaces users love. Accessible. Performant. Type-safe. Components that compose well.
 
-**⚙️ Backend Dev** — APIs that are secure and fast. Explicit error handling. Proper validation. No `any`, no shortcuts.
+**⚙️ Backend Engineer** — APIs that are secure and fast. Explicit error handling. Proper validation. No `any`, no shortcuts.
 
 **🧪 QA Engineer** — Tests that prove it works. TDD/BDD. Meaningful coverage. Catches bugs before you do.
 

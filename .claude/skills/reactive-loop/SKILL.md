@@ -18,7 +18,7 @@ When you invoke `/reactive-loop`:
 1. **Initialize** — Set up `.spectre/` shared state
 2. **Define** — Product Owner creates user story
 3. **Design** — Architect designs the solution
-4. **Implement** — Frontend Dev builds the feature
+4. **Implement** — Frontend Engineer builds the feature
 5. **Verify** — QA Engineer runs tests
 6. **Fix Loop** — If tests fail, Dev fixes and QA re-verifies (up to 3 retries)
 7. **Complete** — Feature delivered with all tests passing
@@ -135,7 +135,7 @@ Keep the user informed:
 
 ```
 [SPECTRE] Phase: implement (2/5)
-[SPECTRE] Agent: frontend-dev
+[SPECTRE] Agent: frontend-engineer
 [SPECTRE] Status: Implementing feature...
 ```
 

@@ -154,9 +154,9 @@ Options:
 
 | Input | Domain | Agents Chain |
 |-------|--------|--------------|
-| PRD/Spec | Frontend | `Architect → frontend-dev → QA` |
-| PRD/Spec | Backend | `Architect → backend-dev → QA` |
-| PRD/Spec | Full-stack | `Architect → backend-dev → frontend-dev → QA` |
+| PRD/Spec | Frontend | `Architect → frontend-engineer → QA` |
+| PRD/Spec | Backend | `Architect → backend-engineer → QA` |
+| PRD/Spec | Full-stack | `Architect → backend-engineer → frontend-engineer → QA` |
 | User story/Brief | Any | `PO (refine) → Architect → Dev → QA` |
 | Just a concept | Any | `PO (full spec) → Architect → Dev → QA` |
 
@@ -170,9 +170,9 @@ Options:
 
 | Clarity | Stack | Agents Chain |
 |---------|-------|--------------|
-| Crystal clear | Frontend | `frontend-dev → QA` |
-| Crystal clear | Backend | `backend-dev → QA` |
-| Crystal clear | Full-stack | `backend-dev → frontend-dev → QA` |
+| Crystal clear | Frontend | `frontend-engineer → QA` |
+| Crystal clear | Backend | `backend-engineer → QA` |
+| Crystal clear | Full-stack | `backend-engineer → frontend-engineer → QA` |
 | Mostly clear | Any | `Architect (quick) → Dev → QA` |
 | Rough idea | Any | `Architect → Dev → QA` |
 
@@ -186,12 +186,12 @@ Options:
 
 | Stack | Testing | Agents Chain |
 |-------|---------|--------------|
-| Frontend | Yes | `frontend-dev → QA` |
-| Frontend | No | `frontend-dev` |
-| Backend | Yes | `backend-dev → QA` |
-| Backend | No | `backend-dev` |
-| Full-stack | Yes | `backend-dev → frontend-dev → QA` |
-| Full-stack | No | `backend-dev → frontend-dev` |
+| Frontend | Yes | `frontend-engineer → QA` |
+| Frontend | No | `frontend-engineer` |
+| Backend | Yes | `backend-engineer → QA` |
+| Backend | No | `backend-engineer` |
+| Full-stack | Yes | `backend-engineer → frontend-engineer → QA` |
+| Full-stack | No | `backend-engineer → frontend-engineer` |
 
 **Characteristics:**
 - Direct to implementation
@@ -203,8 +203,8 @@ Options:
 
 | Area | Agent |
 |------|-------|
-| Frontend/React | `frontend-dev` (educational mode) |
-| Backend/API | `backend-dev` (educational mode) |
+| Frontend/React | `frontend-engineer` (educational mode) |
+| Backend/API | `backend-engineer` (educational mode) |
 | Architecture | `architect` (design mode) |
 | Testing | `qa-engineer` (educational mode) |
 
@@ -258,7 +258,7 @@ Show context-appropriate summary:
 ### Agents Pipeline:
 
 ┌────────────────┐     ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
-│   Architect    │ ──▶ │  backend-dev   │ ──▶ │  frontend-dev  │ ──▶ │  qa-engineer   │
+│   Architect    │ ──▶ │  backend-engineer   │ ──▶ │  frontend-engineer  │ ──▶ │  qa-engineer   │
 │                │     │                │     │                │     │                │
 │ • Tech design  │     │ • API          │     │ • UI           │     │ • Tests        │
 │ • Data model   │     │ • Auth logic   │     │ • Forms        │     │ • Verification │
@@ -282,7 +282,7 @@ Show context-appropriate summary:
 ### Agents:
 
 ┌────────────────┐     ┌────────────────┐
-│  frontend-dev  │ ──▶ │  qa-engineer   │
+│  frontend-engineer  │ ──▶ │  qa-engineer   │
 │                │     │                │
 │ Build it       │     │ Test it        │
 └────────────────┘     └───────┬────────┘
@@ -303,7 +303,7 @@ Show context-appropriate summary:
 
 ### Agent:
 
-frontend-dev → qa-engineer (verify)
+frontend-engineer → qa-engineer (verify)
 
 **Approach:** Direct implementation with quality check.
 ```
@@ -384,8 +384,8 @@ Bot:
 ### Pipeline:
 
 1. **architect** — Technical design & security review
-2. **backend-dev** — API, auth logic, OAuth integration
-3. **frontend-dev** — Login UI, forms, state management
+2. **backend-engineer** — API, auth logic, OAuth integration
+3. **frontend-engineer** — Login UI, forms, state management
 4. **qa-engineer** — Security tests, E2E, compliance
 
 Starting architect...
@@ -420,9 +420,9 @@ User: "Dark mode toggle"
 Bot:
 ## Quick Build: Dark Mode Toggle
 
-frontend-dev → qa-engineer
+frontend-engineer → qa-engineer
 
-Starting frontend-dev...
+Starting frontend-engineer...
 ```
 
 ### Freelance: Direct Task
@@ -453,7 +453,7 @@ User: "Contact form with validation"
 Bot:
 ## Task: Contact Form
 
-frontend-dev → qa-engineer
+frontend-engineer → qa-engineer
 
 Starting...
 ```
@@ -489,8 +489,8 @@ Task tool:
 |-------|---------------|---------|
 | Product Owner | `product-owner` | User stories, specs, acceptance criteria |
 | Architect | `architect` | Architecture, design, code review |
-| Frontend Dev | `frontend-dev` | UI implementation, React, components |
-| Backend Dev | `backend-dev` | API implementation, services, data |
+| Frontend Engineer | `frontend-engineer` | UI implementation, React, components |
+| Backend Engineer | `backend-engineer` | API implementation, services, data |
 | QA Engineer | `qa-engineer` | Tests, verification, quality |
 
 ### Chaining Agents
@@ -512,9 +512,9 @@ When QA finds errors:
 ### Example: Startup Frontend Flow
 
 ```
-# Step 1: Spawn frontend-dev
+# Step 1: Spawn frontend-engineer
 Task(
-  subagent_type: "frontend-dev",
+  subagent_type: "frontend-engineer",
   prompt: "Implement: <task>\n\nContext: Startup mode, fast iteration."
 )
 
@@ -524,9 +524,9 @@ Task(
   prompt: "Verify implementation:\n<what was built>\n\nAcceptance criteria:\n<criteria>"
 )
 
-# Step 3: If QA fails, loop back to frontend-dev with error context
+# Step 3: If QA fails, loop back to frontend-engineer with error context
 Task(
-  subagent_type: "frontend-dev",
+  subagent_type: "frontend-engineer",
   prompt: "Fix this error:\n<error details>\n\nOriginal task: <task>"
 )
 ```

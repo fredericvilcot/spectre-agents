@@ -440,7 +440,7 @@ architect is analyzing...
 
 🔧 Healing tests...
 
-frontend-dev is fixing...
+frontend-engineer is fixing...
   → Fixed: Updated selector in Login.test.tsx
 
 🧪 Verifying...
@@ -463,17 +463,17 @@ Found 1 issue:
 
 🔧 Healing tests...
 
-Attempt 1/3: frontend-dev fixing...
+Attempt 1/3: frontend-engineer fixing...
   → Applied fix
 
 🧪 Verifying... ❌ Still failing
 
-Attempt 2/3: frontend-dev fixing...
+Attempt 2/3: frontend-engineer fixing...
   → Applied different approach
 
 🧪 Verifying... ❌ Still failing
 
-Attempt 3/3: frontend-dev fixing...
+Attempt 3/3: frontend-engineer fixing...
   → Tried alternative solution
 
 🧪 Verifying... ❌ Still failing
@@ -509,7 +509,7 @@ If found, apply the known solution first.
 After successful fix, record the pattern:
 
 ```jsonl
-{"timestamp":"...","error_type":"test_failure","pattern":"selector not found","file":"*.test.tsx","solution":"Use data-testid instead of class selector","agent":"frontend-dev"}
+{"timestamp":"...","error_type":"test_failure","pattern":"selector not found","file":"*.test.tsx","solution":"Use data-testid instead of class selector","agent":"frontend-engineer"}
 ```
 
 ---
@@ -531,7 +531,7 @@ Use the **Task tool** with the appropriate `subagent_type`:
 
 ```
 Task tool:
-  subagent_type: "frontend-dev"
+  subagent_type: "frontend-engineer"
   prompt: "Fix this error:\n<error details>\n\nFile: <file path>"
 ```
 
@@ -539,7 +539,7 @@ Task tool:
 
 | Error Type | subagent_type | Prompt Template |
 |------------|---------------|-----------------|
-| Test failure | `frontend-dev` or `backend-dev` | "Fix failing test:\n<test output>" |
+| Test failure | `frontend-engineer` or `backend-engineer` | "Fix failing test:\n<test output>" |
 | Type error | `architect` | "Fix TypeScript error:\n<tsc output>" |
 | Build error | `architect` | "Fix build error:\n<build output>" |
 | Design flaw | `architect` | "Redesign to fix:\n<issue description>" |
@@ -572,6 +572,6 @@ Determine which dev agent to use:
 
 | File Pattern | Agent |
 |--------------|-------|
-| `*.tsx`, `*.jsx`, `components/*` | `frontend-dev` |
-| `*.ts` in `api/`, `services/`, `server/` | `backend-dev` |
+| `*.tsx`, `*.jsx`, `components/*` | `frontend-engineer` |
+| `*.ts` in `api/`, `services/`, `server/` | `backend-engineer` |
 | Mixed or unclear | Check `.spectre/context.json` for stack |

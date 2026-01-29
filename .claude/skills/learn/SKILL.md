@@ -1191,7 +1191,7 @@ When an agent fixes something, record what worked:
 
 ```jsonl
 // .spectre/learnings/fixes.jsonl
-{"timestamp":"...","pattern":"import-alias","before":"../../../components","after":"@/components","agent":"frontend-dev"}
+{"timestamp":"...","pattern":"import-alias","before":"../../../components","after":"@/components","agent":"frontend-engineer"}
 {"timestamp":"...","pattern":"test-mock","technique":"vi.mock with factory","file":"UserService.test.ts","agent":"qa-engineer"}
 ```
 
@@ -1200,8 +1200,8 @@ Architect feedback becomes learning:
 
 ```jsonl
 // .spectre/learnings/reviews.jsonl
-{"timestamp":"...","feedback":"Use Result type instead of throwing","file":"api/auth.ts","appliedBy":"frontend-dev"}
-{"timestamp":"...","feedback":"Extract to custom hook","file":"components/UserList.tsx","appliedBy":"frontend-dev"}
+{"timestamp":"...","feedback":"Use Result type instead of throwing","file":"api/auth.ts","appliedBy":"frontend-engineer"}
+{"timestamp":"...","feedback":"Extract to custom hook","file":"components/UserList.tsx","appliedBy":"frontend-engineer"}
 ```
 
 ### Confidence Adjustment

@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: "Use this agent to coordinate the reactive multi-agent loop. It manages the flow between product-owner, architect, frontend-dev, and qa-engineer agents, handling errors and retries automatically. Use when starting a feature workflow or when you need agents to collaborate reactively."
+description: "Use this agent to coordinate the reactive multi-agent loop. It manages the flow between product-owner, architect, frontend-engineer, and qa-engineer agents, handling errors and retries automatically. Use when starting a feature workflow or when you need agents to collaborate reactively."
 model: sonnet
 color: cyan
 tools: Read, Write, Edit, Bash, Glob, Grep, Task
@@ -57,8 +57,8 @@ All agents communicate through `.spectre/`:
   "retryCount": 1,
   "maxRetries": 3,
   "agents": {
-    "lastActive": "frontend-dev",
-    "history": ["product-owner", "architect", "frontend-dev", "qa-engineer", "frontend-dev"]
+    "lastActive": "frontend-engineer",
+    "history": ["product-owner", "architect", "frontend-engineer", "qa-engineer", "frontend-engineer"]
   },
   "status": "in_progress"
 }
@@ -70,9 +70,9 @@ All agents communicate through `.spectre/`:
 |-------|-------|--------|
 | `define` | product-owner | User story with acceptance criteria |
 | `design` | architect | Technical design document |
-| `implement` | frontend-dev | Working code |
+| `implement` | frontend-engineer | Working code |
 | `verify` | qa-engineer | Test results |
-| `fix` | frontend-dev | Bug fixes |
+| `fix` | frontend-engineer | Bug fixes |
 | `complete` | — | Feature delivered |
 
 ## Your Responsibilities
@@ -110,7 +110,7 @@ When spawning an agent, always:
 
 When QA finds errors:
 1. Check retry count against max retries
-2. If under limit: spawn frontend-dev with error context
+2. If under limit: spawn frontend-engineer with error context
 3. If at limit: report failure and ask for human intervention
 
 ### 4. Record Learnings
@@ -171,9 +171,9 @@ Context from .spectre/context.json:
 <context>
 ```
 
-### To Frontend Dev
+### To Frontend Engineer
 ```
-Use the frontend-dev agent to implement/fix the feature.
+Use the frontend-engineer agent to implement/fix the feature.
 
 Technical Design:
 <design from previous phase>
