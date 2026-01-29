@@ -1,73 +1,151 @@
 ---
 name: learn
-description: "Auto-learns project patterns by default. Adapts agents to YOUR conventions. Craft guard stops on violations. Can be scoped or disabled."
+description: "Auto-learns project patterns by default. Adapts agents to YOUR conventions. On violations, triggers architect reactively to propose refactoring. Fully integrated in reactive loop."
 context: conversation
 allowed-tools: Read, Bash, Glob, Grep, Write, Task, AskUserQuestion
 ---
 
-# Spectre Learn — Adaptive Intelligence
+# Spectre Learn — Reactive Learning
 
-**Active by default.** Two distinct phases that work independently.
+**Learn your patterns. Fix violations collaboratively.**
 
-## The Two Phases
+## Philosophy
+
+Learning isn't about blocking. It's about **understanding** your codebase and **improving** it reactively.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                  │
-│  PHASE 1: STACK DETECTION          PHASE 2: PATTERN LEARNING    │
-│  ─────────────────────────         ─────────────────────────    │
+│   OLD WAY (Punitive)              NEW WAY (Reactive)            │
+│   ──────────────────              ──────────────────            │
 │                                                                  │
-│  ✅ ALWAYS runs                    ⚠️  MAY BE BLOCKED            │
-│  ✅ Independent of violations      ❌ STOPS on violations        │
-│  ✅ Result: stack context          ✅ Result: learned patterns   │
-│                                    ❌ On block: craft defaults   │
+│   Violation found                 Violation found               │
+│        │                               │                        │
+│        ▼                               ▼                        │
+│   ❌ BLOCKED                      🔔 Trigger Architect          │
+│   "Fix your code"                      │                        │
+│                                        ▼                        │
+│                                   📋 Refacto Plan               │
+│                                        │                        │
+│                                        ▼                        │
+│                                   ✅ User Decides               │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Why Two Phases?
+---
 
-**Stack detection** tells agents WHAT language/framework you're using.
-**Pattern learning** tells agents HOW you use it in this project.
+## Usage
 
-Even if your code has violations, agents still need to know it's TypeScript vs Go.
-They just won't copy your bad patterns — they'll use craft defaults instead.
-
-## Default Behavior
-
-When you run `/craft` or `/heal`, Spectre automatically:
-
-1. **Detects your stack** → ALWAYS (stored in context.json)
-2. **Learns your patterns** → IF no violations (stored in learnings/)
-3. **Applies craft guard** → STOPS on violations, generates report
-4. **Adapts agents** → Stack + patterns OR Stack + craft defaults
-
-You don't need to run `/learn` manually — it happens automatically.
+```bash
+/learn                    # Full scan: stack + patterns + violations check
+/learn --only <path>      # Scan only specific path
+/learn --show             # Show current learnings
+/learn --reset            # Clear all learnings
+```
 
 ---
 
-## Stack Auto-Detection
+## How It Works
 
-On first invocation, Spectre detects your stack:
+When you run `/learn`, the **Learning Agent** is spawned:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  FILE DETECTED          →  STACK                            │
-├─────────────────────────────────────────────────────────────┤
-│  package.json           →  Node.js / TypeScript / React     │
-│  go.mod                 →  Go                               │
-│  Cargo.toml             →  Rust                             │
-│  pyproject.toml         →  Python                           │
-│  pom.xml                →  Java / Maven                     │
-│  build.gradle           →  Java / Kotlin / Gradle           │
-│  mix.exs                →  Elixir                           │
-│  Gemfile                →  Ruby                             │
-│  composer.json          →  PHP                              │
-│  *.csproj               →  C# / .NET                        │
-└─────────────────────────────────────────────────────────────┘
+/learn
+   │
+   ▼
+┌─────────────────┐
+│  Learning Agent │
+└────────┬────────┘
+         │
+         ├── 1. Detect Stack (always)
+         │      → package.json, tsconfig, etc.
+         │      → Write .spectre/context.json
+         │
+         ├── 2. Scan Patterns
+         │      → Architecture, naming, imports
+         │      → Error handling, testing
+         │
+         └── 3. Violations?
+                │
+         ┌──────┴──────┐
+         │             │
+        YES           NO
+         │             │
+         ▼             ▼
+   ┌───────────┐  ┌───────────┐
+   │  Trigger  │  │   Store   │
+   │ Architect │  │ Patterns  │
+   └─────┬─────┘  └───────────┘
+         │
+         ▼
+   ┌───────────┐
+   │  Propose  │
+   │  Refacto  │
+   │   Plan    │
+   └─────┬─────┘
+         │
+         ▼
+   ┌───────────┐
+   │   User    │
+   │  Decides  │
+   └───────────┘
 ```
 
-Stored in `.spectre/context.json`:
+---
+
+## Execution
+
+When `/learn` is invoked:
+
+### Step 1: Spawn Learning Agent
+
+```
+Task(
+  subagent_type: "learning-agent",
+  prompt: """
+    Analyze this codebase:
+
+    ## Instructions
+
+    1. DETECT the technical stack
+       - Check package.json, tsconfig.json, go.mod, etc.
+       - Identify framework, testing, styling, state management
+       - Write to .spectre/context.json
+
+    2. SCAN for patterns
+       - Folder structure (feature-folders? layers?)
+       - Naming conventions (files, components, functions)
+       - Import style (relative? absolute? aliases?)
+       - Error handling (Result types? throw?)
+       - Testing (colocated? separate? framework?)
+
+    3. CHECK for violations
+       - any abuse (>3 occurrences)
+       - throw in business logic
+       - god classes (>500 lines, >15 methods)
+       - missing strict mode
+
+    4. IF violations found:
+       - Write .spectre/violations.json
+       - TRIGGER architect agent with violation context
+       - DO NOT BLOCK
+
+    5. IF clean:
+       - Write .spectre/learnings/patterns.json
+       - Write .spectre/learnings/examples.json
+       - Report success
+
+    ## Scope
+
+    Path to scan: <project root or --only path>
+  """
+)
+```
+
+### Step 2: Learning Agent Detects Stack
+
+Always succeeds. Writes `.spectre/context.json`:
 
 ```json
 {
@@ -82,204 +160,117 @@ Stored in `.spectre/context.json`:
 }
 ```
 
----
+### Step 3: Learning Agent Scans Patterns
 
-## On Violation: What Happens
+Analyzes codebase conventions.
 
-When craft guard detects violations during pattern learning:
+### Step 4a: Violations Found → Trigger Architect
+
+Learning Agent writes `.spectre/violations.json` and spawns:
 
 ```
-🔍 Phase 1: Detecting stack...
-   ✅ TypeScript + React detected
+Task(
+  subagent_type: "architect",
+  prompt: """
+    LEARNING AGENT ALERT: Craft violations detected.
 
-🔍 Phase 2: Learning patterns...
+    ## Violations
 
-🛑 CRAFT VIOLATIONS DETECTED
+    <violations from .spectre/violations.json>
 
-   src/services/UserService.ts:45
-   → throw new Error('User not found')
-   → Violates: Explicit Error Handling
-   → Fix: Return Result<User, NotFoundError>
+    ## Your Mission
 
-📋 Report: .spectre/violations-report.md
+    1. Analyze each violation by severity
+    2. Propose a phased refactoring plan
+    3. Present to user with clear options
 
-┌─────────────────────────────────────────────────────────────────┐
-│  RESULT                                                          │
-│                                                                  │
-│  ✅ Stack: TypeScript + React (DETECTED)                         │
-│  ❌ Patterns: NOT LEARNED (violations blocked)                   │
-│  ✅ Agents will use: Craft defaults for TypeScript + React       │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+    ## Output
 
-   [ 🔧 Fix violations ]  [ ⏭️ Continue anyway ]  [ 🛑 Stop ]
+    Present:
+    - Quick assessment (what's the main issue?)
+    - Phased plan (P1: quick wins, P2: core, P3: polish)
+    - Risk assessment (what could break?)
+
+    Ask user:
+    [ 🚀 Start Phase 1 ]  [ 📋 See Full Plan ]  [ ⏭️ Ignore for Now ]
+  """
+)
 ```
 
-### Context After Violation
+### Step 4b: Clean → Store Patterns
 
+Learning Agent writes:
+
+**`.spectre/learnings/patterns.json`**
 ```json
 {
-  "stack": {
-    "language": "typescript",
-    "runtime": "node",
-    "framework": "react"
-  },
-  "learning": {
-    "enabled": true,
-    "status": "blocked",
-    "reason": "violations",
-    "violationCount": 2,
-    "reportPath": ".spectre/violations-report.md"
-  }
+  "architecture": { "style": "feature-folders" },
+  "naming": { "files": "kebab-case", "components": "PascalCase" },
+  "imports": { "style": "absolute", "alias": "@/" },
+  "errorHandling": { "style": "result-type" },
+  "testing": { "location": "colocated", "framework": "vitest" }
 }
 ```
 
-### What Agents Get
-
-| Situation | Stack Known | Patterns Learned | Agents Use |
-|-----------|-------------|------------------|------------|
-| ✅ Clean code | Yes | Yes | Project patterns |
-| ❌ Violations | Yes | **No** | Craft defaults |
-| 🆕 From scratch | Yes (selected) | — | Craft defaults |
-| 🚫 Learning off | Yes | — | Craft defaults |
-
-**Key insight:** Violations block pattern learning, NOT stack detection.
-Agents always know your stack. They just won't copy bad patterns.
-
----
-
-## Manual Commands
-
-### Configure Learning Scope
-
-```bash
-/learn                    # Re-learn entire project (refresh)
-/learn --only <path>      # Learn ONLY from this file/folder
-/learn --off              # Disable auto-learning completely
-/learn --on               # Re-enable auto-learning (default)
-```
-
-### View & Reset
-
-```bash
-/learn --show             # Show current learnings
-/learn --reset            # Reset all learnings
-/learn --violations       # Show detected violations
+**`.spectre/learnings/examples.json`**
+```json
+{
+  "exemplary": [
+    { "path": "src/features/auth/AuthService.ts", "reason": "Clean Result types" }
+  ]
+}
 ```
 
 ---
 
-## Scope Control
+## Reactive Integration
 
-### Default: Entire Project
+Learning is part of the reactive mesh:
 
-```bash
-# Auto-learning is ON for the whole project
-# Nothing to do, it just works
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    LEARNING REACTIVE LINKS                       │
+│                                                                  │
+│   Learning Agent                                                 │
+│        │                                                         │
+│        ├── violation ────────▶ Architect ────▶ User Decision     │
+│        │                                           │             │
+│        │                                    ┌──────┴──────┐      │
+│        │                                    ▼             ▼      │
+│        │                              [ Fix Now ]   [ Later ]    │
+│        │                                    │                    │
+│        │                                    ▼                    │
+│        │                               /heal (auto)              │
+│        │                                                         │
+│        └── clean ────────────▶ Store Patterns                    │
+│                                     │                            │
+│                                     ▼                            │
+│                              Inject into Agents                  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Scoped: Specific Path Only
-
-```bash
-/learn --only src/features/auth/
-
-# Now Spectre ONLY learns from src/features/auth/
-# Ignores patterns from other parts of the codebase
-# Useful for: monorepos, legacy code you don't want to learn from
-```
-
-### Disabled: No Learning
-
-```bash
-/learn --off
-
-# Auto-learning is completely disabled
-# Agents use default craft principles only
-# Useful for: new projects, when you want pure craft defaults
-```
-
-### Re-enable
-
-```bash
-/learn --on
-
-# Back to default: learn from entire project
-```
+If user chooses "Fix Now", the architect's plan triggers `/heal` automatically.
 
 ---
 
-## Craft Guard — Always Active
+## Auto-Learning
 
-**Spectre will NEVER learn anti-patterns.**
-
-Whether auto or manual, scoped or full — the craft guard is always on.
+Learning runs automatically on first `/craft` or `/heal`:
 
 ```
-> /craft "Add user service"
-
-🔍 Auto-learning project patterns...
-
-🛑 CRAFT VIOLATIONS DETECTED
-
-   src/services/UserService.ts:45
-   → throw new Error('User not found')
-   → Violates: Explicit Error Handling
-
-📋 Report: .spectre/violations-report.md
-
-❌ Pattern NOT learned. Fix violation first.
-
-   [ 🔧 Fix it ]  [ ⏭️ Skip file ]  [ 🛑 Stop ]
+/craft "Add login form"
+   │
+   ├── Check: .spectre/context.json exists?
+   │      │
+   │      └── NO → Trigger /learn automatically
+   │               │
+   │               └── Learning Agent runs
+   │                    │
+   │                    └── Then continue with /craft
+   │
+   └── YES → Use existing learnings
 ```
-
-### What Gets Checked
-
-| Principle | Compliant ✅ | Violation ❌ |
-|-----------|-------------|-------------|
-| **Type Safety** | Strict types, generics | `any`, type assertions |
-| **Error Handling** | Result types, explicit | Thrown exceptions |
-| **Architecture** | Layers, DI, ports/adapters | God classes, tight coupling |
-| **SOLID** | Single responsibility, DIP | God objects, concrete deps |
-| **Immutability** | Const, readonly, pure | Mutations everywhere |
-
-### Violation Report
-
-Generated at `.spectre/violations-report.md`:
-
-```markdown
-## Action Plan
-
-| Priority | File | Issue | Fix |
-|----------|------|-------|-----|
-| 🔴 P0 | PaymentService.ts | God class | Split into focused services |
-| 🟠 P1 | UserService.ts:45 | throw Error | Use Result<T, E> |
-```
-
----
-
-## What Gets Learned
-
-### Patterns Detected
-
-| Category | Examples |
-|----------|----------|
-| **Architecture** | Hexagonal, feature-folders, layers |
-| **Error Handling** | Result types, error classes, Go-style |
-| **Naming** | Files: kebab-case, Functions: camelCase |
-| **Imports** | Absolute paths, barrel exports |
-| **Testing** | Co-located, factories, mocking style |
-| **API Style** | REST conventions, response format |
-
-### Language-Specific Adaptations
-
-Craft principles are universal. Implementation adapts to your stack:
-
-| Principle | TypeScript | Go | Rust |
-|-----------|------------|-----|------|
-| Explicit Errors | `Result<T, E>` | `error` return | `Result<T, E>` |
-| Type Safety | Strict mode | Strong types | Ownership |
-| Immutability | `readonly`, `const` | Value semantics | By default |
-| DI | Constructor injection | Interface params | Traits |
 
 ---
 
@@ -287,129 +278,111 @@ Craft principles are universal. Implementation adapts to your stack:
 
 ```
 .spectre/
-├── context.json          # Stack détaillé + settings + hash pour invalidation
-├── stack-defaults.md     # Craft defaults GÉNÉRÉS pour votre stack exacte
+├── context.json              # Stack detection (always present)
+├── violations.json           # Current violations (if any)
 ├── learnings/
-│   ├── patterns.json     # Learned patterns → INJECTED into agents
-│   └── examples.json     # Reference files → INJECTED into agents
-├── violations-report.md  # Current violations
-└── state.json            # Workflow state
+│   ├── patterns.json         # Learned conventions
+│   └── examples.json         # Exemplary files
+└── state.json                # Workflow state
 ```
-
-### stack-defaults.md — Généré dynamiquement
-
-Pas de fichiers statiques. Spectre détecte votre stack **exacte** et génère les craft defaults.
-
-```
-Détecté: TypeScript 5.3 + React 18.2 + React Query v5 + Zustand + Zod
-
-Génération des craft defaults...
-  → Type system patterns
-  → React Query patterns (query keys, mutations, optimistic)
-  → Zustand patterns (slices, selectors)
-  → Zod validation patterns
-  → Testing patterns (Vitest + Testing Library + MSW)
-  → Anti-patterns spécifiques à éviter
-
-Stocké dans .spectre/stack-defaults.md
-```
-
-**Invalidation automatique** : si package.json/go.mod/Cargo.toml change → régénération.
-
-### patterns.json — What Agents Receive
-
-```json
-{
-  "architecture": {
-    "style": "feature-folders",
-    "layers": ["domain", "application", "infrastructure"]
-  },
-  "naming": {
-    "files": "kebab-case",
-    "components": "PascalCase",
-    "functions": "camelCase",
-    "constants": "SCREAMING_SNAKE"
-  },
-  "imports": {
-    "style": "absolute",
-    "aliases": ["@/", "~/"],
-    "barrelExports": true
-  },
-  "testing": {
-    "location": "colocated",
-    "framework": "vitest",
-    "pattern": "*.test.ts"
-  },
-  "errorHandling": {
-    "style": "result-type",
-    "customErrors": true
-  }
-}
-```
-
-### examples.json — Reference Files
-
-```json
-{
-  "bestFiles": [
-    {
-      "path": "src/features/auth/AuthService.ts",
-      "reason": "Clean Result types, proper DI",
-      "patterns": ["result-type", "dependency-injection"]
-    },
-    {
-      "path": "src/components/Button/Button.tsx",
-      "reason": "Well-typed props, accessible",
-      "patterns": ["typed-props", "a11y"]
-    }
-  ]
-}
-```
-
-### Continuous Injection
-
-Every time an agent is spawned via `/craft` or `/heal`:
-1. Read `.spectre/learnings/patterns.json`
-2. Read `.spectre/learnings/examples.json`
-3. Inject into agent prompt alongside stack craft defaults
-4. Agent applies YOUR conventions, not generic ones
 
 ---
 
-## Integration with /craft and /heal
+## Commands
 
-Auto-learning runs transparently:
+| Command | Action |
+|---------|--------|
+| `/learn` | Full scan (stack + patterns + violations) |
+| `/learn --only src/features/` | Scan only specific path |
+| `/learn --show` | Display current learnings |
+| `/learn --reset` | Clear all learnings |
+
+---
+
+## What Gets Learned
+
+| Category | Examples |
+|----------|----------|
+| **Stack** | TypeScript, React, Vitest, Tailwind |
+| **Architecture** | Feature-folders, hexagonal, layers |
+| **Naming** | kebab-case files, PascalCase components |
+| **Imports** | Absolute paths, @/ alias, barrel exports |
+| **Error Handling** | Result types, error classes |
+| **Testing** | Colocated, vitest, testing-library |
+
+---
+
+## Craft Violations Detected
+
+| Violation | Severity | Detection |
+|-----------|----------|-----------|
+| `any` abuse | 🔴 Critical | >3 occurrences of `: any` |
+| `throw` for expected | 🔴 Critical | `throw new Error` in services |
+| God class | 🔴 Critical | >500 lines, >15 methods |
+| Missing strict | 🟠 Warning | `"strict": false` |
+| Type assertions | 🟠 Warning | `as unknown as` patterns |
+| No tests | 🟠 Warning | No test files found |
+
+---
+
+## Example Session
 
 ```
-/craft "Build login form"
-    │
-    ├─→ Check .spectre/context.json
-    │       │
-    │       └─→ Missing? → Auto-detect stack
-    │
-    ├─→ Check learning scope (--only, --off)
-    │       │
-    │       └─→ Active? → Scan for patterns + guard
-    │
-    ├─→ Violations found?
-    │       │
-    │       ├─→ YES → Stop, report, ask user
-    │       │
-    │       └─→ NO → Continue with learned context
-    │
-    └─→ Agents work with adapted conventions
+> /learn
+
+🔍 Spawning Learning Agent...
+
+📦 Stack Detection
+   ✅ TypeScript 5.3
+   ✅ React 18.2
+   ✅ Vite 5.0
+   ✅ Vitest
+   ✅ Tailwind CSS
+
+🔍 Pattern Scan
+   ├── Architecture: feature-folders ✅
+   ├── Naming: kebab-case ✅
+   ├── Imports: @/ alias ✅
+   │
+   └── ⚠️ Violations detected:
+       • 8x 'any' in src/api/
+       • 3x 'throw' in src/services/
+
+🔔 Triggering Architect for review...
+
+─────────────────────────────────────────
+
+🏗️ Architect Analysis
+
+## Quick Assessment
+Main issue: API layer lacks type safety. Services throw instead of returning Results.
+
+## Refactoring Plan
+
+**Phase 1: Quick Wins** (low risk)
+- Add strict mode to tsconfig
+- Replace 'any' with 'unknown' in API responses
+
+**Phase 2: Core Fixes** (medium risk)
+- Introduce Result<T, E> type
+- Refactor UserService.ts to use Results
+- Refactor AuthService.ts to use Results
+
+**Phase 3: Polish**
+- Add Zod schemas for API validation
+- Complete type coverage
+
+[ 🚀 Start Phase 1 ]  [ 📋 See Details ]  [ ⏭️ Later ]
 ```
 
 ---
 
 ## Summary
 
-| Setting | Command | Behavior |
-|---------|---------|----------|
-| **Default** | (nothing) | Learn entire project, guard on |
-| **Scoped** | `/learn --only <path>` | Learn only from path |
-| **Disabled** | `/learn --off` | No learning, pure craft defaults |
-| **Re-enabled** | `/learn --on` | Back to full project |
-| **Refresh** | `/learn` | Re-scan and update learnings |
-| **View** | `/learn --show` | Display current learnings |
-| **Reset** | `/learn --reset` | Clear all learnings |
+| Aspect | Behavior |
+|--------|----------|
+| **Blocking** | Never — always proposes solutions |
+| **Reactive** | Triggers architect on violations |
+| **Automatic** | Runs on first /craft or /heal |
+| **Collaborative** | User decides what to fix |
+| **Persistent** | Learnings stored in .spectre/ |

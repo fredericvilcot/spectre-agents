@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/SPECTRE-AGENTS-blueviolet?style=for-the-badge&logo=ghost&logoColor=white" alt="Spectre Agents"/>
 </p>
 
-<h1 align="center">👻 SPECTRE AGENTS</h1>
+<h1 align="center">SPECTRE AGENTS</h1>
 
 <p align="center">
   <strong>Stop prompting. Start crafting.</strong>
@@ -15,280 +15,461 @@
 <p align="center">
   <img src="https://img.shields.io/badge/auto--learning-enabled-8A2BE2?style=flat-square" alt="Auto-learning"/>
   <img src="https://img.shields.io/badge/reactive-loop-9400D3?style=flat-square" alt="Reactive"/>
-  <img src="https://img.shields.io/badge/dynamic-injection-9932CC?style=flat-square" alt="Dynamic"/>
   <img src="https://img.shields.io/badge/craft-guard-8B008B?style=flat-square" alt="Craft Guard"/>
 </p>
 
 ---
 
-## 🎯 Craft First
+## What is Spectre?
 
-Spectre isn't a code assistant. It's a **craft system**.
-
-<table>
-<tr>
-<td width="50%">
-
-### 😫 Prompting
-```
-"Build me a login"
-      ↓
-200 lines of code
-Works... maybe
-No tests
-any everywhere
-throw Error
-      ↓
-"Now debug this"
-```
-
-</td>
-<td width="50%">
-
-### 💎 Crafting
-```
-"Build me a login"
-      ↓
-Architect designs the flow
-Engineer implements SOLID
-QA verifies, loops on failure
-Strict types, Result<T,E>
-Explicit error handling
-      ↓
-Production-ready
-```
-
-</td>
-</tr>
-</table>
-
-### ✨ Craft Principles
-
-Every Spectre agent embodies these:
-
-| | Principle | Application |
-|-|-----------|-------------|
-| 🏛️ | **Domain First** | Business logic at the center, frameworks at the edges |
-| 🔒 | **Type Safety** | Strict mode, no `any`, the compiler is your ally |
-| 📖 | **Explicit Errors** | `Result<T, E>` not `throw Error`, code tells its story |
-| 🧪 | **Test-Driven** | Tests are executable specs, not an afterthought |
-| 🏗️ | **Clean Architecture** | SOLID, DDD, Hexagonal — context-appropriate |
-
-> **Spectre doesn't generate code. It crafts software.**
-
----
-
-## 🔮 How It Works
-
-Three mechanisms working together:
-
-### 1️⃣ Auto-Learning
-
-**Active by default.** Zero configuration.
+Spectre is an **extension for Claude Code** that transforms it into a multi-agent craft system. Instead of a single AI generating code, specialized agents collaborate: Product Owner writes specs, Architect designs, Engineers implement, QA verifies — with a reactive feedback loop that auto-corrects errors.
 
 ```
-🔍 Detects your exact stack
-   → TypeScript 5.3 + React 18.2 + React Query v5 + Zustand + Zod
-
-🧠 Learns your conventions (if code is clean)
-   → Feature folders, Result types, absolute imports, colocated tests
-
-🛡️ Craft Guard — rejects anti-patterns
-   → throw Error? Blocked.
-   → any everywhere? Blocked.
-   → Report generated, you decide.
+┌─────────────────────────────────────────────────────────────────┐
+│                      SPECTRE WORKFLOW                           │
+│                                                                 │
+│   /craft "Add user authentication"                              │
+│       │                                                         │
+│       ▼                                                         │
+│   ┌─────────┐    ┌───────────┐    ┌──────────┐    ┌─────────┐  │
+│   │   PO    │───▶│ Architect │───▶│ Engineer │───▶│   QA    │  │
+│   │  specs  │    │  designs  │    │  builds  │    │ verifies│  │
+│   └─────────┘    └───────────┘    └────┬─────┘    └────┬────┘  │
+│                                        │               │        │
+│                                        │    error      │        │
+│                                        └───────────────┘        │
+│                                          auto-fix loop          │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 2️⃣ Dynamic Injection
-
-**No static templates.** Skills generated for YOUR stack.
-
-```
-📦 Stack: React + React Query + Zustand + Zod
-
-⚡ Generating craft skills...
-   ✓ React Query: query keys, mutations, optimistic updates
-   ✓ Zustand: slices, selectors, domain separation
-   ✓ Zod: validation boundaries, type inference
-
-💉 Injecting into agents...
-   → Architect receives skills
-   → Engineer receives skills
-   → QA receives skills
-```
-
-**Each agent works with:**
-- 🎯 Skills generated for your stack
-- 📚 Patterns learned from your project
-- 💎 Universal craft principles
-
----
-
-### 3️⃣ Reactive Loop
-
-**Agents self-correct.**
-
-```
-   🏗️              💻              🧪
-Architect ───▶ Engineer ───▶ QA
-                   ▲           │
-                   │   fail    │
-                   └─── 🔄 ────┘
-```
-
-| QA detects | Routed to | Action |
-|------------|-----------|--------|
-| 🔴 Test failure | Engineer | Fix → QA re-verifies |
-| 🟠 Design flaw | Architect | Redesign → Engineer → QA |
-| 🟡 Spec gap | Product Owner | Clarify → Architect → ... |
-
-**Max 3 retries.** Then you take over.
-
----
-
-## 🚀 Commands
-
-### `/craft` — Build with craft
+## Three Commands
 
 ```bash
-/craft                    # Guided flow
-/craft "Add login form"   # Direct
+/craft    # Build features with the right agent team
+/heal     # Auto-fix everything (tests, build, types, specs)
+/learn    # Adapt to YOUR codebase patterns
 ```
-
-**Assembles the team based on your context:**
-
-| Context | Pipeline |
-|---------|----------|
-| 🏢 Product Team | PO → Architect → Engineer → QA |
-| 🚀 Startup | Architect → Engineer → QA |
-| 💼 Freelance | Engineer → QA |
 
 ---
 
-### `/heal` — Smart repair
+## `/craft` — Build with Craft
+
+Smart flow that adapts to your work context.
 
 ```bash
-/heal           # Diagnose and fix everything
-/heal tests     # Fix failing tests
-/heal types     # Fix TypeScript errors
+/craft                        # Guided interactive flow
+/craft "Add login form"       # Direct with description
 ```
 
-**Routes to the right expert:**
-- Type error → 🏗️ Architect
-- Test failure → 💻 Engineer
-- Spec gap → 👤 Product Owner
+### Flow
+
+```
+/craft
+   │
+   ├── Detect: Is there existing code?
+   │      │
+   │      ├── YES → Auto-detect stack + learn patterns
+   │      │
+   │      └── NO  → Ask stack + optional inspiration source
+   │
+   ├── Ask: Work context?
+   │      [ Product Team | Startup | Freelance | Learning ]
+   │
+   ├── Ask: What to build?
+   │
+   ├── Architect: Design plan (shown for approval)
+   │
+   └── Execute: Reactive agent chain
+```
+
+### Pipelines by Context
+
+| Context | Pipeline | Why |
+|---------|----------|-----|
+| **Product Team** | PO → Architect → Engineer → QA | Full specs, compliance, reviews |
+| **Startup** | Architect → Engineer → QA | Fast iterations, you're the PO |
+| **Freelance** | Engineer → QA | Minimal overhead, efficient |
+| **Learning** | Single agent (educational) | Explanations over speed |
+
+### Inspiration Mode (From Scratch)
+
+When starting a new project, you can provide an inspiration source:
+
+```
+/craft
+> "Do you have a reference project?"
+> [GitHub repo] [Local folder] [Archive] [No, start fresh]
+
+If yes → Architect analyzes it:
+  ✅ Patterns to ADOPT (structure, conventions)
+  🔧 Patterns to IMPROVE (elevate to craft standards)
+  ❌ Patterns to SKIP (anti-patterns, tech debt)
+```
 
 ---
 
-### `/learn` — Configure learning
+## `/heal` — Smart Repair
+
+Auto-diagnose and fix with intelligent routing.
 
 ```bash
-/learn                  # Re-scan project
-/learn --only src/auth  # Limited scope
-/learn --off            # Disable auto-learning
+/heal           # Fix everything (tests, build, types, specs)
+/heal tests     # Fix failing tests only
+/heal types     # Fix TypeScript errors only
+/heal spec      # Sync spec ↔ implementation
+```
+
+### How It Works
+
+```
+/heal
+   │
+   ├── Diagnose: What's broken?
+   │
+   ├── Route to expert:
+   │      • Test failure    → Engineer (file owner)
+   │      • Type error      → Architect
+   │      • Design flaw     → Architect
+   │      • Spec gap        → Product Owner
+   │      • Build error     → Architect
+   │
+   ├── Fix → Verify → Loop if needed (max 3 retries)
+   │
+   └── Learn: Record fix pattern for future
+```
+
+---
+
+## `/learn` — Reactive Learning
+
+The **Learning Agent** analyzes your codebase and adapts to YOUR conventions.
+
+```bash
+/learn                  # Full scan: stack + patterns + violations
+/learn --only <path>    # Scan specific path only
 /learn --show           # View current learnings
+/learn --reset          # Clear all learnings
+```
+
+### How It Works
+
+```
+/learn
+   │
+   ├── Learning Agent detects stack (always)
+   │
+   ├── Scans for patterns (architecture, naming, imports)
+   │
+   └── Violations found?
+          │
+   ┌──────┴──────┐
+   │             │
+  YES           NO
+   │             │
+   ▼             ▼
+Trigger      Store patterns
+Architect    (agents adapt)
+   │
+   ▼
+Propose refacto plan
+   │
+   ▼
+User decides
+```
+
+### What It Learns
+
+| Category | Examples |
+|----------|----------|
+| **Stack** | TypeScript 5.3, React 18, Vitest, Zod |
+| **Architecture** | Feature folders, barrel exports, absolute imports |
+| **Code Style** | Result types, error handling patterns |
+| **Test Style** | Colocated tests, BDD naming, fixtures |
+| **Naming** | Component conventions, file patterns |
+
+### On Violations: Reactive, Not Punitive
+
+Instead of blocking, violations **trigger the Architect** who proposes a refactoring plan:
+
+```
+⚠️ Violations detected: 8x 'any', 3x 'throw' in business logic
+
+🔔 Triggering Architect...
+
+🏗️ Architect proposes:
+   Phase 1: Add strict mode, replace any → unknown
+   Phase 2: Introduce Result<T, E> types
+   Phase 3: Refactor services
+
+[ 🚀 Start Phase 1 ]  [ 📋 Details ]  [ ⏭️ Later ]
 ```
 
 ---
 
-### `/add-skill` — Extend Agent Expertise
+## The Agents
 
-**Craft foundation is ALWAYS active.** Add specialized expertise on top.
+| Agent | Role | Expertise |
+|-------|------|-----------|
+| **learning-agent** | Learning | Stack detection, pattern scanning, violation detection |
+| **product-owner** | Specs | User stories, acceptance criteria (Given-When-Then), edge cases |
+| **architect** | Design | Clean Architecture, DDD, SOLID, Hexagonal, code review |
+| **frontend-engineer** | UI | React, accessibility, components, hooks, state |
+| **backend-engineer** | API | Services, validation, Result types, security |
+| **qa-engineer** | Tests | TDD/BDD, test pyramid, Testing Library, coverage |
+| **orchestrator** | Coordination | Reactive loop, error routing, retries |
 
-```
-🏛️ CRAFT FOUNDATION (Always Active)
-   • SOLID • Clean Architecture • Hexagonal
-   • Explicit Errors • Type Safety • Immutability • TDD
-```
+### Agent Philosophy
 
-```bash
-/add-skill architect DDD                  # Add DDD expertise
-/add-skill architect CQRS --scope src/orders
-/add-skill --list                         # Show all active skills
-```
+Every agent embodies craft principles:
 
-**Craft Guard validates every skill:**
-
-```
-> /add-skill architect DDD
-
-✅ Validating against craft principles...
-   ✓ Aligns with SOLID (aggregates = single responsibility)
-   ✓ Aligns with Clean Architecture (domain at center)
-   ✓ Aligns with Hexagonal (bounded contexts as ports)
-
-✅ APPROVED — DDD is craft-aligned
-```
-
-**Available skills:**
-
-| Category | Skills |
-|----------|--------|
-| Architecture | `DDD`, `CQRS`, `Event-Sourcing`, `Hexagonal-Advanced`, `Modular-Monolith` |
-| Frontend | `React-Patterns`, `State-Machines`, `A11y-Expert`, `Performance` |
-| Backend | `API-Design`, `GraphQL`, `Message-Queues`, `Caching` |
-| Testing | `TDD-Advanced`, `BDD`, `Contract-Testing`, `Property-Testing` |
+| Principle | Application |
+|-----------|-------------|
+| **Domain First** | Business logic at center, frameworks at edges |
+| **Type Safety** | Strict mode, no `any`, types as documentation |
+| **Explicit Errors** | `Result<T, E>` not `throw`, code tells its story |
+| **Test-Driven** | Tests are executable specs, not afterthoughts |
+| **Clean Architecture** | SOLID, DDD, Hexagonal — context-appropriate |
 
 ---
 
-## 👥 The Team
+## Reactive System
 
-| Agent | Focus | Expertise |
-|-------|-------|-----------|
-| 👤 **Product Owner** | Specs | Stories, acceptance criteria, edge cases |
-| 🏗️ **Architect** | Design | Clean Architecture, DDD, SOLID, code review |
-| 💻 **Frontend Engineer** | UI | React, accessibility, components, hooks |
-| ⚙️ **Backend Engineer** | API | Services, validation, Result types, security |
-| 🧪 **QA Engineer** | Tests | TDD/BDD, Testing Library, coverage |
+The magic of Spectre: agents don't just execute sequentially — they **react** to each other.
+
+### Reactive Links
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    REACTIVE MESH                                │
+│                                                                 │
+│   Learning Agent ─── violation ───▶ Architect                   │
+│                                          │                      │
+│                                          │ refacto_plan         │
+│                                          ▼                      │
+│   Product Owner ◀─── contradiction ─── Architect                │
+│        │                                    │                   │
+│        │                                    │                   │
+│   spec_gap ◀─── Dev                    design ───▶ Dev          │
+│   unclear  ◀─── QA                     review ───▶ Dev          │
+│        │                                    │                   │
+│        ▼                                    ▼                   │
+│   ┌─────────┐                        ┌───────────┐              │
+│   │   Dev   │◀─── test_failure ──────│    QA     │              │
+│   │         │◀─── design_flaw ───────│           │              │
+│   └─────────┘                        └───────────┘              │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Error Routing
+
+| Error Type | Routed To | Trigger |
+|------------|-----------|---------|
+| **Craft violation** | Architect | `any` abuse, `throw` in business logic, god class |
+| Test failure | Engineer (owner) | `FAIL`, `expect`, assertion errors |
+| Type error | Architect | `error TS`, type mismatch |
+| Design flaw | Architect | Circular dependency, coupling |
+| Spec gap | Product Owner | Missing edge case, unclear requirement |
+| Build error | Architect | Module not found, compilation |
+| Contradiction | Product Owner | Conflicting requirements |
+
+### Self-Correction Loop
+
+```
+QA finds error
+     │
+     ▼
+Route to right agent (based on error type + file ownership)
+     │
+     ▼
+Agent fixes
+     │
+     ▼
+QA re-verifies
+     │
+     ├── Pass → Continue
+     └── Fail → Loop (max 3 retries, then human takeover)
+```
 
 ---
 
-## 💫 Example
+## Shared State
+
+Agents communicate through `.spectre/`:
 
 ```
-> /craft "Auth with OAuth and magic links"
+.spectre/
+├── state.json          # Current workflow state
+├── errors.jsonl        # Error log (append-only)
+├── events.jsonl        # Event history
+├── learnings.jsonl     # Fix patterns learned
+├── ownership.json      # Who modified which files
+├── context.json        # Current feature context
+└── learnings/          # Project patterns (from /learn)
+    ├── tech-stack.json
+    ├── code-patterns.json
+    ├── test-patterns.json
+    └── summary.md
+```
 
-🔍 Stack: TypeScript + React + React Query
-🧠 Patterns: feature folders, Result types
-✅ Craft skills injected
+---
 
-🏗️ Architect designing...
-   ✓ OAuth2 + PKCE
-   ✓ Magic link strategy
-   ✓ Session management
+## Example Session
 
-💻 Engineer implementing...
-   ✓ AuthContext (typed)
-   ✓ useAuth hook
-   ✓ LoginForm component
+```
+> /craft "User authentication with magic links"
 
-🧪 QA testing...
+🔍 Detected: TypeScript + React + React Query
+🧠 Learned: Feature folders, Result types, colocated tests
+✅ Craft principles active
+
+📋 Product Owner: Writing user story...
+   ✓ 3 scenarios defined (happy path, expired link, invalid email)
+   ✓ Acceptance criteria in Given-When-Then
+
+🏗️ Architect: Designing...
+   ✓ Hexagonal structure: domain/application/infrastructure/ui
+   ✓ Result<User, AuthError> for error handling
+   ✓ React Query for server state
+
+💻 Frontend Engineer: Implementing...
+   ✓ Created src/features/auth/domain/
+   ✓ Created src/features/auth/ui/MagicLinkForm.tsx
    ✓ 8 tests written
-   ✗ 2 failures detected
 
-🔄 Reactive loop triggered...
+🧪 QA Engineer: Verifying...
+   ✗ 2 test failures detected
 
-💻 Engineer fixing...
-   ✓ Fixed error handling
-   ✓ Fixed token refresh
+🔄 Routing to Frontend Engineer (file owner)...
 
-🧪 QA re-verifying...
-   ✓ 8/8 passing
+💻 Frontend Engineer: Fixing...
+   ✓ Fixed missing data-testid
+   ✓ Fixed async state handling
 
-✨ Craft complete.
+🧪 QA Engineer: Re-verifying...
+   ✓ 8/8 tests passing
+   ✓ TypeScript: no errors
+   ✓ Accessibility: verified
+
+✨ Feature complete!
+   • 12 files created
+   • 8 tests passing
+   • Craft score: 100%
 ```
 
 ---
 
-## 📦 Install
+## Installation
 
 ```bash
+# One-liner install
 curl -fsSL https://raw.githubusercontent.com/fvilcot/spectre-agents/main/install.sh | bash
+
+# Restart Claude Code
 ```
 
-Restart Claude Code. You're ready.
+This installs agents and skills to `~/.claude/`.
+
+### Project Setup (Optional)
+
+For the full reactive system with hooks:
+
+```bash
+/setup-reactive
+```
+
+Creates `.spectre/`, hooks configuration, and routing scripts.
+
+---
+
+## Project Structure
+
+```
+spectre-agents/
+├── .claude/
+│   ├── agents/                 # Agent definitions
+│   │   ├── architect.md
+│   │   ├── product-owner.md
+│   │   ├── frontend-engineer.md
+│   │   ├── backend-engineer.md
+│   │   ├── qa-engineer.md
+│   │   └── orchestrator.md
+│   │
+│   └── skills/                 # Skill definitions
+│       ├── craft/SKILL.md
+│       ├── heal/SKILL.md
+│       ├── learn/SKILL.md
+│       ├── feature/SKILL.md
+│       ├── reactive-loop/SKILL.md
+│       ├── agent/SKILL.md
+│       ├── add-skill/SKILL.md
+│       ├── test-craft/SKILL.md
+│       ├── init-frontend/SKILL.md
+│       └── setup-reactive/SKILL.md
+│
+├── scripts/
+│   └── spectre/
+│       ├── spectre-router.sh   # Smart error routing
+│       ├── on-agent-stop.sh    # SubagentStop hook
+│       └── check-test-results.sh
+│
+├── install.sh                  # Global installer
+├── CLAUDE.md                   # Quick reference
+└── README.md                   # This file
+```
+
+---
+
+## Craft Principles
+
+Spectre isn't about generating more code faster. It's about **crafting better software**.
+
+> "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
+
+> "The only way to go fast is to go well." — Robert C. Martin
+
+> "Make it work, make it right, make it fast — in that order." — Kent Beck
+
+### What Makes Code "Craft-Ready"
+
+| Aspect | Craft Standard |
+|--------|----------------|
+| **Types** | Strict TypeScript, no `any`, types as documentation |
+| **Errors** | `Result<T, E>` pattern, no thrown exceptions for expected cases |
+| **Architecture** | Domain at center, dependencies point inward |
+| **Tests** | Behavior-driven, test pyramid respected, colocated |
+| **Naming** | Intent-revealing, ubiquitous language |
+
+---
+
+## Why Spectre?
+
+| Traditional AI Coding | Spectre |
+|----------------------|---------|
+| Single prompt → code dump | Specialized agents collaborate |
+| You debug the output | Agents self-correct via QA loop |
+| Generic patterns | Learns YOUR project conventions |
+| Hope it works | Verified by QA before delivery |
+| Throws exceptions | Result types, explicit errors |
+| `any` everywhere | Strict TypeScript |
+
+---
+
+## Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `/craft` | Build features with guided flow |
+| `/heal` | Auto-fix tests, types, build, specs |
+| `/learn` | Learn project patterns |
+| `/agent <name>` | Start specific agent with reactive links |
+| `/reactive-loop` | Start full multi-agent workflow |
+| `/setup-reactive` | Configure reactive system in project |
+| `/add-skill` | Add specialized skills to agents |
+| `/test-craft` | TDD/BDD testing guidance |
+| `/init-frontend` | Bootstrap React project with craft principles |
 
 ---
 
@@ -299,7 +480,7 @@ Restart Claude Code. You're ready.
 </p>
 
 <p align="center">
-  <strong>Spectre learns. Spectre adapts. Spectre crafts.</strong> 👻
+  <strong>Spectre learns. Spectre adapts. Spectre crafts.</strong>
 </p>
 
 ---

@@ -25,7 +25,7 @@ You are the central coordinator that:
 │                                                             │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌───────┐ │
 │  │ Product  │ ─▶ │ Software │ ─▶ │ Frontend │ ─▶ │  QA   │ │
-│  │  Owner   │    │ Craftsman│    │   Dev    │    │Engineer│ │
+│  │  Owner   │    │ Architect│    │   Dev    │    │Engineer│ │
 │  └──────────┘    └──────────┘    └──────────┘    └───┬───┘ │
 │                                        ▲              │     │
 │                                        │   error      │     │
@@ -68,12 +68,46 @@ All agents communicate through `.spectre/`:
 
 | Phase | Agent | Output |
 |-------|-------|--------|
+| `learn` | learning-agent | Stack context + patterns OR triggers architect |
 | `define` | product-owner | User story with acceptance criteria |
 | `design` | architect | Technical design document |
 | `implement` | frontend-engineer | Working code |
 | `verify` | qa-engineer | Test results |
 | `fix` | frontend-engineer | Bug fixes |
 | `complete` | — | Feature delivered |
+
+## Reactive Links (All Agents)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    FULL REACTIVE MESH                            │
+│                                                                  │
+│   Learning Agent ─── violation ───▶ Architect                    │
+│        │                               │                         │
+│        │                               ├── refacto_plan ──▶ User │
+│        │                               │                         │
+│   Product Owner ◀── contradiction ────┤                         │
+│        │                               │                         │
+│        ├── spec ──▶ Architect         │                         │
+│        │               │               │                         │
+│   spec_gap ◀── Dev    design ──▶ Dev  │                         │
+│   unclear  ◀── QA     review ──▶ Dev  │                         │
+│        │               │               │                         │
+│        │          ┌────┴────┐          │                         │
+│        │          ▼         ▼          │                         │
+│        │    Frontend    Backend        │                         │
+│        │    Engineer    Engineer       │                         │
+│        │          │         │          │                         │
+│        │          └────┬────┘          │                         │
+│        │               │               │                         │
+│        │          test_failure         │                         │
+│        │          design_flaw          │                         │
+│        │               │               │                         │
+│        │               ▼               │                         │
+│        └────────── QA Engineer ────────┘                         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## Your Responsibilities
 
