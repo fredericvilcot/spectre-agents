@@ -5,13 +5,13 @@ context: conversation
 allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch
 ---
 
-# Spectre Craft — Intelligent Guided Flow
+# Spectre Craft — Smart Reactive Flow
 
-Smart flow that adapts to your situation, with optional inspiration from existing projects.
+Intelligent flow that adapts to your situation AND your input.
 
 ---
 
-## The Master Flow
+## The Smart Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -20,336 +20,372 @@ Smart flow that adapts to your situation, with optional inspiration from existin
 │      │                                                           │
 │      ▼                                                           │
 │  ┌─────────────────────────────────────┐                        │
-│  │  1. DETECTION: Is there code?       │                        │
+│  │  1. PROJECT DETECTION               │                        │
+│  │     Existing code? Stack?           │                        │
 │  └─────────────┬───────────────────────┘                        │
 │                │                                                 │
-│       ┌───────┴───────┐                                         │
-│       │               │                                         │
-│      YES             NO (from scratch)                           │
-│       │               │                                         │
-│       ▼               ▼                                         │
-│  ┌─────────┐    ┌─────────────────────┐                        │
-│  │ Auto-   │    │ 2. STACK            │                        │
-│  │ detect  │    │    What stack?      │                        │
-│  │ stack   │    └──────────┬──────────┘                        │
-│  │ +       │               │                                    │
-│  │ learn   │               ▼                                    │
-│  │ patterns│    ┌─────────────────────┐                        │
-│  └────┬────┘    │ 3. INSPIRATION?     │                        │
-│       │         │    Reference project│                        │
-│       │         │    to inspire from? │                        │
-│       │         └──────────┬──────────┘                        │
-│       │                    │                                    │
-│       │           ┌───────┴───────┐                            │
-│       │          YES             NO                             │
-│       │           │               │                             │
-│       │           ▼               │                             │
-│       │    ┌──────────────┐       │                            │
-│       │    │ 4. SCAN &    │       │                            │
-│       │    │    ANALYZE   │       │                            │
-│       │    │              │       │                            │
-│       │    │ ✅ To adopt  │       │                            │
-│       │    │ 🔧 To improve│       │                            │
-│       │    │ ❌ To skip   │       │                            │
-│       │    └──────┬───────┘       │                            │
-│       │           │               │                             │
-│       └───────────┴───────┬───────┘                            │
-│                           │                                     │
-│                           ▼                                     │
-│                ┌─────────────────────┐                         │
-│                │ 5. WORK CONTEXT     │                         │
-│                │    Product/Startup/ │                         │
-│                │    Freelance/Learn  │                         │
-│                └──────────┬──────────┘                         │
-│                           │                                     │
-│                           ▼                                     │
-│                ┌─────────────────────┐                         │
-│                │ 6. WHAT TO BUILD?   │                         │
-│                │    Feature desc or  │                         │
-│                │    spec file        │                         │
-│                └──────────┬──────────┘                         │
-│                           │                                     │
-│                           ▼                                     │
-│                ┌─────────────────────┐                         │
-│                │ 7. ARCHITECT PLAN   │                         │
-│                │                     │                         │
-│                │ Structure + craft   │                         │
-│                │ principles applied  │                         │
-│                └──────────┬──────────┘                         │
-│                           │                                     │
-│                           ▼                                     │
-│                ┌─────────────────────┐                         │
-│                │ 8. REACTIVE AGENTS  │                         │
-│                │                     │                         │
-│                │ Architect → Dev →   │                         │
-│                │ QA → loop if needed │                         │
-│                └─────────────────────┘                         │
+│                ▼                                                 │
+│  ┌─────────────────────────────────────┐                        │
+│  │  2. WORK CONTEXT                    │                        │
+│  │     Product / Startup / Freelance   │                        │
+│  └─────────────┬───────────────────────┘                        │
+│                │                                                 │
+│                ▼                                                 │
+│  ┌─────────────────────────────────────┐                        │
+│  │  3. WHAT TO BUILD?                  │                        │
+│  │     User describes feature/idea     │                        │
+│  └─────────────┬───────────────────────┘                        │
+│                │                                                 │
+│                ▼                                                 │
+│  ┌─────────────────────────────────────┐                        │
+│  │  4. INPUT ANALYSIS ← NEW!           │                        │
+│  │     Detect input type & route       │                        │
+│  └─────────────┬───────────────────────┘                        │
+│                │                                                 │
+│       ┌────────┼────────┬──────────┐                            │
+│       │        │        │          │                            │
+│       ▼        ▼        ▼          ▼                            │
+│    ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐                          │
+│    │ Idea│  │Func │  │Tech │  │Bug/ │                          │
+│    │ raw │  │Spec │  │Spec │  │Fix  │                          │
+│    └──┬──┘  └──┬──┘  └──┬──┘  └──┬──┘                          │
+│       │        │        │        │                              │
+│       ▼        ▼        ▼        ▼                              │
+│    ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐                          │
+│    │ PO  │  │Archi│  │ Dev │  │ Dev │                          │
+│    │first│  │first│  │first│  │only │                          │
+│    └─────┘  └─────┘  └─────┘  └─────┘                          │
+│                                                                  │
+│                ▼                                                 │
+│  ┌─────────────────────────────────────┐                        │
+│  │  5. REACTIVE PARALLEL EXECUTION     │                        │
+│  │     Agents work & collaborate       │                        │
+│  └─────────────────────────────────────┘                        │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Step 1: Detect Project State
+## Step 1: Project Detection
 
 ```bash
-# Check if there's existing code
-if [ -f "package.json" ] || [ -f "go.mod" ] || [ -f "Cargo.toml" ] || [ -f "pyproject.toml" ]; then
+# Check for existing project
+if [ -f "package.json" ] || [ -f "go.mod" ] || [ -f "Cargo.toml" ]; then
   FROM_SCRATCH=false
-  # Auto-detect stack and learn patterns
+  # → Auto-detect stack, trigger /learn
 else
   FROM_SCRATCH=true
-  # Need to ask for stack + optional inspiration
+  # → Ask for stack
 fi
 ```
 
----
-
-## Step 2: Stack Selection (From Scratch Only)
-
-If `FROM_SCRATCH=true`:
+### If From Scratch → Ask Stack
 
 ```
-Question: "What stack are you building with?"
+Question: "What stack?"
 Header: "Stack"
 Options:
-  1. "TypeScript + React"
-     Description: "Frontend with React, Vite, Vitest"
-  2. "TypeScript + Node"
-     Description: "Backend with Node.js, Express/Fastify"
-  3. "Go"
-     Description: "Backend with Go"
-  4. "Full-stack TypeScript"
-     Description: "React frontend + Node backend"
-```
-
-Then refine:
-
-```
-# If TypeScript + React:
-Question: "State management preferences?"
-Header: "Setup"
-Options:
-  1. "React Query + Zustand (Recommended)"
-     Description: "Server state + UI state separation"
-  2. "Redux Toolkit"
-     Description: "Single store approach"
-  3. "Minimal"
-     Description: "Just React useState/useContext"
+  1. "TypeScript + React" - Frontend with Vite
+  2. "TypeScript + Node" - Backend API
+  3. "Full-stack TypeScript" - React + Node
+  4. "Go" - Backend with Go
 ```
 
 ---
 
-## Step 3: Inspiration Source (From Scratch Only)
-
-```
-Question: "Do you have a reference project to inspire from?"
-Header: "Inspiration"
-Options:
-  1. "Yes, a GitHub repo"
-     Description: "I'll analyze it and extract patterns"
-  2. "Yes, a local folder"
-     Description: "Existing code on your machine"
-  3. "Yes, an archive (zip/tar)"
-     Description: "Template or boilerplate"
-  4. "No, start fresh"
-     Description: "Use pure craft defaults"
-```
-
-### If Yes → Ask for Source
-
-```
-Question: "Provide the source:"
-Header: "Source"
-
-# For GitHub:
-"Paste the GitHub URL (e.g., github.com/user/repo):"
-
-# For local folder:
-"Enter the path (e.g., ~/projects/reference):"
-
-# For archive:
-"Enter the path to the archive:"
-```
-
----
-
-## Step 4: Scan & Analyze Inspiration
-
-When user provides an inspiration source, scan and analyze it.
-
-### 4.1 Fetch the Source
-
-```bash
-# GitHub repo
-git clone --depth 1 <url> /tmp/spectre-inspiration
-
-# Local folder
-cp -r <path> /tmp/spectre-inspiration
-
-# Archive
-tar -xzf <archive> -C /tmp/spectre-inspiration
-# or unzip <archive> -d /tmp/spectre-inspiration
-```
-
-### 4.2 Analyze with Architect
-
-```
-Task(
-  subagent_type: "architect",
-  prompt: """
-    Analyze this inspiration project for craft patterns.
-
-    SCAN THE PROJECT AND IDENTIFY:
-
-    ## 1. STRUCTURE
-    - Folder organization
-    - File naming conventions
-    - Module boundaries
-
-    ## 2. PATTERNS TO ADOPT ✅
-    Identify patterns that are CRAFT-ALIGNED:
-    - Architecture (hexagonal? feature folders?)
-    - Error handling (Result types?)
-    - Type safety (strict mode?)
-    - Testing approach
-    - State management strategy
-
-    ## 3. PATTERNS TO IMPROVE 🔧
-    Identify patterns that have GOOD INTENT but need craft elevation:
-    - throw Error → should be Result<T, E>
-    - any types → should be strict
-    - God components → should be split
-    - etc.
-
-    ## 4. ANTI-PATTERNS TO AVOID ❌
-    Identify patterns we should NOT copy:
-    - Technical debt
-    - Bad practices
-    - Security issues
-
-    ## 5. RECOMMENDATIONS
-    Summary of what to:
-    - ADOPT as-is
-    - ADOPT with improvements
-    - SKIP entirely
-
-    FORMAT YOUR RESPONSE AS A CLEAR REPORT.
-  """
-)
-```
-
-### 4.3 Present Report to User
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  📊 INSPIRATION ANALYSIS                                         │
-│  Source: github.com/acme/awesome-app                            │
-│                                                                  │
-│  🔍 STACK DETECTED                                               │
-│     TypeScript 5.3 + React 18 + React Query + Zustand           │
-│                                                                  │
-│  ✅ PATTERNS TO ADOPT                                           │
-│     • Feature folders (src/features/*)                          │
-│     • Colocated tests (*.test.tsx)                              │
-│     • Custom hooks for logic separation                          │
-│     • Zod schemas for API validation                             │
-│                                                                  │
-│  🔧 PATTERNS TO IMPROVE (craft elevation)                       │
-│     • Error handling: throw → Result<T, E>                      │
-│     • Some `any` types → strict typing                          │
-│     • Large components → split into smaller                      │
-│                                                                  │
-│  ❌ PATTERNS TO SKIP                                             │
-│     • Global mutable state                                       │
-│     • Inline styles (inconsistent)                               │
-│                                                                  │
-│  💡 ARCHITECT RECOMMENDATION                                     │
-│     "I'll use their folder structure and hook patterns,         │
-│      but implement proper Result types for error handling        │
-│      and enforce strict TypeScript throughout."                  │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-
-[Continue with these patterns] [Modify] [Skip inspiration]
-```
-
-### 4.4 Store Inspiration Context
-
-```json
-// .spectre/context.json
-{
-  "stack": { ... },
-  "inspiration": {
-    "source": "github.com/acme/awesome-app",
-    "analyzedAt": "2024-01-15T10:30:00Z",
-    "adopt": [
-      "feature-folders",
-      "colocated-tests",
-      "custom-hooks",
-      "zod-validation"
-    ],
-    "improve": [
-      { "pattern": "throw-errors", "craft": "result-types" },
-      { "pattern": "any-types", "craft": "strict-typing" }
-    ],
-    "skip": [
-      "global-mutable-state",
-      "inline-styles"
-    ]
-  }
-}
-```
-
----
-
-## Step 5: Work Context
+## Step 2: Work Context
 
 ```
 Question: "What's your work context?"
 Header: "Context"
 Options:
-  1. "Product Team / Enterprise"
-     Description: "Specs, process, reviews, multiple stakeholders"
-  2. "Startup / Small Team"
-     Description: "Fast iterations, agile, ship & learn"
-  3. "Freelance / Solo"
-     Description: "Efficient, focused, minimal overhead"
-  4. "Learning / Exploring"
-     Description: "Trying things out, no pressure"
+  1. "Product Team" - Full process: PO → Architect → Dev → QA
+  2. "Startup" - Fast: Architect → Dev → QA
+  3. "Freelance" - Efficient: Dev → QA
+  4. "Learning" - Educational: Single agent explains
 ```
 
 ---
 
-## Step 6: What to Build
-
-**For From Scratch** (skip "Build/Fix/Improve" — obviously BUILD):
+## Step 3: What to Build
 
 ```
 Question: "What do you want to build?"
 Header: "Feature"
-# Free text input
+# Free text input - user describes their idea/feature/spec
 ```
-
-**For Existing Project**:
-
-```
-Question: "What do you want to do?"
-Header: "Goal"
-Options:
-  1. "Build something new"
-  2. "Fix something"
-  3. "Improve existing code"
-  4. "Think / Design"
-```
-
-Then ask for details based on selection.
 
 ---
 
-## Step 7: Architect Plan (With Inspiration Context)
+## Step 4: Input Analysis (THE SMART PART)
 
-The architect receives ALL context and proposes a plan:
+Analyze what the user provided to determine routing:
+
+### Input Types
+
+| Type | Indicators | Example | Route |
+|------|------------|---------|-------|
+| **Raw Idea** | Vague, no acceptance criteria, informal | "a sexy counter" | PO first |
+| **Functional Spec** | User stories, acceptance criteria, behavior described | "Counter that increments, persists in localStorage, has dark mode" | Architect first |
+| **Technical Spec** | Architecture details, file structure, implementation notes | "Create Counter.tsx with useState, useEffect for localStorage sync" | Dev first |
+| **Bug/Fix** | References existing code, describes problem | "Fix the counter reset bug in Counter.tsx" | Dev only |
+
+### Detection Logic
+
+```
+ANALYZE the user's input:
+
+IF input is vague/informal (just an idea, no specifics):
+  → INPUT_TYPE = "raw_idea"
+  → NEEDS_PO = true
+  → "User has an idea but no spec. PO will formalize it."
+
+ELSE IF input has functional requirements (what, not how):
+  → INPUT_TYPE = "functional_spec"
+  → NEEDS_PO = false
+  → "User has functional spec. Architect can design."
+
+ELSE IF input has technical details (how, structure, files):
+  → INPUT_TYPE = "technical_spec"
+  → NEEDS_PO = false
+  → NEEDS_ARCHITECT = false
+  → "User has technical spec. Dev can implement."
+
+ELSE IF input references existing code/bug:
+  → INPUT_TYPE = "fix"
+  → NEEDS_PO = false
+  → NEEDS_ARCHITECT = false
+  → "Bug fix. Dev handles, QA verifies."
+```
+
+### Inform the User
+
+```
+Based on your input, here's the plan:
+
+📝 Input type: Raw idea
+🎯 Flow: PO → Architect → Dev ⇄ QA
+
+The Product Owner will first create a proper spec from your idea,
+then the Architect will design the technical solution.
+
+[Start] [I have more details to add]
+```
+
+---
+
+## Step 5: Smart Routing by Input Type
+
+### Route A: Raw Idea → PO First
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  USER INPUT: "a sexy counter"                                    │
+│                                                                  │
+│       ┌──────────┐                                              │
+│       │    PO    │ ← Creates functional spec                    │
+│       │  (spec)  │                                              │
+│       └────┬─────┘                                              │
+│            │ user story + acceptance criteria                   │
+│            ▼                                                     │
+│       ┌──────────┐                                              │
+│       │ Architect│ ← Creates technical design                   │
+│       │ (design) │                                              │
+│       └────┬─────┘                                              │
+│            │ architecture + file structure                      │
+│            ▼                                                     │
+│       ┌─────────────────────────┐                               │
+│       │      PARALLEL           │                               │
+│       │  ┌──────┐  ┌──────┐    │                               │
+│       │  │ Dev  │  │  QA  │    │                               │
+│       │  │impl  │⇄│tests │    │                               │
+│       │  └──────┘  └──────┘    │                               │
+│       └─────────────────────────┘                               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**PO Output:**
+```markdown
+## User Story
+As a user, I want a visually appealing counter
+so that I can track a value with delight.
+
+## Acceptance Criteria
+- [ ] Counter displays current value (starts at 0)
+- [ ] Increment button (+1) with satisfying animation
+- [ ] Decrement button (-1) with animation
+- [ ] Reset button
+- [ ] Value persists across page refresh
+- [ ] Dark/light mode toggle
+- [ ] Micro-interactions on hover/click
+- [ ] Accessible (keyboard nav, screen reader)
+
+## Edge Cases
+- Negative values allowed? → Ask user or default to yes
+- Max value? → No limit unless specified
+```
+
+### Route B: Functional Spec → Architect First
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  USER INPUT: "Counter with +/-, localStorage, dark mode"        │
+│                                                                  │
+│       ┌──────────┐                                              │
+│       │ Architect│ ← Designs from functional spec               │
+│       │ (design) │                                              │
+│       └────┬─────┘                                              │
+│            │                                                     │
+│            ▼                                                     │
+│       ┌─────────────────────────┐                               │
+│       │      PARALLEL           │                               │
+│       │  ┌──────┐  ┌──────┐    │                               │
+│       │  │ Dev  │  │  QA  │    │                               │
+│       │  │impl  │⇄│tests │    │                               │
+│       │  └──────┘  └──────┘    │                               │
+│       └─────────────────────────┘                               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Route C: Technical Spec → Dev First
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  USER INPUT: "Create Counter.tsx with useState, Tailwind..."    │
+│                                                                  │
+│       ┌─────────────────────────┐                               │
+│       │      PARALLEL           │                               │
+│       │  ┌──────┐  ┌──────┐    │                               │
+│       │  │ Dev  │  │  QA  │    │                               │
+│       │  │impl  │⇄│tests │    │                               │
+│       │  └──────┘  └──────┘    │                               │
+│       └─────────────────────────┘                               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Route D: Bug Fix → Dev Only
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  USER INPUT: "Fix the counter not persisting on refresh"        │
+│                                                                  │
+│       ┌──────┐      ┌──────┐                                    │
+│       │ Dev  │ ───▶ │  QA  │                                    │
+│       │ fix  │      │verify│                                    │
+│       └──────┘      └──────┘                                    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Parallel Execution: Dev ⇄ QA
+
+The magic: **Dev and QA work in parallel**, not sequentially.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   PARALLEL REACTIVE LOOP                         │
+│                                                                  │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                                                          │  │
+│   │    Dev implements          QA writes tests              │  │
+│   │         │                        │                       │  │
+│   │         │   ← shares context →   │                       │  │
+│   │         │                        │                       │  │
+│   │         ▼                        ▼                       │  │
+│   │    Code ready              Tests ready                   │  │
+│   │         │                        │                       │  │
+│   │         └────────┬───────────────┘                       │  │
+│   │                  │                                       │  │
+│   │                  ▼                                       │  │
+│   │            QA runs tests                                 │  │
+│   │                  │                                       │  │
+│   │         ┌───────┴───────┐                               │  │
+│   │         │               │                               │  │
+│   │        PASS            FAIL                              │  │
+│   │         │               │                               │  │
+│   │         ▼               ▼                               │  │
+│   │       Done         Dev fixes                            │  │
+│   │                        │                                │  │
+│   │                        └──────▶ QA re-runs              │  │
+│   │                                                          │  │
+│   └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### How Parallel Works
+
+1. **Architect** outputs design with:
+   - File structure
+   - Component specs
+   - Acceptance criteria (for QA)
+
+2. **Dev starts** implementing from the design
+
+3. **QA starts** writing tests from acceptance criteria
+   - Doesn't wait for Dev to finish
+   - Writes test shells based on expected behavior
+
+4. **When Dev completes a component**, QA runs its tests
+
+5. **If tests fail**, Dev gets immediate feedback and fixes
+
+6. **Loop continues** until all tests pass
+
+---
+
+## Agent Prompts
+
+### PO Prompt (Raw Idea → Spec)
+
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    USER'S IDEA: <raw idea>
+    STACK: <detected or chosen stack>
+
+    ## Your Job
+
+    Transform this raw idea into a proper functional specification.
+
+    ## Output Format
+
+    ### User Story
+    As a [user type], I want [feature]
+    so that [benefit].
+
+    ### Acceptance Criteria
+    - [ ] Criterion 1 (specific, testable)
+    - [ ] Criterion 2
+    - [ ] ...
+
+    ### Edge Cases
+    - What happens if...?
+    - What about...?
+
+    ### Out of Scope (for this iteration)
+    - Things to explicitly NOT do now
+
+    ### Questions for User (if any)
+    - Clarifications needed before proceeding
+
+    ## Rules
+    - Be specific and testable
+    - Think about edge cases
+    - Consider accessibility
+    - Keep scope reasonable for first iteration
+  """
+)
+```
+
+### Architect Prompt (Spec → Design)
 
 ```
 Task(
@@ -357,327 +393,243 @@ Task(
   prompt: """
     ## CONTEXT
 
-    ### Stack
-    TypeScript + React + React Query + Zustand + Zod
+    FUNCTIONAL SPEC:
+    <PO's output or user's functional spec>
 
-    ### Craft Foundation (ALWAYS APPLY)
-    - SOLID principles
-    - Hexagonal architecture
-    - Result<T, E> for errors (no throw)
-    - Strict TypeScript (no any)
-    - TDD approach
+    STACK: <stack>
+    CRAFT PRINCIPLES: Result<T,E>, strict TypeScript, hexagonal
 
-    ### Inspiration Patterns (ADOPT)
-    - Feature folders structure
-    - Colocated tests
-    - Custom hooks for logic
+    ## Your Job
 
-    ### Inspiration Improvements (ELEVATE)
-    - throw Error → Result<T, E>
-    - any types → strict generics
+    Design the technical architecture.
 
-    ### Inspiration Skip (AVOID)
-    - Global mutable state
-    - Inline styles
+    ## Output Format
 
-    ## TASK
-    User wants to build: <user's feature description>
+    ### Architecture Decision
+    Brief explanation of approach.
 
-    ## YOUR JOB
-    Design the technical architecture that:
-    1. RESPECTS the user's intent (what they want)
-    2. ADOPTS inspiration patterns (structure, naming, etc.)
-    3. APPLIES craft principles (Result types, strict TS, etc.)
-    4. IMPROVES on inspiration weaknesses
+    ### File Structure
+    ```
+    src/
+    ├── features/
+    │   └── <feature>/
+    │       ├── domain/       # Entities, value objects
+    │       ├── application/  # Use cases, hooks
+    │       ├── infrastructure/ # API, storage
+    │       └── ui/           # Components
+    ```
 
-    Output:
-    - Folder structure
-    - Key files to create
-    - Architecture decisions
-    - Implementation phases
+    ### Key Files to Create
+    1. File path - purpose
+    2. ...
+
+    ### For Dev
+    Implementation notes, patterns to use.
+
+    ### For QA (Acceptance Test Specs)
+    Test scenarios derived from acceptance criteria:
+    - Test: "should increment counter"
+    - Test: "should persist value to localStorage"
+    - ...
+
+    ### Implementation Phases
+    1. Phase 1: ...
+    2. Phase 2: ...
   """
 )
 ```
 
-### Show Plan to User
+### Parallel Dev + QA Spawn
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  🏗️ ARCHITECT PLAN                                              │
-│                                                                  │
-│  Feature: User Authentication                                    │
-│                                                                  │
-│  ## Structure (inspired + craft)                                │
-│                                                                  │
-│  src/                                                            │
-│  ├── features/                    ← From inspiration            │
-│  │   └── auth/                                                  │
-│  │       ├── domain/              ← Craft: hexagonal            │
-│  │       │   ├── User.ts                                        │
-│  │       │   └── AuthErrors.ts    ← Craft: typed errors         │
-│  │       ├── application/                                       │
-│  │       │   └── useLogin.ts      ← Craft: Result<T,E>          │
-│  │       ├── infrastructure/                                     │
-│  │       │   └── AuthApi.ts                                     │
-│  │       └── ui/                                                │
-│  │           ├── LoginForm.tsx                                  │
-│  │           └── LoginForm.test.tsx  ← Colocated test           │
-│  │                                                              │
-│  ## Key Decisions                                                │
-│  • Error handling: Result<User, AuthError> (not throw)          │
-│  • State: React Query for server, Zustand for UI only           │
-│  • Validation: Zod at API boundary, not in domain               │
-│                                                                  │
-│  ## Phases                                                       │
-│  1. Domain layer (entities, errors)                              │
-│  2. Application layer (use cases)                                │
-│  3. Infrastructure (API adapter)                                 │
-│  4. UI components                                                │
-│  5. Tests                                                        │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-
-[Approve & Start] [Modify Plan] [More Details]
-```
-
----
-
-## Step 8: Reactive Agent Execution
-
-Once plan is approved, agents execute with reactive loop:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     REACTIVE EXECUTION                           │
-│                                                                  │
-│                                                                  │
-│     ┌──────────┐      ┌──────────┐      ┌──────────┐           │
-│     │ Architect│ ───▶ │ Engineer │ ───▶ │    QA    │           │
-│     │  (plan)  │      │  (impl)  │      │ (verify) │           │
-│     └──────────┘      └──────────┘      └────┬─────┘           │
-│                              ▲               │                  │
-│                              │    error      │                  │
-│                              └───────────────┘                  │
-│                                                                  │
-│     Error Routing:                                               │
-│     • Test failure → Engineer fixes → QA re-verifies            │
-│     • Design flaw → Architect revises → Engineer → QA           │
-│     • Max 3 retries → User takes over                           │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Agent Chain by Context
-
-| Context | Chain |
-|---------|-------|
-| Product Team | PO → Architect → Engineer(s) → QA |
-| Startup | Architect → Engineer(s) → QA |
-| Freelance | Engineer → QA (optional) |
-| Learning | Single agent (educational mode) |
-
-### Spawning Agents
-
-```
-# Phase 1: Architect designs
+# Launch BOTH in parallel
 Task(
-  subagent_type: "architect",
+  subagent_type: "frontend-engineer",
+  run_in_background: true,
   prompt: """
-    <plan context>
-    <inspiration context>
-    <craft principles>
+    ARCHITECT DESIGN: <design>
 
-    Design phase 1: Domain layer
+    Implement the feature following the design.
+    Write to .spectre/dev-progress.md as you complete each file.
   """
 )
 
-# Phase 2: Engineer implements
-Task(
-  subagent_type: "frontend-engineer",  # or backend-engineer
-  prompt: """
-    <architect's design>
-    <craft principles>
-    <inspiration patterns to follow>
-
-    Implement the domain layer as designed.
-  """
-)
-
-# Phase 3: QA verifies
 Task(
   subagent_type: "qa-engineer",
+  run_in_background: true,
   prompt: """
-    <what was implemented>
-    <acceptance criteria>
+    ACCEPTANCE CRITERIA: <from PO or architect>
+    TEST SPECS: <from architect>
 
-    Verify implementation. Run tests. Report issues.
+    Write tests for this feature.
+    - Unit tests for domain logic
+    - Integration tests for use cases
+    - Component tests for UI
+
+    Watch .spectre/dev-progress.md for completed files.
+    Run tests as files become available.
+    Write failures to .spectre/test-failures.md
   """
 )
 
-# If QA fails → loop back to engineer with error context
+# Orchestrator monitors both and routes failures
 ```
 
 ---
 
-## Context Storage
+## Context-Aware Routing Matrix
 
-```
-.spectre/
-├── context.json              # Stack, work context, inspiration
-├── stack-defaults.md         # Generated craft defaults for stack
-├── inspiration-analysis.md   # Analysis report (if inspiration used)
-├── learnings/                # Learned patterns (existing projects)
-│   ├── patterns.json
-│   └── examples.json
-└── state.json                # Current workflow state
-```
-
-### context.json Structure
-
-```json
-{
-  "stack": {
-    "language": "typescript",
-    "framework": "react",
-    "libs": ["react-query", "zustand", "zod"]
-  },
-  "workContext": "startup",
-  "fromScratch": true,
-  "inspiration": {
-    "source": "github.com/acme/app",
-    "adopt": ["feature-folders", "colocated-tests"],
-    "improve": [{"from": "throw", "to": "Result"}],
-    "skip": ["global-state"]
-  },
-  "craftFoundation": [
-    "SOLID", "Hexagonal", "Result-Types",
-    "Strict-TypeScript", "TDD"
-  ]
-}
-```
+| Context | Input Type | Pipeline |
+|---------|------------|----------|
+| **Product Team** | Raw idea | PO → Architect → Dev // QA |
+| **Product Team** | Func spec | Architect → Dev // QA |
+| **Product Team** | Tech spec | Dev // QA |
+| **Startup** | Raw idea | PO (light) → Architect → Dev // QA |
+| **Startup** | Func spec | Architect → Dev // QA |
+| **Startup** | Tech spec | Dev // QA |
+| **Freelance** | Any | Dev → QA |
+| **Learning** | Any | Single agent (explains as it goes) |
 
 ---
 
-## Example: Full From-Scratch Flow with Inspiration
+## Example: Full Flow
 
 ```
 User: /craft
 
-Bot: 🔍 No project detected — starting fresh.
+🔍 No existing project detected.
 
-     "What stack are you building with?"
-     [TypeScript + React] [TypeScript + Node] [Go] [Full-stack TS]
+"What stack?"
+[ TypeScript + React ]
 
-User: [TypeScript + React]
+"What's your work context?"
+[ Startup ]
 
-Bot: "State management preferences?"
-     [React Query + Zustand] [Redux] [Minimal]
+"What do you want to build?"
 
-User: [React Query + Zustand]
+User: a sexy counter
 
-Bot: "Do you have a reference project to inspire from?"
-     [Yes, GitHub repo] [Yes, local folder] [Yes, archive] [No, start fresh]
+📝 Analyzing your input...
 
-User: [Yes, a GitHub repo]
+   Input type: Raw idea (informal, no specifics)
+   Recommended flow: PO → Architect → Dev ⇄ QA
 
-Bot: "Paste the GitHub URL:"
+   The Product Owner will create a proper spec first.
 
-User: github.com/alan2207/bulletproof-react
+[ Start ] [ Add more details ]
 
-Bot: 🔍 Analyzing inspiration source...
+User: [ Start ]
 
-     📊 INSPIRATION ANALYSIS: bulletproof-react
+👤 Product Owner creating spec...
 
-     ✅ PATTERNS TO ADOPT
-        • Feature-based folder structure
-        • Colocated tests
-        • API layer abstraction
-        • React Query for data fetching
+   ## User Story
+   As a user, I want a visually appealing counter
+   so that I can track values with delight.
 
-     🔧 PATTERNS TO IMPROVE
-        • Some error handling via throw → Result<T, E>
-        • Type strictness can be enhanced
+   ## Acceptance Criteria
+   - [ ] Display current value (default: 0)
+   - [ ] Increment (+1) with micro-animation
+   - [ ] Decrement (-1) with micro-animation
+   - [ ] Reset to 0
+   - [ ] Persist in localStorage
+   - [ ] Dark/light theme toggle
+   - [ ] Keyboard accessible (arrows, enter)
+   - [ ] Smooth transitions
 
-     ❌ PATTERNS TO SKIP
-        • Some legacy patterns in examples
+   ## Edge Cases
+   - Allow negative values
+   - No max limit
 
-     💡 "Great choice! I'll use their proven structure
-         while applying strict craft principles."
+[ Approve spec ] [ Modify ]
 
-     [Continue] [Modify] [Skip]
+User: [ Approve spec ]
 
-User: [Continue with these patterns]
+🏗️ Architect designing...
 
-Bot: "What's your work context?"
-     [Product Team] [Startup] [Freelance] [Learning]
+   ## Architecture
 
-User: [Startup / Small Team]
+   src/features/counter/
+   ├── domain/
+   │   └── Counter.ts         # Value + operations
+   ├── application/
+   │   └── useCounter.ts      # Hook with localStorage
+   ├── infrastructure/
+   │   └── CounterStorage.ts  # localStorage adapter
+   └── ui/
+       ├── Counter.tsx        # Main component
+       ├── Counter.test.tsx   # Tests
+       └── CounterButton.tsx  # Animated button
 
-Bot: "What do you want to build?"
+   ## For QA - Test Scenarios
+   - renders with initial value 0
+   - increments on + click
+   - decrements on - click
+   - resets to 0
+   - persists to localStorage
+   - loads from localStorage on mount
+   - supports keyboard navigation
 
-User: User authentication with magic links
+[ Approve design ] [ Modify ]
 
-Bot: 🏗️ ARCHITECT PLAN
+User: [ Approve design ]
 
-     Feature: Magic Link Authentication
+🚀 Starting parallel execution...
 
-     ## Structure (bulletproof-react inspired + craft)
-     src/features/auth/
-     ├── domain/
-     │   ├── User.ts              # Entity
-     │   ├── MagicLink.ts         # Value Object
-     │   └── AuthErrors.ts        # Typed errors
-     ├── application/
-     │   ├── useSendMagicLink.ts  # Returns Result<void, SendError>
-     │   └── useVerifyMagicLink.ts
-     ├── infrastructure/
-     │   └── AuthApi.ts           # HTTP adapter
-     └── ui/
-         ├── MagicLinkForm.tsx
-         └── MagicLinkForm.test.tsx
+   ┌─────────────────────────────────────────┐
+   │  💻 Dev implementing...                  │
+   │  🧪 QA writing tests...                  │
+   └─────────────────────────────────────────┘
 
-     ## Craft Elevations
-     • Result<T, E> instead of throw
-     • Strict TypeScript throughout
-     • Domain isolated from React
+   Dev: ✓ Created Counter.ts (domain)
+   QA:  ✓ Writing domain tests...
 
-     [Approve & Start] [Modify] [Details]
+   Dev: ✓ Created useCounter.ts
+   QA:  ✓ Writing hook tests...
 
-User: [Approve & Start]
+   Dev: ✓ Created Counter.tsx
+   QA:  🧪 Running tests...
 
-Bot: 🚀 Starting reactive workflow...
+   QA:  ❌ FAIL: "should persist to localStorage"
+        Expected localStorage.setItem to be called
 
-     🏗️ Architect: Designing domain layer...
-        ✓ User entity with validation
-        ✓ MagicLink value object
-        ✓ Typed error hierarchy
+   Dev: 🔧 Fixing... added localStorage sync
 
-     💻 Frontend Engineer: Implementing...
-        ✓ Created domain/User.ts
-        ✓ Created domain/MagicLink.ts
-        ✓ Created domain/AuthErrors.ts
+   QA:  🧪 Re-running...
+   QA:  ✓ All tests passing (12/12)
 
-     🧪 QA: Verifying...
-        ✓ Domain tests passing
-        ✓ No type errors
-        ✓ Craft principles respected
+✨ Feature complete!
 
-     ✅ Phase 1 complete. Starting phase 2...
+   Files: 6 created
+   Tests: 12 passing
+   Coverage: 94%
+```
 
-     ... (continues through all phases)
+---
 
-     ✨ Authentication feature complete!
-        • 12 files created
-        • 24 tests passing
-        • Craft score: 100%
+## State Storage
+
+```json
+// .spectre/state.json
+{
+  "workflow": "craft",
+  "inputType": "raw_idea",
+  "context": "startup",
+  "phase": "parallel_execution",
+  "agents": {
+    "po": { "status": "complete", "output": "spec.md" },
+    "architect": { "status": "complete", "output": "design.md" },
+    "dev": { "status": "in_progress", "files": ["Counter.ts", "useCounter.ts"] },
+    "qa": { "status": "in_progress", "tests": 12, "passing": 10, "failing": 2 }
+  }
+}
 ```
 
 ---
 
 ## Tone
 
-- **Smart**: Adapts to situation (existing vs from-scratch)
-- **Guided**: Clear questions, sensible defaults
-- **Transparent**: Shows exactly what will happen
-- **Craft-first**: Always elevates to craft standards
-- **Reactive**: Agents collaborate and self-correct
+- **Smart**: Detects input type, routes intelligently
+- **Parallel**: Dev and QA work together, not sequentially
+- **Reactive**: Failures route instantly to the right agent
+- **Transparent**: User sees what's happening at each step
+- **Adaptive**: Different flows for different contexts
