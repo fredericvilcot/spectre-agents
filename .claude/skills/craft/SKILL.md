@@ -1516,43 +1516,49 @@ Task(
 
 ## Step 7: AUTONOMOUS FIXING LOOP (CRITICAL)
 
-**IF THERE ARE FAILURES, FIX THEM AUTOMATICALLY. DO NOT ASK THE USER.**
+**ALL ERRORS GO TO AGENTS. NEVER FIX DIRECTLY.**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    AUTONOMOUS FIXING LOOP                        │
 │                                                                  │
-│  Tests run                                                       │
+│  ⚠️ CRITICAL: CLAUDE NEVER FIXES DIRECTLY!                      │
+│     All fixes go through agents (Dev, Architect, QA)            │
+│                                                                  │
+│  After Dev + QA complete                                         │
 │       │                                                          │
 │       ▼                                                          │
 │  ┌─────────────────┐                                            │
-│  │ Read failures   │ ← .spectre/failures.md                     │
-│  │ from QA report  │                                            │
+│  │  Run full check │                                            │
+│  │  • npm run build│                                            │
+│  │  • npm test     │                                            │
+│  │  • tsc --noEmit │                                            │
 │  └────────┬────────┘                                            │
 │           │                                                      │
 │      ┌────┴────┐                                                │
 │      │         │                                                │
-│   NO FAILURES  FAILURES FOUND                                    │
+│   ALL GREEN   ERRORS FOUND                                       │
 │      │         │                                                │
 │      ▼         ▼                                                │
 │    DONE!    ┌─────────────────┐                                 │
 │             │ Classify errors │                                 │
 │             └────────┬────────┘                                 │
 │                      │                                           │
-│         ┌────────────┴────────────┐                             │
-│         │            │            │                             │
-│      test_fail    type_error   design_flaw                      │
-│         │            │            │                             │
-│         ▼            ▼            ▼                             │
-│       Dev         Architect    Architect                         │
-│       fixes       fixes        redesigns                         │
-│         │            │            │                             │
-│         └────────────┴────────────┘                             │
+│    ┌─────────────────┼─────────────────┐                        │
+│    │         │       │       │         │                        │
+│  build    test    type    lint    design                        │
+│  error    fail    error   error   flaw                          │
+│    │         │       │       │         │                        │
+│    ▼         ▼       ▼       ▼         ▼                        │
+│   DEV       DEV    ARCH    DEV      ARCH                        │
+│  agent    agent   agent   agent    agent                        │
+│    │         │       │       │         │                        │
+│    └─────────┴───────┴───────┴─────────┘                        │
 │                      │                                           │
 │                      ▼                                           │
 │               ┌─────────────┐                                   │
-│               │  QA re-runs │ ← LOOP BACK                       │
-│               │   tests     │                                   │
+│               │  Re-run all │ ← LOOP BACK                       │
+│               │   checks    │                                   │
 │               └──────┬──────┘                                   │
 │                      │                                           │
 │              ┌───────┴───────┐                                  │
@@ -1567,11 +1573,20 @@ Task(
 │                     YES             NO                           │
 │                      │               │                          │
 │                      ▼               ▼                           │
-│                 LOOP BACK      Report to user                    │
-│                              (needs manual fix)                  │
+│                 LOOP BACK      /heal to continue                 │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Error Classification & Routing
+
+| Error Type | Who Fixes | Example |
+|------------|-----------|---------|
+| **build_error** | Dev Agent | `Module not found`, import errors |
+| **test_failure** | Dev Agent | Assertion failed, test timeout |
+| **type_error** | Architect Agent | Type mismatch, missing properties |
+| **lint_error** | Dev Agent | ESLint, Prettier issues |
+| **design_flaw** | Architect Agent | Wrong abstraction, coupling issues |
 
 ### Implementation
 
@@ -1582,66 +1597,86 @@ retry_count = 0
 max_retries = 3
 
 while retry_count < max_retries:
-    # Read failures from QA
-    failures = read(".spectre/failures.md")
+    # Run ALL checks
+    build_result = run("npm run build")
+    test_result = run("npm test")
+    type_result = run("tsc --noEmit")
 
-    if not failures:
-        print("✅ ALL TESTS PASSING - CRAFT COMPLETE")
+    errors = collect_errors(build_result, test_result, type_result)
+
+    if not errors:
+        print("✅ ALL GREEN - CRAFT COMPLETE")
         break
 
-    # Classify and route each failure
-    for failure in failures:
-        if failure.type == "test_failure":
-            # Dev fixes
+    # Route EACH error to the right AGENT
+    for error in errors:
+        if error.type == "build_error":
+            # DEV AGENT fixes build errors
+            Task(subagent_type="frontend-engineer", prompt=f"""
+                FIX THIS BUILD ERROR:
+                {error.details}
+
+                File: {error.file}
+                Error: {error.message}
+
+                DO NOT ask the user. Fix it now.
+            """)
+
+        elif error.type == "test_failure":
+            # DEV AGENT fixes test failures
             Task(subagent_type="frontend-engineer", prompt=f"""
                 FIX THIS TEST FAILURE:
-                {failure.details}
+                {error.details}
 
-                File: {failure.file}
-                Error: {failure.error}
+                File: {error.file}
+                Error: {error.message}
 
-                DO NOT ask the user. Just fix it.
+                DO NOT ask the user. Fix it now.
             """)
 
-        elif failure.type == "type_error":
-            # Architect fixes
+        elif error.type == "type_error":
+            # ARCHITECT AGENT fixes type errors
             Task(subagent_type="architect", prompt=f"""
                 FIX THIS TYPE ERROR:
-                {failure.details}
+                {error.details}
 
-                This may require updating .spectre/design.md
+                This may require updating types or design.
             """)
 
-        elif failure.type == "design_flaw":
-            # Architect redesigns
+        elif error.type == "lint_error":
+            # DEV AGENT fixes lint errors
+            Task(subagent_type="frontend-engineer", prompt=f"""
+                FIX THIS LINT ERROR:
+                {error.details}
+
+                Apply proper formatting/style.
+            """)
+
+        elif error.type == "design_flaw":
+            # ARCHITECT AGENT redesigns
             Task(subagent_type="architect", prompt=f"""
                 DESIGN FLAW DETECTED:
-                {failure.details}
+                {error.details}
 
-                Update .spectre/design.md with corrected design.
-                Dev will re-implement based on new design.
+                Update design, Dev will re-implement.
             """)
-
-    # QA re-runs all tests
-    Task(subagent_type="qa-engineer", prompt="""
-        RE-RUN ALL TESTS.
-        Update .spectre/failures.md with any remaining failures.
-    """)
 
     retry_count += 1
 
 if retry_count >= max_retries:
-    print("⚠️ Max retries reached. Use /heal to continue fixing.")
+    print("⚠️ Max retries. Run /heal to continue.")
 ```
 
 ### Key Rules
 
-1. **NEVER ask the user** during the fixing loop
-2. **Dev fixes test failures** automatically
-3. **Architect fixes type errors** and design flaws
-4. **QA re-runs tests** after each fix attempt
-5. **Loop until ALL tests pass** or max retries reached
-6. **If stuck**: User runs `/heal` to continue
+1. **CLAUDE NEVER FIXES DIRECTLY** — Always spawn an agent
+2. **Build errors → Dev Agent** — Module imports, syntax, bundler
+3. **Test failures → Dev Agent** — Assertions, mocks, fixtures
+4. **Type errors → Architect Agent** — May need design change
+5. **Lint errors → Dev Agent** — Formatting, style
+6. **Design flaws → Architect Agent** — Abstraction, coupling
+7. **Loop until ALL checks pass** or max retries
+8. **If stuck** → User runs `/heal`
 
 ---
 ```

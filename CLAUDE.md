@@ -107,14 +107,26 @@ Use when stack evolved (added new library). Runs automatically at `/craft` start
 ```
 /heal
   │
-  ├─ Diagnose (tests, types, build, lint)
-  ├─ Route to right agent
-  │     ├─ Test failing → Dev
-  │     ├─ Type error → Architect
-  │     └─ Spec gap → PO
+  ├─ Diagnose (build, tests, types, lint)
+  ├─ Route to right AGENT (never fix directly!)
+  │     ├─ Build error → Dev Agent
+  │     ├─ Test failing → Dev Agent
+  │     ├─ Type error → Architect Agent
+  │     ├─ Lint error → Dev Agent
+  │     └─ Spec gap → PO Agent
   ├─ Agent fixes AUTONOMOUSLY
   └─ Loop until ALL GREEN
 ```
+
+**CRITICAL: Claude NEVER fixes directly. Always spawns an agent.**
+
+| Error | Agent |
+|-------|-------|
+| Build error | Dev |
+| Test failure | Dev |
+| Type error | Architect |
+| Lint error | Dev |
+| Design flaw | Architect |
 
 ```bash
 /heal           # Full diagnostic
