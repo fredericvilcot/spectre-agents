@@ -2323,12 +2323,130 @@ if retry_count >= max_retries:
 └── integration/
 ```
 
+### VERSIONING — ALL Agent-Generated Files
+
+**Every file has version in FILENAME + CONTENT.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  FILE VERSIONING                                                 │
+│                                                                  │
+│  FILENAME:     spec-v1.md, design-v2.md, skills-v1.md          │
+│  CONTENT:      version: "1.0.0" in frontmatter                  │
+│                                                                  │
+│  BOTH are required. Always.                                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### All Versioned Files
+
+| File | Location | Frontmatter |
+|------|----------|-------------|
+| **Spec** | `.spectre/specs/functional/spec-v{N}.md` | `version`, `status`, `created_at` |
+| **Design** | `.spectre/specs/design/design-v{N}.md` | `version`, `status`, `based_on`, `created_at` |
+| **Stack Skills** | `.spectre/stack-skills-v{N}.md` | `version`, `stack`, `generated_at` |
+| **Context** | `.spectre/context-v{N}.json` | `version`, `detected_at` |
+| **Test Coverage** | `.spectre/test-coverage-v{N}.md` | `version`, `spec_version`, `created_at` |
+| **Regression Report** | `.spectre/regression-report-v{N}.md` | `version`, `created_at` |
+
+#### Frontmatter Templates
+
+**Spec (PO)**
+```yaml
+---
+version: "1.0.0"
+status: "draft" | "review" | "approved"
+created_at: "2024-01-15T10:30:00Z"
+created_by: "product-owner"
+parent: null | "spec-v1.md"
+---
+```
+
+**Design (Architect)**
+```yaml
+---
+version: "1.0.0"
+status: "draft" | "approved"
+based_on: "spec-v2.md"
+created_at: "2024-01-15T10:30:00Z"
+created_by: "architect"
+parent: null | "design-v1.md"
+---
+```
+
+**Stack Skills (Learning + Architect)**
+```yaml
+---
+version: "1.0.0"
+stack:
+  - typescript
+  - react
+  - fp-ts
+  - zustand
+  - zod
+generated_at: "2024-01-15T10:30:00Z"
+generated_by: "architect"
+---
+```
+
+**Context (Learning)**
+```json
+{
+  "version": "1.0.0",
+  "stack": {
+    "language": "typescript",
+    "libraries": ["react", "fp-ts", "zustand", "zod"]
+  },
+  "detected_at": "2024-01-15T10:30:00Z"
+}
+```
+
+**Test Coverage (QA)**
+```yaml
+---
+version: "1.0.0"
+spec_version: "spec-v2.md"
+created_at: "2024-01-15T10:30:00Z"
+created_by: "qa-engineer"
+---
+```
+
+#### Version Increment Rules
+
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| New file | 1.0.0 | First spec |
+| Minor update | x.y+1.0 | Clarification |
+| Major change | x+1.0.0 | New requirement |
+
+#### Current Version Symlinks
+
+```
+.spectre/
+├── spec-latest.md         → specs/functional/spec-v3.md
+├── design-latest.md       → specs/design/design-v2.md
+├── stack-skills.md        → stack-skills-v1.md (latest)
+└── context.json           → context-v1.json (latest)
+```
+
+**Or use `-latest` suffix:**
+```
+.spectre/
+├── specs/functional/
+│   ├── spec-v1.md
+│   ├── spec-v2.md
+│   └── spec-latest.md     # Copy of latest version
+└── specs/design/
+    ├── design-v1.md
+    └── design-latest.md   # Copy of latest version
+```
+
 ### Golden Rules
 
-1. **VERSION IS THE KEY** — Everything is versioned
-2. **NEVER MODIFY ORIGINALS** — Always create new version
+1. **VERSION IS THE KEY** — Filename + Content both versioned
+2. **NEVER MODIFY ORIGINALS** — Always create new version file
 3. **HISTORY IS SACRED** — Every version preserved forever
-4. **FRONTMATTER REQUIRED** — version, status, parent, based_on
+4. **FRONTMATTER REQUIRED** — version, status, created_at minimum
 5. **QA IS OPTIONAL** — User decides if E2E/Integration needed
 
 | Test Type | Responsibility | Location |
