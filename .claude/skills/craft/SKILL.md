@@ -1580,13 +1580,29 @@ Task(
 
 ### Error Classification & Routing
 
-| Error Type | Who Fixes | Example |
-|------------|-----------|---------|
-| **build_error** | Dev Agent | `Module not found`, import errors |
-| **test_failure** | Dev Agent | Assertion failed, test timeout |
-| **type_error** | Architect Agent | Type mismatch, missing properties |
-| **lint_error** | Dev Agent | ESLint, Prettier issues |
-| **design_flaw** | Architect Agent | Wrong abstraction, coupling issues |
+**RULE: Error goes back to the agent who wrote that code.**
+
+| Error Location | Who Fixes | Examples |
+|----------------|-----------|----------|
+| **src/** (implementation) | Dev Agent | Build error, runtime error, logic bug |
+| **e2e/** or **tests/** | QA Agent | Test syntax error, selector error, fixture issue |
+| **Type error in src/** | Dev Agent | Type mismatch in implementation |
+| **Type error in design** | Architect Agent | Wrong interface, missing type |
+| **Design flaw** | Architect Agent | Wrong abstraction, coupling |
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  WHERE IS THE ERROR?                                             │
+│                                                                  │
+│  src/**/*.ts         → DEV AGENT wrote it, DEV AGENT fixes it   │
+│  e2e/**/*.spec.ts    → QA AGENT wrote it, QA AGENT fixes it     │
+│  tests/**/*.test.ts  → QA AGENT wrote it, QA AGENT fixes it     │
+│  *.test.ts (colocated) → DEV AGENT wrote it, DEV AGENT fixes it │
+│  design issue        → ARCHITECT AGENT fixes it                  │
+│                                                                  │
+│  SIMPLE RULE: You wrote it? You fix it.                         │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Implementation
 
@@ -1608,57 +1624,55 @@ while retry_count < max_retries:
         print("✅ ALL GREEN - CRAFT COMPLETE")
         break
 
-    # Route EACH error to the right AGENT
+    # Route EACH error to the AGENT WHO WROTE THAT CODE
     for error in errors:
-        if error.type == "build_error":
-            # DEV AGENT fixes build errors
-            Task(subagent_type="frontend-engineer", prompt=f"""
-                FIX THIS BUILD ERROR:
-                {error.details}
+
+        # RULE: You wrote it? You fix it.
+
+        if error.file.startswith("e2e/") or error.file.startswith("tests/"):
+            # QA AGENT wrote e2e/integration tests → QA fixes
+            Task(subagent_type="qa-engineer", prompt=f"""
+                FIX THIS TEST ERROR (you wrote this test):
 
                 File: {error.file}
                 Error: {error.message}
 
+                {error.details}
+
                 DO NOT ask the user. Fix it now.
             """)
 
-        elif error.type == "test_failure":
-            # DEV AGENT fixes test failures
+        elif error.file.startswith("src/") or error.file.endswith(".ts"):
+            # DEV AGENT wrote implementation → Dev fixes
             Task(subagent_type="frontend-engineer", prompt=f"""
-                FIX THIS TEST FAILURE:
-                {error.details}
+                FIX THIS ERROR (you wrote this code):
 
                 File: {error.file}
                 Error: {error.message}
 
+                {error.details}
+
                 DO NOT ask the user. Fix it now.
             """)
 
-        elif error.type == "type_error":
-            # ARCHITECT AGENT fixes type errors
+        elif error.type == "type_error" and "design" in error.details.lower():
+            # Type error that suggests design issue → Architect
             Task(subagent_type="architect", prompt=f"""
-                FIX THIS TYPE ERROR:
+                TYPE ERROR (may need design change):
+
                 {error.details}
 
-                This may require updating types or design.
-            """)
-
-        elif error.type == "lint_error":
-            # DEV AGENT fixes lint errors
-            Task(subagent_type="frontend-engineer", prompt=f"""
-                FIX THIS LINT ERROR:
-                {error.details}
-
-                Apply proper formatting/style.
+                Review if this needs a design update.
             """)
 
         elif error.type == "design_flaw":
-            # ARCHITECT AGENT redesigns
+            # Design issue → Architect
             Task(subagent_type="architect", prompt=f"""
                 DESIGN FLAW DETECTED:
+
                 {error.details}
 
-                Update design, Dev will re-implement.
+                Update design, agents will re-implement.
             """)
 
     retry_count += 1
@@ -1670,13 +1684,16 @@ if retry_count >= max_retries:
 ### Key Rules
 
 1. **CLAUDE NEVER FIXES DIRECTLY** — Always spawn an agent
-2. **Build errors → Dev Agent** — Module imports, syntax, bundler
-3. **Test failures → Dev Agent** — Assertions, mocks, fixtures
-4. **Type errors → Architect Agent** — May need design change
-5. **Lint errors → Dev Agent** — Formatting, style
-6. **Design flaws → Architect Agent** — Abstraction, coupling
-7. **Loop until ALL checks pass** or max retries
-8. **If stuck** → User runs `/heal`
+2. **YOU WROTE IT? YOU FIX IT.**
+   - Error in `src/` → Dev Agent (wrote implementation)
+   - Error in `e2e/` → QA Agent (wrote e2e tests)
+   - Error in `tests/` → QA Agent (wrote integration tests)
+   - Error in colocated `*.test.ts` → Dev Agent (wrote unit tests)
+3. **Design issues → Architect Agent**
+4. **Loop until ALL checks pass** or max retries
+5. **If stuck** → User runs `/heal`
+
+**Without this routing, the reactive loop is USELESS.**
 
 ---
 ```

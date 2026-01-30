@@ -120,13 +120,17 @@ Use when stack evolved (added new library). Runs automatically at `/craft` start
 
 **CRITICAL: Claude NEVER fixes directly. Always spawns an agent.**
 
-| Error | Agent |
-|-------|-------|
-| Build error | Dev |
-| Test failure | Dev |
-| Type error | Architect |
-| Lint error | Dev |
-| Design flaw | Architect |
+**RULE: You wrote it? You fix it.**
+
+| Error Location | Agent |
+|----------------|-------|
+| `src/**` (implementation) | Dev |
+| `e2e/**` (e2e tests) | QA |
+| `tests/**` (integration) | QA |
+| `*.test.ts` (unit, colocated) | Dev |
+| Design issue | Architect |
+
+Without this routing, the reactive loop is useless.
 
 ```bash
 /heal           # Full diagnostic
