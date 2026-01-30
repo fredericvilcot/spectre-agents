@@ -6,7 +6,6 @@ set -euo pipefail
 
 REPO_URL="https://github.com/fredericvilcot/spectre-agents"
 CLAUDE_DIR="$HOME/.claude"
-# Handle curl|bash case where BASH_SOURCE is empty
 SCRIPT_DIR="${BASH_SOURCE[0]:-}"
 if [[ -n "$SCRIPT_DIR" ]]; then
     SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd)"
@@ -16,90 +15,150 @@ fi
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+WHITE='\033[1;37m'
+DIM='\033[2m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-info() { echo -e "${BLUE}→${NC} $1"; }
-success() { echo -e "${GREEN}✓${NC} $1"; }
-error() { echo -e "${RED}✗${NC} $1" >&2; exit 1; }
+# Counters
+AGENTS_COUNT=0
+SKILLS_COUNT=0
 
-# Check if running from cloned repo or via curl
+# ─────────────────────────────────────────────────────────────
+# Display functions
+# ─────────────────────────────────────────────────────────────
+
+banner() {
+    echo ""
+    echo -e "${PURPLE}"
+    echo '   ███████╗██████╗ ███████╗ ██████╗████████╗██████╗ ███████╗'
+    echo '   ██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝'
+    echo '   ███████╗██████╔╝█████╗  ██║        ██║   ██████╔╝█████╗  '
+    echo '   ╚════██║██╔═══╝ ██╔══╝  ██║        ██║   ██╔══██╗██╔══╝  '
+    echo '   ███████║██║     ███████╗╚██████╗   ██║   ██║  ██║███████╗'
+    echo '   ╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝'
+    echo -e "${NC}"
+    echo -e "${DIM}   Stop prompting. Start crafting.${NC}"
+    echo ""
+}
+
+step() {
+    echo -e "${CYAN}▸${NC} $1"
+}
+
+done_step() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+error() {
+    echo -e "${RED}✗${NC} $1" >&2
+    exit 1
+}
+
+spinner() {
+    local pid=$1
+    local msg=$2
+    local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    local i=0
+    while kill -0 "$pid" 2>/dev/null; do
+        printf "\r${CYAN}%s${NC} %s" "${spin:i++%10:1}" "$msg"
+        sleep 0.1
+    done
+    printf "\r"
+}
+
+# ─────────────────────────────────────────────────────────────
+# Install logic (unchanged)
+# ─────────────────────────────────────────────────────────────
+
 is_local_install() {
     [[ -n "$SCRIPT_DIR" ]] && [[ -d "$SCRIPT_DIR/.claude/agents" ]] && [[ -d "$SCRIPT_DIR/.claude/skills" ]]
 }
 
-# Create directories
 setup_directories() {
-    info "Creating Claude Code directories..."
     mkdir -p "$CLAUDE_DIR/agents"
     mkdir -p "$CLAUDE_DIR/skills"
 }
 
-# Install from local clone
 install_local() {
-    info "Installing from local repository..."
-
-    # Copy agents
     for agent in "$SCRIPT_DIR/.claude/agents"/*.md; do
         [[ -f "$agent" ]] || continue
         cp "$agent" "$CLAUDE_DIR/agents/"
-        success "Installed agent: $(basename "$agent" .md)"
+        ((AGENTS_COUNT++))
     done
 
-    # Copy skills (entire directories)
     for skill_dir in "$SCRIPT_DIR/.claude/skills"/*; do
         [[ -d "$skill_dir" ]] || continue
         skill_name=$(basename "$skill_dir")
         rm -rf "$CLAUDE_DIR/skills/$skill_name"
         cp -r "$skill_dir" "$CLAUDE_DIR/skills/$skill_name"
-        success "Installed skill: $skill_name"
+        ((SKILLS_COUNT++))
     done
 }
 
-# Install from remote (curl install)
 install_remote() {
-    info "Cloning Spectre Agents..."
-
     tmp_dir=$(mktemp -d)
     trap "rm -rf $tmp_dir" EXIT
 
     git clone --depth 1 --quiet "$REPO_URL" "$tmp_dir" || error "Failed to clone repository"
 
-    # Copy agents
     for agent in "$tmp_dir/.claude/agents"/*.md; do
         [[ -f "$agent" ]] || continue
         cp "$agent" "$CLAUDE_DIR/agents/"
-        success "Installed agent: $(basename "$agent" .md)"
+        ((AGENTS_COUNT++))
     done
 
-    # Copy skills
     for skill_dir in "$tmp_dir/.claude/skills"/*; do
         [[ -d "$skill_dir" ]] || continue
         skill_name=$(basename "$skill_dir")
         rm -rf "$CLAUDE_DIR/skills/$skill_name"
         cp -r "$skill_dir" "$CLAUDE_DIR/skills/$skill_name"
-        success "Installed skill: $skill_name"
+        ((SKILLS_COUNT++))
     done
 }
 
+# ─────────────────────────────────────────────────────────────
+# Main
+# ─────────────────────────────────────────────────────────────
+
 main() {
-    echo -e "${BOLD}Spectre Agents Installer${NC}"
-    echo "Craft-oriented agents and skills for Claude Code"
-    echo ""
+    clear 2>/dev/null || true
+    banner
 
+    # Setup
+    step "Preparing installation..."
     setup_directories
+    done_step "Directories ready"
 
+    # Install
+    step "Downloading Software Craft agents..."
     if is_local_install; then
         install_local
     else
         install_remote
     fi
+    done_step "Installed ${BOLD}${AGENTS_COUNT}${NC} agents + ${BOLD}${SKILLS_COUNT}${NC} skills"
 
+    # Success
     echo ""
-    success "Installation complete!"
+    echo -e "${GREEN}┌─────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${GREEN}│${NC}                                                         ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}   ${WHITE}${BOLD}Installation complete!${NC}                              ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}                                                         ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}   ${DIM}Restart Claude Code, then type:${NC}                    ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}                                                         ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}   ${CYAN}/craft${NC}  ${DIM}→${NC} Build with your AI dev team              ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}   ${CYAN}/heal${NC}   ${DIM}→${NC} Auto-fix issues with smart routing       ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}   ${CYAN}/learn${NC}  ${DIM}→${NC} Adapt to your codebase patterns          ${GREEN}│${NC}"
+    echo -e "${GREEN}│${NC}                                                         ${GREEN}│${NC}"
+    echo -e "${GREEN}└─────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    echo "Restart Claude Code to load the new components."
-    echo "See https://github.com/fredericvilcot/spectre-agents for documentation."
+    echo -e "${DIM}   Kent Beck • Uncle Bob • Martin Fowler • Eric Evans${NC}"
+    echo -e "${DIM}   The craft masters are now in your terminal.${NC}"
+    echo ""
 }
 
 main "$@"
