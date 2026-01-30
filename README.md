@@ -8,6 +8,12 @@
   <em>Turn Claude Code into a team of Software Craft experts.<br/>Clean architecture. Result types. TDD. Domain-driven.<br/>Production-ready code, crafted together.</em>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Auto--healing-agents%20fix%20bugs-9400D3?style=flat-square" alt="Auto-healing"/>
+  <img src="https://img.shields.io/badge/Auto--learning-adapts%20to%20YOU-8A2BE2?style=flat-square" alt="Auto-learning"/>
+  <img src="https://img.shields.io/badge/Fully%20reactive-errors%20route%20smart-9932CC?style=flat-square" alt="Fully reactive"/>
+</p>
+
 ---
 
 ## The Problem
@@ -47,7 +53,7 @@ curl -fsSL https://raw.githubusercontent.com/fredericvilcot/spectre-agents/main/
 
 ---
 
-## Software Craft — The Foundation
+## <img src="https://img.shields.io/badge/Software%20Craft-The%20Foundation-8A2BE2?style=flat-square" alt="Software Craft"/>
 
 Spectre is built on **Software Craft** principles — the philosophy that code is a craft, not just a task.
 
