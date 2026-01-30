@@ -182,15 +182,49 @@ Task(
 
 ## CRAFT Violations Watched
 
-| Violation | Severity | Detection |
-|-----------|----------|-----------|
-| `any` type | 🔴 Critical | `: any` in code |
-| `throw` for expected errors | 🔴 Critical | `throw new Error` in services |
-| God class | 🔴 Critical | >500 lines or >15 methods |
-| Missing strict mode | 🟠 Warning | `"strict": false` |
-| Type assertions | 🟠 Warning | `as unknown as` |
-| Framework in domain | 🔴 Critical | Import of React/Express in domain/ |
-| No colocated tests | 🟡 Info | Source file without .test.ts |
+**All Architect principles are monitored in real-time.**
+
+### 🔴 Critical (Block & Fix Immediately)
+
+| Violation | Detection | Architect Rule |
+|-----------|-----------|----------------|
+| `any` type | `: any` in code | "Never use `any`" |
+| `throw` for expected | `throw new Error` in services/domain | "Use Result types" |
+| Framework in domain | Import React/Express/DB in `domain/` | "Domain is sacred" |
+| No tests for business logic | Domain file without `.test.ts` | "Untested = legacy" |
+| Dependency Rule violation | Domain imports from infrastructure | "Dependencies point inward" |
+| Hidden coupling | Direct instantiation (`new Service()`) | "Make dependencies explicit" |
+
+### 🟠 Warning (Fix Soon)
+
+| Violation | Detection | Architect Rule |
+|-----------|-----------|----------------|
+| God class | >300 lines or >10 methods | Single Responsibility |
+| Long method | >20 lines | "Functions do one thing" |
+| Long parameter list | >4 parameters | Introduce Parameter Object |
+| Type assertions | `as unknown as` | Type safety |
+| Missing strict mode | `"strict": false` | Type safety |
+| Poor naming | Abbreviations, single letters | "Names reveal intent" |
+
+### 🟡 Code Smells (Suggest Refactor)
+
+| Smell | Detection | Refactoring |
+|-------|-----------|-------------|
+| Feature Envy | Method uses other class data heavily | Move Method |
+| Data Clumps | Same params in multiple functions | Extract Parameter Object |
+| Primitive Obsession | `string` for email/money/id | Extract Value Object |
+| Shotgun Surgery | One change = many files | Extract Class |
+| Divergent Change | Many reasons to change one file | Split by responsibility |
+
+### SOLID Violations
+
+| Principle | Violation Sign | Detection |
+|-----------|----------------|-----------|
+| **S**ingle Responsibility | Class does too much | >1 reason to change |
+| **O**pen/Closed | Modifying for new features | Switch/if chains for types |
+| **L**iskov Substitution | Override breaks behavior | Override changes semantics |
+| **I**nterface Segregation | Fat interfaces | Interface with >5 methods |
+| **D**ependency Inversion | Concrete dependencies | Import implementation, not interface |
 
 ---
 
