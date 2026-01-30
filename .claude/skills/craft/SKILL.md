@@ -260,7 +260,7 @@ AskUserQuestion(
 )
 ```
 
-### If "Yes, with QA" → Ask Test Type + Repo
+### If "Yes, with QA" → Ask Test Type + Location
 
 ```
 AskUserQuestion(
@@ -275,14 +275,53 @@ AskUserQuestion(
     },
     {
       question: "📁 Where to store tests?",
-      header: "Repo",
+      header: "Location",
       options: [
-        { label: "📦 Same repo", description: "e2e/ or tests/integration/" },
+        { label: "📦 Same repo (default path)", description: "e2e/ or tests/integration/ at root" },
+        { label: "📂 Same repo (custom path)", description: "I'll specify the folder" },
         { label: "🔗 Different repo", description: "Separate test repository" }
       ]
     }
   ]
 )
+```
+
+### Test Location Options
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 TEST LOCATION OPTIONS                            │
+│                                                                  │
+│   Option A: Same repo, default path                              │
+│   ─────────────────────────────────                              │
+│   project/                                                       │
+│   ├── src/              ← App code (NO tests here)              │
+│   ├── e2e/              ← E2E tests (default)                   │
+│   └── tests/                                                     │
+│       └── integration/  ← Integration tests (default)           │
+│                                                                  │
+│   Option B: Same repo, custom path                               │
+│   ────────────────────────────────                               │
+│   User specifies: "packages/tests/e2e"                          │
+│   project/                                                       │
+│   ├── src/                                                       │
+│   └── packages/                                                  │
+│       └── tests/                                                 │
+│           └── e2e/      ← Custom location                       │
+│                                                                  │
+│   Option C: Different repo                                       │
+│   ────────────────────────                                       │
+│   project/              project-tests/ (separate repo)          │
+│   └── src/              └── e2e/                                │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### If "Same repo (custom path)" → Ask Path
+
+```
+# User provides local path
+# Example: "packages/e2e" or "test/e2e"
 ```
 
 ### If "Different repo" → Ask for Remote URL
@@ -298,9 +337,14 @@ AskUserQuestion(
 QA_CONFIG = {
   enabled: true | false,
   type: "e2e" | "integration",
-  repo: "same" | "different",
+  location: "same-default" | "same-custom" | "different",
+  local_path: "e2e/" | "tests/integration/" | "<custom>",
   remote_url: "<url>" | null
 }
+
+# Default paths (at project ROOT, not in src/)
+# E2E: e2e/
+# Integration: tests/integration/
 ```
 
 **This config is used in Step 6 to launch Dev + QA in parallel (if enabled).**
