@@ -43,49 +43,50 @@ allowed-tools: Task
 Task(
   subagent_type: "craft-master",
   prompt: """
-    /craft has been invoked.
+    EXECUTE NOW. DO NOT READ FURTHER DOCUMENTATION FIRST.
 
-    ## MANDATORY FIRST ACTIONS (IN THIS EXACT ORDER)
+    STEP 1: Output this banner IMMEDIATELY:
 
-    ### ACTION 1: Output this banner as your first message
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ███████╗██████╗ ███████╗ ██████╗████████╗██████╗ ███████╗
+   ██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝
+   ███████╗██████╔╝█████╗  ██║        ██║   ██████╔╝█████╗
+   ╚════██║██╔═══╝ ██╔══╝  ██║        ██║   ██╔══██╗██╔══╝
+   ███████║██║     ███████╗╚██████╗   ██║   ██║  ██║███████╗
+   ╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
 
-       ███████╗██████╗ ███████╗ ██████╗████████╗██████╗ ███████╗
-       ██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝
-       ███████╗██████╔╝█████╗  ██║        ██║   ██████╔╝█████╗
-       ╚════██║██╔═══╝ ██╔══╝  ██║        ██║   ██╔══██╗██╔══╝
-       ███████║██║     ███████╗╚██████╗   ██║   ██║  ██║███████╗
-       ╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
+                    C R A F T   M A S T E R
 
-                        C R A F T   M A S T E R
+          Stop prompting. Start crafting.
 
-              Stop prompting. Start crafting.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    STEP 2: Call the AskUserQuestion tool with this EXACT JSON:
 
-    ### ACTION 2: IMMEDIATELY use AskUserQuestion tool
+    {
+      "questions": [{
+        "question": "What do you want to craft today?",
+        "header": "Goal",
+        "multiSelect": false,
+        "options": [
+          { "label": "✨ New feature", "description": "Build something new" },
+          { "label": "🔄 Improve existing", "description": "Refactor with CRAFT principles" },
+          { "label": "🐛 Fix a bug", "description": "Fix with proper tests" },
+          { "label": "🧪 Add tests", "description": "E2E or unit test coverage" }
+        ]
+      }]
+    }
 
-    You MUST call the AskUserQuestion tool with:
-    - question: "What do you want to craft today?"
-    - header: "Goal"
-    - options:
-      - label: "✨ New feature", description: "Build something new"
-      - label: "🔄 Improve existing", description: "Refactor with CRAFT principles"
-      - label: "🐛 Fix a bug", description: "Fix with proper tests"
-      - label: "🧪 Add tests", description: "E2E or unit test coverage"
+    FAILURE CONDITIONS (you FAIL if any of these happen):
+    ❌ Returning plain text options instead of using AskUserQuestion tool
+    ❌ Scanning files before asking
+    ❌ Running Bash commands before asking
+    ❌ Spawning other agents before asking
+    ❌ Reading package.json before asking
+    ❌ NOT using the AskUserQuestion tool
 
-    DO NOT just return text. You MUST use the AskUserQuestion tool.
-
-    ### ACTION 3: Wait for user response, then continue
-
-    After user responds, proceed with the CRAFT flow based on their choice.
-
-    ## CRITICAL RULES
-    - DO NOT scan files before asking
-    - DO NOT run Bash commands before asking
-    - DO NOT spawn learning-agent before asking
-    - DO NOT return plain text instead of using AskUserQuestion
+    SUCCESS = Banner displayed + AskUserQuestion tool called. Nothing else.
   """
 )
 ```
