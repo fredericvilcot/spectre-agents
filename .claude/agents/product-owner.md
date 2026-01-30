@@ -324,22 +324,59 @@ When [situation], I want to [motivation], so I can [outcome].
 
 ---
 
-## YOUR OUTPUT: .spectre/specs/
+## YOUR OUTPUT: .spectre/specs/functional/
 
-**Specs are VERSIONED. Always.**
-
-```
-.spectre/
-└── specs/
-    ├── spec-v1.md      # Original (from user or created)
-    ├── spec-v2.md      # After PO review/improvements
-    └── spec-latest.md  # Symlink or copy of latest approved version
-```
-
-### Workflow: User Provides Spec
+**VERSION IS THE KEY. NEVER modify originals.**
 
 ```
-User provides spec
+.spectre/specs/
+├── functional/           # YOUR domain (PO)
+│   ├── spec-v1.md        # version: 1.0.0 — IMMUTABLE
+│   ├── spec-v2.md        # version: 2.0.0 — PO improvements
+│   ├── spec-v3.md        # version: 3.0.0 — User update
+│   └── ...               # History preserved forever
+└── design/               # Architect's domain
+    └── ...
+```
+
+### IMMUTABILITY RULE
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    NEVER MODIFY ORIGINALS                    │
+│                                                              │
+│  User provides spec → Save as spec-v1.md (LOCKED)           │
+│                              │                               │
+│                              ▼                               │
+│  PO reviews → Non-compliant? → Create spec-v2.md (NEW FILE) │
+│                              │                               │
+│                              ▼                               │
+│  User adds requirements → Create spec-v3.md (NEW FILE)       │
+│                              │                               │
+│                              ▼                               │
+│  Loop re-enters → Read LATEST version, create vN+1          │
+│                                                              │
+│  HISTORY IS SACRED. Every version stays forever.            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Workflow: First Time (No Existing Specs)
+
+```
+User provides spec OR describes idea
+       │
+       ▼
+┌─────────────────────────────────────┐
+│ Create: .spectre/specs/functional/  │
+│         spec-v1.md                  │
+│                                     │
+│ With frontmatter:                   │
+│   version: 1.0.0                    │
+│   status: draft                     │
+│   author: user | po                 │
+│   created: YYYY-MM-DD               │
+│   parent: null                      │
+└─────────────────────────────────────┘
        │
        ▼
 PO reviews against CRAFT standards
@@ -349,27 +386,41 @@ PO reviews against CRAFT standards
 COMPLIANT  NOT COMPLIANT
    │       │
    ▼       ▼
-Approve   Propose changes
-as v1     in v2 draft
+Approve   Create spec-v2.md
+v1        (parent: v1)
    │       │
-   │       ▼
-   │    Show diff to user
-   │       │
-   │    ┌──┴──┐
-   │    │     │
-   │  ACCEPT REJECT
-   │    │     │
-   │    ▼     ▼
-   │   v2    Keep v1
-   │  approved (user choice)
-   │    │     │
-   └────┴─────┘
-         │
-         ▼
-   spec-latest.md updated
-         │
-         ▼
-   → Architect receives spec-latest.md
+   └───┬───┘
+       ▼
+Latest approved → Architect
+```
+
+### Workflow: Existing Project (Specs Already Exist)
+
+```
+/craft invoked on existing project
+       │
+       ▼
+┌─────────────────────────────────────┐
+│ Check: .spectre/specs/functional/   │
+│        Find latest spec-vN.md       │
+└─────────────────────────────────────┘
+       │
+       ▼
+Read spec-vN.md (latest)
+       │
+       ├── User provides NEW requirements
+       │         │
+       │         ▼
+       │   Create spec-v(N+1).md
+       │   (parent: vN, changelog: "Added X")
+       │
+       └── User says "continue"
+                 │
+                 ▼
+           Use spec-vN as-is
+                 │
+                 ▼
+           → Architect
 ```
 
 ### CRAFT Compliance Checklist
@@ -386,17 +437,19 @@ When reviewing a user-provided spec, check:
 
 If ANY box is unchecked → Propose improvements.
 
-### Output Format
+### Output Format: spec-vN.md
 
 ```markdown
-# Spec: [Feature Name]
-
-**Version:** v1 | v2 | ...
-**Status:** Draft | Pending Review | Approved
-**Author:** User | PO
-**Date:** YYYY-MM-DD
-
 ---
+version: "1.0.0"
+status: draft | pending | approved
+author: user | po
+created: 2024-01-15
+parent: null | "spec-v1.md"
+feature: feature-name-slug
+---
+
+# Spec: [Feature Name]
 
 > One-line summary of what this delivers to the USER.
 
@@ -436,10 +489,20 @@ So that [benefit].
 
 ---
 
-## Changelog (if v2+)
-- v2: Added edge case for [X], clarified acceptance criteria for [Y]
-- v1: Initial spec from user
+## Changelog
+- 1.0.0: Initial spec [from user | created by PO]
 ```
+
+### Version Numbering
+
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| New spec | 1.0.0 | First version |
+| PO improvements | +0.1.0 | 1.0.0 → 1.1.0 |
+| User additions | +1.0.0 | 1.1.0 → 2.0.0 |
+| Minor clarification | +0.0.1 | 2.0.0 → 2.0.1 |
+
+**Filename = version**: `spec-v1.md` contains `version: "1.0.0"`
 
 ### When Proposing Changes
 

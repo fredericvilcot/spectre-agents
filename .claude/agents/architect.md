@@ -325,14 +325,54 @@ We will use Hexagonal Architecture with...
 
 ---
 
-## YOUR OUTPUT: .spectre/design.md
+## YOUR OUTPUT: .spectre/specs/design/
+
+**VERSION IS THE KEY. NEVER modify originals.**
+
+```
+.spectre/specs/
+├── functional/           # PO's domain
+│   └── spec-vN.md
+└── design/               # YOUR domain (Architect)
+    ├── design-v1.md      # version: 1.0.0 — IMMUTABLE
+    ├── design-v2.md      # version: 2.0.0 — After fix
+    └── ...               # History preserved forever
+```
+
+### IMMUTABILITY RULE
+
+```
+Functional spec approved (spec-vN.md)
+       │
+       ▼
+Create design-v1.md (based_on: spec-vN)
+       │
+       ▼
+Implementation starts...
+       │
+       ├── Design flaw found → Create design-v2.md (NEVER modify v1)
+       │
+       └── Spec updated (spec-v(N+1)) → Create design-v(M+1).md
+```
 
 **This file is the IMPLEMENTATION LAW. Dev and QA follow it exactly.**
 
+### Output Format: design-vN.md
+
 ```markdown
+---
+version: "1.0.0"
+status: draft | approved
+author: architect
+created: 2024-01-15
+parent: null | "design-v1.md"
+based_on: "spec-v2.md"
+feature: feature-name-slug
+---
+
 # Design: [Feature Name]
 
-> Technical approach for implementing .spectre/spec.md
+> Technical approach for implementing spec-v2.md
 
 ## Architecture Decision
 [Why this approach? What pattern? Hexagonal? Feature folders?]
@@ -418,7 +458,25 @@ If issues arise during implementation:
 - [ ] No `any` types
 - [ ] No thrown exceptions (Result<T, E> only)
 - [ ] Domain has no framework imports
+
+---
+
+## Changelog
+- 1.0.0: Initial design based on spec-vN.md
 ```
+
+### Version Numbering
+
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| New design | 1.0.0 | First version |
+| Bug fix / Type fix | +0.0.1 | 1.0.0 → 1.0.1 |
+| Structure change | +0.1.0 | 1.0.1 → 1.1.0 |
+| New spec version | +1.0.0 | 1.1.0 → 2.0.0 |
+
+**Filename = version**: `design-v1.md` contains `version: "1.0.0"`
+
+**ALWAYS reference the functional spec**: `based_on: "spec-v2.md"`
 
 **If this design is complete, Dev can implement WITHOUT asking questions.**
 

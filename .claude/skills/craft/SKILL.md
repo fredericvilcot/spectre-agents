@@ -177,17 +177,26 @@ AskUserQuestion(
 
 ## Step 4: PO — ALWAYS RUNS (with User Validation)
 
-**Specs are VERSIONED. User MUST approve before Architect starts.**
+**VERSION IS THE KEY. NEVER modify originals.**
 
 ```
-.spectre/
-└── specs/
-    ├── spec-v1.md      # Original
-    ├── spec-v2.md      # After PO improvements (if needed)
-    └── spec-latest.md  # Approved version → goes to Architect
+.spectre/specs/
+├── functional/           # PO's domain
+│   ├── spec-v1.md        # version: 1.0.0 — IMMUTABLE
+│   ├── spec-v2.md        # version: 2.0.0 — PO improvements
+│   └── ...               # History preserved forever
+└── design/               # Architect's domain (Step 5)
+    └── ...
 ```
 
-### If User Provided Spec
+### First: Check for Existing Specs
+
+```bash
+# If project already has specs, find latest version
+ls .spectre/specs/functional/spec-v*.md 2>/dev/null | sort -V | tail -1
+```
+
+### If User Provided Spec (or Existing Project)
 
 ```
 Task(
@@ -196,33 +205,33 @@ Task(
     USER PROVIDED SPEC:
     <spec content>
 
+    EXISTING SPECS (if any):
+    <list of spec-vN.md files>
+
     ## Your Job
-    1. Create .spectre/specs/ folder
-    2. Save user spec as spec-v1.md
-    3. REVIEW against CRAFT checklist:
-       - [ ] User story present? (As a... I want... So that...)
-       - [ ] Acceptance criteria testable? (Given/When/Then)
-       - [ ] Edge cases covered?
-       - [ ] Error scenarios defined?
-       - [ ] Business rules explicit?
-       - [ ] Out of scope clear?
-       - [ ] NO technical details? (that's Architect's job)
+    1. Create .spectre/specs/functional/ folder
+    2. Find latest version N (or 0 if none)
+    3. Save as spec-v(N+1).md with frontmatter:
+       ---
+       version: "(N+1).0.0"
+       status: draft
+       author: user
+       created: <today>
+       parent: "spec-vN.md" | null
+       feature: <slug>
+       ---
 
-    4. If ALL checked → Approve v1, copy to spec-latest.md
-    5. If ANY unchecked → Create spec-v2.md with improvements
+    4. REVIEW against CRAFT checklist
+    5. If NOT compliant → Create spec-v(N+2).md (NEVER modify previous)
 
-    ## If Creating v2
-    Show user what's missing and propose changes:
-    - List what's missing
-    - Show the improved version
-    - ASK USER TO VALIDATE before proceeding
+    ## IMMUTABILITY RULE
+    - NEVER modify any existing spec-vN.md
+    - Always create NEW version file
+    - Changelog tracks what changed
 
     ## Output
-    - .spectre/specs/spec-v1.md (original)
-    - .spectre/specs/spec-v2.md (if improvements needed)
-    - .spectre/specs/spec-latest.md (approved version)
-
-    IMPORTANT: Do NOT proceed to Architect until user approves spec-latest.md
+    - .spectre/specs/functional/spec-vN.md (latest approved)
+    - User validates before Architect starts
   """
 )
 ```
@@ -323,23 +332,41 @@ AskUserQuestion(
   }]
 )
 
-# If approved → copy to spec-latest.md → proceed to Architect
-# If changes needed → iterate with user
+# If approved → mark spec status: approved → proceed to Architect
+# If changes needed → PO creates new version (NEVER modify original)
 ```
 
 ---
 
 ## Step 5: Architect — ALWAYS RUNS
 
+**Architect creates versioned design in `.spectre/specs/design/`**
+
 ```
 Task(
   subagent_type: "architect",
   prompt: """
-    SPEC: Read .spectre/spec.md
+    FUNCTIONAL SPEC: .spectre/specs/functional/spec-vN.md (latest approved)
     STACK: <stack>
 
     ## Your Job
-    Design the CRAFT technical solution.
+    1. Find latest approved functional spec
+    2. Check for existing designs in .spectre/specs/design/
+    3. Create design-v(M+1).md with frontmatter:
+       ---
+       version: "(M+1).0.0"
+       status: draft
+       author: architect
+       created: <today>
+       parent: "design-vM.md" | null
+       based_on: "spec-vN.md"
+       feature: <slug>
+       ---
+
+    ## IMMUTABILITY RULE
+    - NEVER modify existing design-vM.md
+    - Design flaw found? Create design-v(M+1).md
+    - Spec updated? Create design-v(M+1).md with new based_on
 
     ## CRAFT Rules (Mandatory)
     - Strict TypeScript (no any)
@@ -347,10 +374,16 @@ Task(
     - Domain at center (hexagonal)
     - Tests colocated
 
-    ## Output: .spectre/design.md
+    ## Output: .spectre/specs/design/design-vN.md
 
     Format:
     ```markdown
+    ---
+    version: "1.0.0"
+    based_on: "spec-v2.md"
+    ...
+    ---
+
     # Design: [Title]
 
     ## Approach
@@ -619,13 +652,13 @@ if retry_count >= max_retries:
 "Accept PO's improvements?"
 > Accept v2
 
-   ✓ .spectre/specs/spec-latest.md ready
+   ✓ .spectre/specs/functional/spec-v2.md approved
 
 🏗️ Architect: Designing...
    ✓ Hexagonal architecture
    ✓ 8 files planned
    ✓ Result<T, E> patterns
-   ✓ .spectre/design.md ready
+   ✓ .spectre/specs/design/design-v1.md ready (based_on: spec-v2)
 
 "What type of tests?"
 > E2E (Playwright)
@@ -676,13 +709,13 @@ if retry_count >= max_retries:
 "Review the spec. Ready to proceed?"
 > Approve
 
-   ✓ .spectre/specs/spec-latest.md ready
+   ✓ .spectre/specs/functional/spec-v1.md approved
 
 🏗️ Architect: Designing...
    ✓ Auth module structure
    ✓ 12 files planned
    ✓ Security patterns
-   ✓ .spectre/design.md ready
+   ✓ .spectre/specs/design/design-v1.md ready (based_on: spec-v1)
 
 "What type of tests?"
 > E2E (Playwright)
@@ -739,11 +772,11 @@ if retry_count >= max_retries:
 ✨ CRAFT COMPLETE — All tests green, all agents passed.
 
 📁 Output:
-   .spectre/specs/spec-latest.md  (functional spec)
-   .spectre/design.md             (technical design)
-   .spectre/test-coverage.md      (100% coverage)
-   src/features/auth/             (implementation)
-   e2e/tests/auth/                (E2E tests)
+   .spectre/specs/functional/spec-v1.md   (functional spec v1.0.0)
+   .spectre/specs/design/design-v2.md     (design v2.0.0, after fix)
+   .spectre/test-coverage.md              (100% coverage)
+   src/features/auth/                     (implementation)
+   e2e/tests/auth/                        (E2E tests)
 ```
 
 ---
@@ -761,10 +794,30 @@ if retry_count >= max_retries:
 
 | Agent | Runs | Output |
 |-------|------|--------|
-| PO | **ALWAYS** | `.spectre/specs/spec-latest.md` |
-| Architect | **ALWAYS** | `.spectre/design.md` |
+| PO | **ALWAYS** | `.spectre/specs/functional/spec-vN.md` |
+| Architect | **ALWAYS** | `.spectre/specs/design/design-vN.md` |
 | Dev | **ALWAYS** | Implementation + Unit tests (BDD) |
 | QA | **ALWAYS** | E2E (Playwright) or Integration tests |
+
+### Folder Structure
+
+```
+.spectre/specs/
+├── functional/           # PO's versioned specs
+│   ├── spec-v1.md        # version: 1.0.0 — IMMUTABLE
+│   ├── spec-v2.md        # version: 2.0.0
+│   └── ...
+└── design/               # Architect's versioned designs
+    ├── design-v1.md      # version: 1.0.0, based_on: spec-v2.md
+    └── ...
+```
+
+### Golden Rules
+
+1. **VERSION IS THE KEY** — Everything is versioned
+2. **NEVER MODIFY ORIGINALS** — Always create new version
+3. **HISTORY IS SACRED** — Every version preserved forever
+4. **FRONTMATTER REQUIRED** — version, status, parent, based_on
 
 | Test Type | Responsibility | Location |
 |-----------|----------------|----------|

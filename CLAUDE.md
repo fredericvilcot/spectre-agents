@@ -163,15 +163,25 @@ Every agent follows these non-negotiable rules:
 ```
 .spectre/
 ├── specs/
-│   ├── spec-v1.md          # Original spec
-│   ├── spec-v2.md          # PO improvements
-│   └── spec-latest.md      # Approved version
-├── design.md               # Architect's technical design
+│   ├── functional/         # PO's versioned specs
+│   │   ├── spec-v1.md      # version: 1.0.0 — IMMUTABLE
+│   │   ├── spec-v2.md      # version: 2.0.0 — PO review
+│   │   └── ...             # History preserved forever
+│   └── design/             # Architect's versioned designs
+│       ├── design-v1.md    # version: 1.0.0, based_on: spec-v2.md
+│       └── ...             # History preserved forever
 ├── context.json            # Stack, patterns detected
 ├── failures.md             # Test failures for fixing loop
 ├── test-coverage.md        # QA coverage report
 └── state.json              # Workflow state
 ```
+
+### Versioning Rules
+
+- **VERSION IS THE KEY** — Everything versioned (filename + frontmatter)
+- **NEVER MODIFY ORIGINALS** — Always create new version file
+- **HISTORY IS SACRED** — Every version preserved forever
+- **FRONTMATTER REQUIRED** — version, status, parent, based_on (for design)
 
 ---
 
