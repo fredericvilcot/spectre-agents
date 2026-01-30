@@ -1514,56 +1514,246 @@ Task(
 
 ---
 
-## Step 7: AUTONOMOUS FIXING LOOP (CRITICAL)
+## Step 7: REACTIVE NOTIFICATION LOOP (CORE OF SPECTRE)
 
-**ALL ERRORS GO TO AGENTS. NEVER FIX DIRECTLY.**
+**AGENTS NOTIFY EACH OTHER. THIS IS THE HEART OF THE SYSTEM.**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AUTONOMOUS FIXING LOOP                        │
 │                                                                  │
-│  ⚠️ CRITICAL: CLAUDE NEVER FIXES DIRECTLY!                      │
-│     All fixes go through agents (Dev, Architect, QA)            │
+│              🔔 INTER-AGENT NOTIFICATION SYSTEM                  │
 │                                                                  │
-│  After Dev + QA complete                                         │
-│       │                                                          │
-│       ▼                                                          │
-│  ┌─────────────────┐                                            │
-│  │  Run full check │                                            │
-│  │  • npm run build│                                            │
-│  │  • npm test     │                                            │
-│  │  • tsc --noEmit │                                            │
-│  └────────┬────────┘                                            │
-│           │                                                      │
-│      ┌────┴────┐                                                │
-│      │         │                                                │
-│   ALL GREEN   ERRORS FOUND                                       │
-│      │         │                                                │
-│      ▼         ▼                                                │
-│    DONE!    ┌─────────────────┐                                 │
-│             │ Classify errors │                                 │
-│             └────────┬────────┘                                 │
-│                      │                                           │
-│    ┌─────────────────┼─────────────────┐                        │
-│    │         │       │       │         │                        │
-│  build    test    type    lint    design                        │
-│  error    fail    error   error   flaw                          │
-│    │         │       │       │         │                        │
-│    ▼         ▼       ▼       ▼         ▼                        │
-│   DEV       DEV    ARCH    DEV      ARCH                        │
-│  agent    agent   agent   agent    agent                        │
-│    │         │       │       │         │                        │
-│    └─────────┴───────┴───────┴─────────┘                        │
-│                      │                                           │
-│                      ▼                                           │
-│               ┌─────────────┐                                   │
-│               │  Re-run all │ ← LOOP BACK                       │
-│               │   checks    │                                   │
-│               └──────┬──────┘                                   │
-│                      │                                           │
-│              ┌───────┴───────┐                                  │
-│              │               │                                  │
-│           PASS            FAIL                                   │
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐      │
+│  │   DEV   │◄──►│   QA    │◄──►│  ARCH   │◄──►│   PO    │      │
+│  └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘      │
+│       │              │              │              │            │
+│       └──────────────┴──────────────┴──────────────┘            │
+│                          │                                       │
+│                    NOTIFICATION BUS                              │
+│                                                                  │
+│  Example notifications:                                          │
+│                                                                  │
+│  QA → DEV:   "🔴 Test failed: src/cart.ts:45 returns null"      │
+│  DEV → QA:   "✅ Fixed cart.ts, please re-test"                 │
+│  BUILD → DEV: "🔴 Build error: Cannot find module './utils'"    │
+│  DEV → ARCH: "❓ Type issue, need design clarification"         │
+│  ARCH → DEV: "📐 Updated design, re-implement checkout()"       │
+│  QA → PO:    "❓ Spec unclear: what happens on empty cart?"     │
+│  PO → QA:    "📋 Spec updated, empty cart shows message"        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### How Notifications Work
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  1. ERROR DETECTED                                               │
+│     │                                                            │
+│     ▼                                                            │
+│  2. IDENTIFY OWNER (who wrote this code?)                        │
+│     │                                                            │
+│     ├─ src/**      → Dev owns it                                │
+│     ├─ e2e/**      → QA owns it                                 │
+│     ├─ design      → Architect owns it                          │
+│     └─ spec        → PO owns it                                 │
+│     │                                                            │
+│     ▼                                                            │
+│  3. NOTIFY OWNER with context                                    │
+│     │                                                            │
+│     │  Task(subagent: "<owner>", prompt: """                    │
+│     │    🔔 NOTIFICATION FROM <sender>                          │
+│     │                                                            │
+│     │    Error: <description>                                    │
+│     │    File: <path>:<line>                                    │
+│     │    Context: <what was happening>                          │
+│     │                                                            │
+│     │    Please fix and notify back when done.                  │
+│     │  """)                                                      │
+│     │                                                            │
+│     ▼                                                            │
+│  4. OWNER FIXES                                                  │
+│     │                                                            │
+│     ▼                                                            │
+│  5. OWNER NOTIFIES BACK                                          │
+│     │                                                            │
+│     │  "✅ Fixed <file>. Ready for re-test."                    │
+│     │                                                            │
+│     ▼                                                            │
+│  6. LOOP: Re-run checks, repeat if needed                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Notification Types
+
+| From | To | When | Message |
+|------|-----|------|---------|
+| **Build** | Dev | Build fails | "🔴 Build error in {file}: {error}" |
+| **QA** | Dev | Test fails on impl | "🔴 Test failed: {test} - {file}:{line}" |
+| **QA** | Architect | Design issue found | "❓ Design unclear: {question}" |
+| **QA** | PO | Spec unclear | "❓ Spec question: {question}" |
+| **Dev** | QA | Code fixed | "✅ Fixed {file}, please re-test" |
+| **Dev** | Architect | Need type help | "❓ Type issue: {problem}" |
+| **Architect** | Dev | Design updated | "📐 Design changed: re-implement {function}" |
+| **Architect** | QA | Type fixed | "✅ Types updated, re-run checks" |
+| **PO** | QA | Spec clarified | "📋 Spec updated: {change}" |
+| **PO** | Architect | Requirement changed | "📋 New requirement: {change}" |
+
+### Implementation
+
+```python
+def notify_agent(to: str, from_agent: str, error: Error):
+    """
+    Core notification function.
+    NEVER fix directly - always notify the owning agent.
+    """
+
+    # Build notification message
+    notification = f"""
+🔔 NOTIFICATION FROM {from_agent.upper()}
+
+## Error
+{error.type}: {error.message}
+
+## Location
+File: {error.file}:{error.line}
+
+## Context
+{error.context}
+
+## Your Task
+1. Analyze the error
+2. Fix it in your code
+3. Notify back when done: "✅ Fixed {error.file}"
+
+DO NOT ask the user. Fix it autonomously.
+"""
+
+    # Spawn the owning agent
+    Task(
+        subagent_type=to,
+        prompt=notification
+    )
+
+
+def reactive_loop():
+    """Main reactive loop with inter-agent notifications."""
+
+    while True:
+        # Run all checks
+        results = run_checks()  # build, test, types, lint
+
+        if results.all_green:
+            print("✅ ALL GREEN - CRAFT COMPLETE")
+            break
+
+        # Process each error
+        for error in results.errors:
+
+            # Determine owner based on file location
+            owner = get_owner(error.file)
+
+            # NOTIFY the owner (never fix directly!)
+            notify_agent(
+                to=owner,
+                from_agent="orchestrator",
+                error=error
+            )
+
+        # Wait for agents to fix
+        # Agents will notify back when done
+        # Then loop continues
+
+
+def get_owner(file_path: str) -> str:
+    """Determine which agent owns this file."""
+
+    if file_path.startswith("e2e/"):
+        return "qa-engineer"
+    elif file_path.startswith("tests/integration/"):
+        return "qa-engineer"
+    elif file_path.startswith("src/"):
+        return "frontend-engineer"  # or backend-engineer
+    elif "design" in file_path:
+        return "architect"
+    elif "spec" in file_path:
+        return "product-owner"
+    else:
+        return "frontend-engineer"  # default
+```
+
+### Example: Full Notification Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  SCENARIO: Test fails because of implementation bug              │
+│                                                                  │
+│  1. QA runs e2e tests                                            │
+│     │                                                            │
+│     ▼                                                            │
+│  2. Test "cart.spec.ts" fails                                    │
+│     Error: "Expected 100, got null"                              │
+│     │                                                            │
+│     ▼                                                            │
+│  3. QA NOTIFIES DEV:                                             │
+│     ┌──────────────────────────────────────────────────────┐    │
+│     │ 🔔 NOTIFICATION FROM QA                               │    │
+│     │                                                       │    │
+│     │ Test failed: cart.spec.ts:45                         │    │
+│     │ Expected cart.total to be 100, got null              │    │
+│     │                                                       │    │
+│     │ This looks like an issue in src/cart.ts              │    │
+│     │ The getTotal() function returns null                 │    │
+│     │                                                       │    │
+│     │ Please fix and notify back.                          │    │
+│     └──────────────────────────────────────────────────────┘    │
+│     │                                                            │
+│     ▼                                                            │
+│  4. DEV AGENT receives notification                              │
+│     - Analyzes src/cart.ts                                       │
+│     - Finds bug in getTotal()                                    │
+│     - Fixes it                                                   │
+│     │                                                            │
+│     ▼                                                            │
+│  5. DEV NOTIFIES QA:                                             │
+│     ┌──────────────────────────────────────────────────────┐    │
+│     │ ✅ FIXED                                              │    │
+│     │                                                       │    │
+│     │ Fixed src/cart.ts:getTotal()                         │    │
+│     │ Was returning null when items empty                  │    │
+│     │ Now returns 0                                         │    │
+│     │                                                       │    │
+│     │ Ready for re-test.                                   │    │
+│     └──────────────────────────────────────────────────────┘    │
+│     │                                                            │
+│     ▼                                                            │
+│  6. QA re-runs tests                                             │
+│     ✅ All pass                                                  │
+│     │                                                            │
+│     ▼                                                            │
+│  7. DONE                                                         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Rules
+
+1. **NEVER FIX DIRECTLY** — Always notify the owning agent
+2. **YOU WROTE IT? YOU OWN IT.**
+   - `src/**` → Dev owns it
+   - `e2e/**` → QA owns it
+   - `tests/**` → QA owns it
+   - `*.test.ts` (colocated) → Dev owns it
+   - Design files → Architect owns it
+   - Spec files → PO owns it
+3. **ALWAYS NOTIFY BACK** — When you fix something, tell the sender
+4. **INCLUDE CONTEXT** — Don't just say "error", explain what happened
+5. **LOOP UNTIL GREEN** — Keep notifying until all checks pass
+
+**THIS IS THE CORE OF SPECTRE. Without notifications, there's no reactive loop.**
 │              │               │                                  │
 │              ▼               ▼                                   │
 │            DONE!     retry++ < 3?                               │

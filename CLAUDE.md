@@ -102,35 +102,49 @@ Use when stack evolved (added new library). Runs automatically at `/craft` start
 
 ---
 
-## `/heal` — Auto-Fix Loop
+## Reactive Notification System (CORE)
+
+**Agents notify each other. This is the heart of Spectre.**
+
+```
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│   DEV   │◄──►│   QA    │◄──►│  ARCH   │◄──►│   PO    │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘
+         NOTIFICATION BUS
+```
+
+| From | To | Example |
+|------|-----|---------|
+| QA | Dev | "🔴 Test failed: src/cart.ts:45 returns null" |
+| Dev | QA | "✅ Fixed cart.ts, please re-test" |
+| Dev | Architect | "❓ Type issue, need design clarification" |
+| Architect | Dev | "📐 Design updated, re-implement checkout()" |
+| QA | PO | "❓ Spec unclear: what happens on empty cart?" |
+
+**RULE: You wrote it? You own it. You fix it.**
+
+| Location | Owner |
+|----------|-------|
+| `src/**` | Dev |
+| `e2e/**` | QA |
+| `tests/**` | QA |
+| `*.test.ts` (colocated) | Dev |
+| Design | Architect |
+| Spec | PO |
+
+---
+
+## `/heal` — Trigger Notification Loop
 
 ```
 /heal
   │
   ├─ Diagnose (build, tests, types, lint)
-  ├─ Route to right AGENT (never fix directly!)
-  │     ├─ Build error → Dev Agent
-  │     ├─ Test failing → Dev Agent
-  │     ├─ Type error → Architect Agent
-  │     ├─ Lint error → Dev Agent
-  │     └─ Spec gap → PO Agent
-  ├─ Agent fixes AUTONOMOUSLY
-  └─ Loop until ALL GREEN
+  ├─ NOTIFY owning agent (never fix directly!)
+  │     QA → Dev: "🔴 Your code in src/cart.ts broke"
+  │     Dev fixes → notifies QA: "✅ Fixed, re-test"
+  ├─ Loop until ALL GREEN
 ```
-
-**CRITICAL: Claude NEVER fixes directly. Always spawns an agent.**
-
-**RULE: You wrote it? You fix it.**
-
-| Error Location | Agent |
-|----------------|-------|
-| `src/**` (implementation) | Dev |
-| `e2e/**` (e2e tests) | QA |
-| `tests/**` (integration) | QA |
-| `*.test.ts` (unit, colocated) | Dev |
-| Design issue | Architect |
-
-Without this routing, the reactive loop is useless.
 
 ```bash
 /heal           # Full diagnostic
