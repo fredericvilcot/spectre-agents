@@ -243,9 +243,38 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 
 ---
 
-## Step 1: Immediate Learning (NO questions first)
+## Step 1: Welcome Banner + Learning
 
-**As soon as `/craft` is called, run Learning Agent.**
+**MANDATORY: Display welcome message BEFORE launching any agent.**
+
+### 1a. Display Welcome Banner (IMMEDIATE)
+
+**Output this FIRST, before any Task call:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   ███████╗██████╗ ███████╗ ██████╗████████╗██████╗ ███████╗
+   ██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝
+   ███████╗██████╔╝█████╗  ██║        ██║   ██████╔╝█████╗
+   ╚════██║██╔═══╝ ██╔══╝  ██║        ██║   ██╔══██╗██╔══╝
+   ███████║██║     ███████╗╚██████╗   ██║   ██║  ██║███████╗
+   ╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
+
+                    C R A F T   M O D E
+
+          Stop prompting. Start crafting.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◈ INITIALIZING
+
+  Analyzing your project to propose smart options...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 1b. Then Launch Learning Agent
 
 ```
 Task(
