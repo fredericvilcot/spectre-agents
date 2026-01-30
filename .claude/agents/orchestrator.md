@@ -247,11 +247,87 @@ Implementation:
 1. Increment retry count
 2. Extract error details
 3. Check for similar past errors in learnings
-4. Spawn dev agent with:
+4. **Determine which dev agent based on file path** (see DEV AGENT ROUTING)
+5. Spawn the CORRECT dev agent with:
    - Error message
    - Stack trace
    - Affected files
    - Suggested fix (from learnings if available)
+
+---
+
+## DEV AGENT ROUTING — RESPONSIBILITY-BASED (STACK-AGNOSTIC)
+
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   🧠 ANALYZE WHAT THE CODE DOES, NOT THE STACK                   ║
+║                                                                   ║
+║   Ask: "What is this code's responsibility?"                     ║
+║   Works for: TypeScript, Rust, Go, Python, WASM, C++, anything   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
+
+### frontend-engineer — Presentation & User Interaction
+
+| Responsibility | Examples (Any Stack) |
+|----------------|---------------------|
+| UI rendering | Components, views, templates, canvas, WebGL, TUI |
+| User input | Forms, events, gestures, keyboard, CLI prompts |
+| Client-side state | UI state, caches, local storage |
+| Display formatting | Dates, numbers, i18n for display |
+| Animation/Graphics | Rendering, shaders, visual effects |
+
+### backend-engineer — Data & Business Logic
+
+| Responsibility | Examples (Any Stack) |
+|----------------|---------------------|
+| API endpoints | REST, GraphQL, gRPC, WebSocket handlers |
+| Data persistence | Database, file system, storage |
+| Business rules | Domain services, calculations, validations |
+| External systems | Third-party APIs, queues, workers |
+| Infrastructure | Deployment, configs, networking |
+
+### Decision Process
+
+```
+ASK: "What is this code's PRIMARY responsibility?"
+
+PRESENTATION / USER INTERACTION  →  frontend-engineer
+├─ Displays something to user (UI, CLI, graphics)
+├─ Handles user input (events, forms, commands)
+└─ Manages UI/display state
+
+DATA / LOGIC / PERSISTENCE       →  backend-engineer
+├─ Processes business rules
+├─ Reads/writes data (DB, files, network)
+└─ Communicates with external systems
+
+DOMAIN LOGIC (PURE)              →  architect decides
+├─ Entity definitions
+├─ Value objects
+└─ Domain services
+
+WHEN IN DOUBT:
+→ "If this was a human team, who would own this code?"
+→ UI/UX dev → frontend-engineer
+→ Data/API dev → backend-engineer
+```
+
+### File Path as SECONDARY Hint (Fallback Only)
+
+If responsibility unclear after analyzing the code, use file path as hint:
+
+| Path Pattern | Likely Agent |
+|--------------|--------------|
+| ui/, component/, page/, view/ | frontend-engineer |
+| api/, server/, service/, repository/ | backend-engineer |
+| domain/ | architect decides |
+
+**PRIMARY: Analyze code responsibility. SECONDARY: File path hint.**
+
+---
 
 ### On Success
 

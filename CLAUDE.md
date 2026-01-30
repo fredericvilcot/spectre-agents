@@ -55,6 +55,55 @@ Spectre transforms Claude Code into a team of Software Craft experts. Clean arch
 
 ---
 
+## OPERATIONAL RULES — NEVER SKIP THESE
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 THESE RULES ARE MANDATORY AND OFTEN FORGOTTEN                       ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   1. ARCHITECT = DESIGN ONLY                                              ║
+║      → Architect writes .spectre/specs/design/*.md                       ║
+║      → Architect NEVER writes implementation or test files               ║
+║      → After design → Notify Dev to implement                            ║
+║                                                                           ║
+║   2. DEV ROUTING = ANALYZE WHAT THE CODE DOES                             ║
+║      → UI, rendering, user interaction? → frontend-engineer              ║
+║      → Data, business logic, persistence, APIs? → backend-engineer       ║
+║      → Ask: "What is this code's responsibility?"                        ║
+║      → Works for ANY stack: React, Rust, Go, Python, WASM...            ║
+║                                                                           ║
+║   3. SPEC APPROVAL = BLOCKING (for new features)                          ║
+║      → PO creates/transforms spec → spec-vN.md                           ║
+║      → USER MUST APPROVE before Architect starts                         ║
+║      → No approval = No Architect = No implementation                    ║
+║                                                                           ║
+║   4. QA QUESTION = BLOCKING (always Step 5)                               ║
+║      → BEFORE spawning Architect: "Do you want QA tests?"                ║
+║      → This question MUST be asked for New feature, Refactor, Fix bug    ║
+║      → If you forgot → STOP and ask NOW                                  ║
+║                                                                           ║
+║   5. VERIFICATION = CLAUDE ORCHESTRATES                                   ║
+║      → Claude runs the project's build/test commands                     ║
+║      → Claude routes errors to appropriate agent                         ║
+║      → Agent fixes → Claude re-runs → Loop until green                   ║
+║                                                                           ║
+║   6. PARALLEL EXECUTION = MULTIPLE TASK() IN ONE MESSAGE                  ║
+║      → Dev + QA in parallel (same message)                               ║
+║      → Multiple dev agents for independent tasks                         ║
+║      → Sequential only if same file or dependency                        ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   IF YOU ARE ABOUT TO SKIP ONE OF THESE → STOP AND FOLLOW IT             ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## Three Commands
 
 ```bash
@@ -213,6 +262,59 @@ Use when stack evolved (added new library). Runs automatically at `/craft` start
 | **frontend-engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
 | **backend-engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **qa-engineer** | E2E or Integration tests | `e2e/` or custom path |
+
+---
+
+## DEV AGENT ROUTING — BE SMART
+
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   🧠 ANALYZE WHAT THE CODE DOES, NOT THE STACK                   ║
+║                                                                   ║
+║   Ask: "What is this code's responsibility?"                     ║
+║   Works for: TypeScript, Rust, Go, Python, WASM, anything        ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
+
+### frontend-engineer — Presentation & User Interaction
+
+| Responsibility | Any Stack |
+|----------------|-----------|
+| UI rendering | Components, views, templates, canvas, WebGL |
+| User input | Forms, events, gestures, keyboard |
+| Client-side state | UI state, caches, local storage |
+| Display formatting | Dates, numbers, i18n for display |
+
+### backend-engineer — Data & Business Logic
+
+| Responsibility | Any Stack |
+|----------------|-----------|
+| API endpoints | REST, GraphQL, gRPC, WebSocket handlers |
+| Data persistence | Database, file system, storage |
+| Business rules | Domain services, calculations, validations |
+| External systems | Third-party APIs, queues, workers |
+
+### Decision Process (Stack-Agnostic)
+
+```
+ASK: "What is this code's PRIMARY responsibility?"
+
+PRESENTATION / USER INTERACTION  →  frontend-engineer
+├─ Displays something to user
+├─ Handles user input
+└─ Manages UI state
+
+DATA / LOGIC / PERSISTENCE       →  backend-engineer
+├─ Processes business rules
+├─ Reads/writes data
+└─ Communicates with external systems
+
+WHEN IN DOUBT:
+→ "If this was a human team, who would own this?"
+→ Designer/UI dev → frontend | Data/API dev → backend
+```
 
 ---
 

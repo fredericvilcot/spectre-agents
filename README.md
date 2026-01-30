@@ -64,6 +64,22 @@ That's Spectre.
 
 ---
 
+## Prerequisites
+
+**Claude Code CLI** must be installed first:
+
+```bash
+# macOS / Linux
+npm install -g @anthropic-ai/claude-code
+
+# Or via Homebrew
+brew install claude-code
+```
+
+> 📖 [Claude Code Documentation](https://docs.anthropic.com/claude-code)
+
+---
+
 ## Install
 
 ```bash
