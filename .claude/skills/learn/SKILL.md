@@ -40,6 +40,7 @@ Learning isn't about blocking. It's about **understanding** your codebase and **
 ```bash
 /learn                    # Full scan: stack + patterns + violations check
 /learn --only <path>      # Scan only specific path
+/learn --from <path>      # Learn from external inspiration (another project)
 /learn --show             # Show current learnings
 /learn --reset            # Clear all learnings
 ```
@@ -164,73 +165,121 @@ Always succeeds. Writes `.spectre/context.json`:
 
 Analyzes codebase conventions.
 
-### Step 4a: Violations Found → Offer "Craft the Existing"
+### Step 4a: Violations Found → Architect Proposes Fix
 
-Learning Agent writes `.spectre/violations.json` and asks user:
+Learning Agent writes `.spectre/violations.json` and **triggers Architect** to create a fix proposal.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  VIOLATIONS DETECTED FLOW                        │
+│                                                                  │
+│   Learning Agent finds violations                                │
+│        │                                                         │
+│        ▼                                                         │
+│   Write .spectre/violations.json                                 │
+│        │                                                         │
+│        ▼                                                         │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                      ARCHITECT                            │  │
+│   │                                                           │  │
+│   │  Generate PURELY TECHNICAL fix proposal                   │  │
+│   │  → .spectre/specs/design/craft-fix-v1.md                 │  │
+│   │                                                           │  │
+│   └──────────────────────────────────────────────────────────┘  │
+│        │                                                         │
+│        ▼                                                         │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                   USER APPROVAL                           │  │
+│   │                                                           │  │
+│   │  [ 💜 Approve & Apply ]  [ ✏️ Modify ]  [ ⏭️ Later ]      │  │
+│   │                                                           │  │
+│   └──────────────────────────────────────────────────────────┘  │
+│        │                                                         │
+│        ▼                                                         │
+│   If approved → Dev implements → QA verifies (regression)        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Architect Fix Proposal
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    MODE: CRAFT FIX PROPOSAL (purely technical — NO functional change)
+
+    ## Violations
+    <from .spectre/violations.json>
+
+    ## Output: .spectre/specs/design/craft-fix-v1.md
+
+    ```markdown
+    ---
+    version: "1.0.0"
+    type: craft-fix
+    status: pending-approval
+    ---
+
+    # CRAFT Fix Proposal
+
+    ## Summary
+    Found X violations. Estimated: Y files to change.
+
+    ## Violations by Severity
+
+    ### 🔴 Critical
+    | File | Issue | Fix |
+    |------|-------|-----|
+    | src/api/client.ts:45 | `any` type | Add `ApiResponse<T>` |
+
+    ### 🟠 Warning
+    | File | Issue | Fix |
+    |------|-------|-----|
+    | tsconfig.json | Missing strict | Add "strict": true |
+
+    ## Fix Order
+    1. Phase 1: Types (low risk)
+    2. Phase 2: Error handling (medium risk)
+    3. Phase 3: Structure (if needed)
+
+    ## Risk Assessment
+    - Regression risk: Low/Medium/High
+    - Files affected: X
+    ```
+
+    USER MUST APPROVE before Dev implements.
+  """
+)
+```
+
+### User Approval
 
 ```
 AskUserQuestion(
   questions: [{
-    question: "💜 CRAFT violations detected. What do you want to do?",
-    header: "Action",
+    question: "💜 Architect proposed CRAFT fixes. Approve?",
+    header: "Approve",
     options: [
-      { label: "💜 Craft the existing", description: "Launch CRAFT refactoring (Architect → Dev → QA)" },
-      { label: "📋 See violations", description: "Show me what's wrong first" },
-      { label: "⏭️ Ignore for now", description: "I'll fix this later" }
+      { label: "💜 Approve & Apply", description: "Dev implements, QA verifies" },
+      { label: "✏️ Modify", description: "I want to change something" },
+      { label: "⏭️ Later", description: "Fix another time" }
     ]
   }]
 )
 ```
 
-### If "Craft the existing" → Launch Refactoring Flow
+### If Approved → Execute Fix
 
 ```
-# Set mode to craft-the-existing (NO PO)
+# Set mode
 write(".spectre/state.json", { mode: "craft-the-existing" })
 
-# Trigger Architect directly
-Task(
-  subagent_type: "architect",
-  prompt: """
-    MODE: CRAFT THE EXISTING (pure technical refactoring)
+# Dev implements
+Task(subagent_type: "frontend-engineer", ...)
 
-    ## Violations Detected
-
-    <violations from .spectre/violations.json>
-
-    ## Your Mission
-
-    1. Analyze each violation by severity
-    2. Create refactoring plan in .spectre/specs/design/refacto-v1.md
-    3. Prioritize: P1 quick wins, P2 core fixes, P3 polish
-
-    ## Output
-
-    Refactoring plan with:
-    - What to change
-    - Order of operations
-    - Regression risk assessment
-
-    Then Dev implements, QA runs regression tests.
-
-    ## IMPORTANT
-    - NO PO involved — this is pure technical refactoring
-    - Functionality stays the same
-    - Only code quality improves
-  """
-)
-```
-
-### If "See violations" → Show Details Then Ask Again
-
-```
-# Display violations summary
-echo "Found violations:"
-for v in violations:
-    echo "  - $v.type: $v.count occurrences"
-
-# Then ask again
-AskUserQuestion(...)  # Same options
+# QA verifies (regression)
+Task(subagent_type: "qa-engineer", ...)
 ```
 
 ### Step 4b: Clean → Store Patterns
@@ -330,8 +379,124 @@ Learning runs automatically on first `/craft` or `/heal`:
 |---------|--------|
 | `/learn` | Full scan (stack + patterns + violations) |
 | `/learn --only src/features/` | Scan only specific path |
+| `/learn --from <path>` | Learn from external inspiration |
 | `/learn --show` | Display current learnings |
 | `/learn --reset` | Clear all learnings |
+
+---
+
+## Learning from External Inspiration
+
+When learning from an external project (`/learn --from`), the Architect generates a **Learning Report** showing what will and won't be learned.
+
+```
+/learn --from ../other-project
+   │
+   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      ARCHITECT ANALYSIS                          │
+│                                                                  │
+│   Scan external project for patterns                             │
+│        │                                                         │
+│        ▼                                                         │
+│   Generate Learning Report                                       │
+│   → .spectre/reports/learning-from-<name>.md                    │
+│        │                                                         │
+│        ▼                                                         │
+│   Present to user for review                                     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Learning Report Format
+
+```markdown
+---
+type: learning-report
+source: ../other-project
+analyzed: 2024-01-15
+---
+
+# Learning Report: other-project
+
+## Summary
+Analyzed 45 files. Found 12 patterns.
+
+## ✅ WILL LEARN (CRAFT compliant)
+
+| Pattern | Example | Why |
+|---------|---------|-----|
+| Feature folders | `src/features/auth/` | Clean architecture |
+| Result types | `Result<User, AuthError>` | Explicit error handling |
+| Colocated tests | `*.test.ts` next to source | Easy to maintain |
+
+## ❌ WON'T LEARN (CRAFT violations)
+
+| Pattern | Example | Why NOT |
+|---------|---------|---------|
+| `any` types | `data: any` | Types are documentation |
+| `throw` in services | `throw new Error(...)` | Use Result instead |
+| God classes | `UserService` (800 lines) | Single responsibility |
+
+## 🟡 NEEDS REVIEW
+
+| Pattern | Example | Decision needed |
+|---------|---------|-----------------|
+| Barrel exports | `index.ts` re-exports | Can cause circular deps |
+| Class-based services | `class UserService` | Could use functions |
+
+## Recommendation
+
+Learn 8 patterns, skip 4 violations.
+
+[ 💜 Apply learnings ]  [ ✏️ Customize ]  [ ❌ Cancel ]
+```
+
+### Architect Task for External Learning
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    MODE: EXTERNAL LEARNING ANALYSIS
+
+    ## Source
+    Path: <external project path>
+
+    ## Your Mission
+
+    1. Scan the external project
+    2. Identify ALL patterns (architecture, naming, imports, etc.)
+    3. Classify each pattern:
+       - ✅ WILL LEARN: CRAFT compliant
+       - ❌ WON'T LEARN: CRAFT violation
+       - 🟡 NEEDS REVIEW: Ambiguous
+
+    4. Generate report in .spectre/reports/learning-from-<name>.md
+    5. Present to user
+
+    ## CRAFT Compliance Rules
+
+    ✅ Learn if:
+    - Result<T, E> for errors
+    - Strict TypeScript (no any)
+    - Clean architecture (domain isolated)
+    - Colocated tests
+    - Single responsibility
+
+    ❌ Don't learn if:
+    - Uses `any`
+    - Uses `throw` for expected errors
+    - God classes (>500 lines)
+    - Framework in domain
+    - No tests
+
+    ## Output
+    - Learning report with clear tables
+    - User decides what to apply
+  """
+)
+```
 
 ---
 
