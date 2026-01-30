@@ -20,7 +20,7 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 │       │                                                          │
 │       ▼                                                          │
 │   ┌─────────────────────────────────────┐                       │
-│   │  Q1: "Do you have a spec?"          │ ← FIRST QUESTION      │
+│   │  PROJECT EXISTS? (auto-detect)      │                       │
 │   └─────────────────┬───────────────────┘                       │
 │                     │                                            │
 │            ┌────────┴────────┐                                  │
@@ -28,56 +28,162 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 │           YES               NO                                   │
 │            │                 │                                  │
 │            ▼                 ▼                                  │
-│   ┌────────────────┐  ┌────────────────┐                       │
-│   │ Q2: "Where?"   │  │ Q2: "What do   │                       │
-│   │ (file/Jira/URL)│  │ you want?"     │                       │
-│   └───────┬────────┘  └───────┬────────┘                       │
-│           │                   │                                  │
-│           │                   ▼                                  │
-│           │          ┌────────────────┐                         │
-│           │          │ PROJECT EXISTS?│                         │
-│           │          └───────┬────────┘                         │
-│           │                  │                                   │
-│           │         ┌────────┴────────┐                         │
-│           │         │                 │                         │
-│           │        YES               NO                          │
-│           │         │                 │                         │
-│           │         ▼                 ▼                         │
-│           │   Auto-detect      ┌────────────┐                   │
-│           │   stack            │ Q3: Stack? │                   │
-│           │         │          └─────┬──────┘                   │
-│           │         │                │                          │
-│           └─────────┴────────────────┘                          │
-│                          │                                       │
-│                          ▼                                       │
-│   ════════════════════════════════════════════════════════════  │
-│   │           MANDATORY CHAIN (ALL AGENTS)                  │   │
-│   ════════════════════════════════════════════════════════════  │
-│                          │                                       │
-│                          ▼                                       │
-│                   ┌──────────┐                                  │
-│                   │    PO    │ → .spectre/spec.md               │
-│                   └────┬─────┘   (validates or creates)         │
-│                        │                                         │
-│                        ▼                                         │
-│                   ┌──────────┐                                  │
-│                   │ Architect│ → .spectre/design.md             │
-│                   └────┬─────┘   (CRAFT tech spec)              │
-│                        │                                         │
-│                        ▼                                         │
-│                   ┌──────────────────┐                          │
-│                   │   Dev ⇄ QA       │                          │
-│                   │   (parallel)     │                          │
-│                   └──────────────────┘                          │
+│   ┌────────────────────┐  ┌────────────────┐                   │
+│   │ Q1: "What do you   │  │ Q1: Stack?     │                   │
+│   │ want to do?"       │  └───────┬────────┘                   │
+│   │                    │          │                             │
+│   │ • 💜 Crafter       │          ▼                             │
+│   │   l'existant       │  ┌────────────────┐                   │
+│   │ • ✨ New feature   │  │ Q2: Spec?      │                   │
+│   │ • 🐛 Bug fix       │  └───────┬────────┘                   │
+│   └────────┬───────────┘          │                             │
+│            │                      │                             │
+│   ┌────────┴────────┐             │                             │
+│   │                 │             │                             │
+│  CRAFTER         OTHER            │                             │
+│ L'EXISTANT         │              │                             │
+│   │                │              │                             │
+│   │                ▼              │                             │
+│   │         ┌──────────────┐      │                             │
+│   │         │ Q2: Spec?    │      │                             │
+│   │         └──────┬───────┘      │                             │
+│   │                │              │                             │
+│   │                └──────────────┘                             │
+│   │                       │                                      │
+│   │                       ▼                                      │
+│   │   ════════════════════════════════════════════════════════  │
+│   │   │         FULL CHAIN (WITH PO)                        │   │
+│   │   ════════════════════════════════════════════════════════  │
+│   │                       │                                      │
+│   │                       ▼                                      │
+│   │                ┌──────────┐                                 │
+│   │                │    PO    │ → spec-vN.md                    │
+│   │                └────┬─────┘                                 │
+│   │                     │                                        │
+│   │   ┌─────────────────┘                                       │
+│   │   │                                                          │
+│   │   ▼                                                          │
+│   │   ════════════════════════════════════════════════════════  │
+│   └──►│         CRAFT CHAIN (NO PO)                         │   │
+│       ════════════════════════════════════════════════════════  │
+│                       │                                          │
+│                       ▼                                          │
+│                ┌──────────┐                                     │
+│                │ Architect│ → design-vN.md                      │
+│                └────┬─────┘   (CRAFT patterns)                  │
+│                     │                                            │
+│                     ▼                                            │
+│                ┌──────────┐                                     │
+│                │   Dev    │ → Implementation + Unit tests       │
+│                └────┬─────┘                                     │
+│                     │                                            │
+│                     ▼                                            │
+│                ┌──────────┐                                     │
+│                │    QA    │ → Regression tests                  │
+│                └──────────┘   (ensure nothing broke)            │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### "Craft the existing" — CRAFT Refactoring (NO PO)
+
+**When to use:**
+- Migration to `Result<T, E>` (remove `throw`)
+- Remove all `any` types
+- Hexagonal restructure (domain/application/infrastructure)
+- Colocate tests
+- Clean code / SOLID
+- Rename / reorganize
+
+**What changes:**
+- ❌ No PO (no functional change)
+- ✅ Architect (CRAFT design)
+- ✅ Dev (implementation)
+- ✅ QA (regression tests — ensure nothing breaks)
+
+**Functionality stays the same. Only code quality improves.**
+
 ---
 
-## Step 1: Do You Have a Spec?
+## Step 0: Detect Project
 
-**ALWAYS ask this first.**
+**ALWAYS check this first.**
+
+```bash
+# Auto-detect stack
+if [ -f "package.json" ] || [ -f "go.mod" ] || [ -f "Cargo.toml" ]; then
+  PROJECT_EXISTS=true
+  STACK=$(detect_stack)
+else
+  PROJECT_EXISTS=false
+fi
+```
+
+---
+
+## Step 1: What Do You Want? (If Project Exists)
+
+**If project detected → Ask intent FIRST.**
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "🔮 Project detected ($STACK). What do you want to do?",
+    header: "Intent",
+    options: [
+      { label: "💜 Craft the existing", description: "CRAFT refactoring — no functional change" },
+      { label: "✨ New feature", description: "Add new functionality" },
+      { label: "🐛 Fix a bug", description: "Something's broken" },
+      { label: "♻️ Other refactor", description: "Refactoring with functional changes" }
+    ]
+  }]
+)
+```
+
+### If "💜 Craft the existing" → SKIP PO
+
+```
+# No spec needed — pure technical refactoring
+# Go directly to Architect → Dev → QA (regression)
+SKIP_PO=true
+```
+
+### Otherwise → Ask for Spec
+
+```
+# Need functional spec
+SKIP_PO=false
+# Continue to Step 2
+```
+
+---
+
+## Step 1b: Stack? (If No Project)
+
+**If no project → Ask stack, then spec.**
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "🔮 What's your stack?",
+    header: "Stack",
+    options: [
+      { label: "⚛️ React + TypeScript", description: "Frontend app" },
+      { label: "🟢 Node + TypeScript", description: "Backend API" },
+      { label: "🔥 Full-stack TS", description: "React + Node monorepo" },
+      { label: "🐹 Go", description: "Backend service" }
+    ]
+  }]
+)
+```
+
+Then continue to Step 2 (Spec).
+
+---
+
+## Step 2: Do You Have a Spec?
+
+**Only ask if NOT "Crafter l'existant".**
 
 ```
 AskUserQuestion(
@@ -94,7 +200,7 @@ AskUserQuestion(
 
 ---
 
-## Step 2a: If YES → Where Is the Spec?
+## Step 3a: If Has Spec → Where Is It?
 
 ```
 AskUserQuestion(
@@ -117,27 +223,158 @@ Then:
 
 ---
 
-## Step 2b: If NO → What Do You Want?
+## Step 3b: If No Spec → Describe It
+
+Ask for details (free text):
+
+```
+💬 Describe what you want to build:
+> [user describes the feature/fix]
+```
+
+---
+
+## BRANCH A: "Craft the existing" (NO PO)
+
+**Pure technical refactoring — functional behavior unchanged.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 💜 CRAFT THE EXISTING                            │
+│                                                                  │
+│   ❌ PO (skipped — no functional change)                        │
+│                                                                  │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │ Q: "What do you want to craft?"                          │  │
+│   │                                                          │  │
+│   │ • 🚫 Remove all `any` types                              │  │
+│   │ • 🔄 Migrate to Result<T, E>                             │  │
+│   │ • 🏛️ Restructure to hexagonal                            │  │
+│   │ • 🧪 Add colocated tests                                 │  │
+│   │ • ✨ Full CRAFT migration                                │  │
+│   │ • 📝 Other (describe)                                    │  │
+│   └──────────────────────────────────────────────────────────┘  │
+│                          │                                       │
+│                          ▼                                       │
+│                   ┌──────────┐                                  │
+│                   │ Architect│ → Refactoring plan               │
+│                   └────┬─────┘   (what to change, how)          │
+│                        │                                         │
+│                        ▼                                         │
+│                   ┌──────────┐                                  │
+│                   │   Dev    │ → Apply changes + Unit tests     │
+│                   └────┬─────┘                                  │
+│                        │                                         │
+│                        ▼                                         │
+│                   ┌──────────┐                                  │
+│                   │    QA    │ → REGRESSION TESTS               │
+│                   └──────────┘   (ensure nothing broke)         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Ask Craft Target
 
 ```
 AskUserQuestion(
   questions: [{
-    question: "🎯 What are we building?",
-    header: "Goal",
+    question: "💜 What do you want to craft?",
+    header: "Craft",
     options: [
-      { label: "✨ New feature", description: "Let's create something awesome" },
-      { label: "🐛 Bug fix", description: "Something needs fixing" },
-      { label: "♻️ Refactor", description: "Make existing code better" }
+      { label: "🚫 Remove `any`", description: "Strict TypeScript everywhere" },
+      { label: "🔄 Result<T, E>", description: "Replace throw with Result types" },
+      { label: "🏛️ Hexagonal", description: "Restructure domain/application/infra" },
+      { label: "✨ Full CRAFT", description: "Everything at once — the full monty" }
     ]
   }]
 )
 ```
 
-Then ask for details (free text).
+### Architect for Refactoring
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    MODE: CRAFTER L'EXISTANT (pure technical refactoring)
+
+    CRAFT TARGET: <selected option>
+    STACK: <detected stack>
+
+    ## Your Job
+    1. Analyze current codebase
+    2. Identify all violations of CRAFT target
+    3. Create refactoring plan in .spectre/specs/design/refacto-v1.md
+
+    ## Output Format
+    ```markdown
+    ---
+    version: "1.0.0"
+    type: refactoring
+    target: <craft target>
+    ---
+
+    # Refactoring Plan: <target>
+
+    ## Current State
+    - X files with `any`
+    - Y functions throwing exceptions
+    - Z files outside hexagonal structure
+
+    ## Changes
+
+    ### File: src/path/to/file.ts
+    - [ ] Change: <description>
+    - [ ] Before: <code snippet>
+    - [ ] After: <code snippet>
+
+    (repeat for each file)
+
+    ## Order of Operations
+    1. First: ...
+    2. Then: ...
+    3. Finally: ...
+
+    ## Regression Risk
+    - Low/Medium/High
+    - Areas to test: ...
+    ```
+
+    ## IMPORTANT
+    - NO functional changes
+    - Behavior must remain identical
+    - Only structure/types/patterns change
+  """
+)
+```
+
+### QA for Regression
+
+```
+Task(
+  subagent_type: "qa-engineer",
+  prompt: """
+    MODE: REGRESSION TESTING (crafter l'existant)
+
+    ## Your Job
+    - Run ALL existing tests
+    - Ensure nothing is broken
+    - Report any regression
+
+    ## Output
+    - .spectre/regression-report.md
+    - List any failures → triggers fixing loop
+
+    ## Key Rule
+    If ANY test fails → it's a regression → Dev must fix
+    The functional behavior must NOT change.
+  """
+)
+```
 
 ---
 
-## Step 3: Stack (Only If No Project)
+## BRANCH B: Full Flow (WITH PO)
 
 **Auto-detect first. Ask only if empty.**
 
