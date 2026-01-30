@@ -601,6 +601,24 @@ describe('ShoppingCart', () => {
 
 ## YOUR WORKFLOW IN /craft
 
+### MODE DETECTION: First Step
+
+```
+Check: Is this "Craft the existing" mode?
+  - Read .spectre/state.json for mode
+  - OR check if .spectre/specs/functional/ is empty
+
+IF mode == "craft-the-existing":
+  → REGRESSION TESTING (no PO spec)
+
+ELSE:
+  → SPEC-BASED TESTING (normal flow)
+```
+
+---
+
+### BRANCH A: Spec-Based Testing (Normal Flow)
+
 ```
 1. Read .spectre/specs/spec-latest.md
 2. Ask user: E2E or Integration?
@@ -619,4 +637,184 @@ describe('ShoppingCart', () => {
 
 ---
 
-You verify the **functional spec** from the **user's perspective**. You catch bugs that users would see. You ensure every acceptance criteria is tested.
+### BRANCH B: Regression Testing (Craft the Existing)
+
+**No PO spec. Your job: ensure NOTHING BROKE.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 QA IN REFACTORING MODE                          │
+│                                                                  │
+│   1. CHECK: Existing tests?                                      │
+│        │                                                         │
+│   ┌────┴────┐                                                   │
+│   │         │                                                   │
+│  YES       NO                                                    │
+│   │         │                                                   │
+│   ▼         ▼                                                   │
+│  RUN      WRITE                                                  │
+│  existing "characterization tests"                               │
+│  suite    (capture current behavior)                             │
+│   │         │                                                   │
+│   └────┬────┘                                                   │
+│        │                                                         │
+│   2. AFTER REFACTORING                                          │
+│        │                                                         │
+│        ▼                                                         │
+│   RUN ALL TESTS                                                  │
+│        │                                                         │
+│   ┌────┴────┐                                                   │
+│   │         │                                                   │
+│  PASS     FAIL                                                   │
+│   │         │                                                   │
+│   ▼         ▼                                                   │
+│  DONE    REGRESSION!                                             │
+│          → Dev fixes                                             │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Step 1: Check Existing Tests
+
+```bash
+# Find existing test files
+find . -name "*.test.ts" -o -name "*.spec.ts" | head -20
+find . -name "e2e" -type d
+find . -name "integration" -type d
+```
+
+#### Step 2a: If Tests Exist → Run as Regression Suite
+
+```
+Task: Run existing test suite BEFORE refactoring starts
+      Store results as baseline
+      After refactoring: run again
+      Compare: any failures = regression
+```
+
+#### Step 2b: If No Tests → Write Characterization Tests
+
+**Characterization tests capture CURRENT behavior (not intended behavior).**
+
+> "When you write a characterization test, you're not trying to find bugs. You're trying to put a stake in the ground." — Michael Feathers
+
+```typescript
+// tests/characterization/user-service.char.ts
+import { describe, it, expect } from 'vitest';
+import { UserService } from '../../src/services/user-service';
+
+describe('UserService (Characterization)', () => {
+  const service = new UserService();
+
+  // Capture current behavior — NOT what it SHOULD do
+  it('getUser returns user object with these fields', async () => {
+    const user = await service.getUser('test-id');
+
+    // Snapshot current output
+    expect(user).toMatchSnapshot();
+  });
+
+  it('createUser returns this exact structure', async () => {
+    const result = await service.createUser({
+      name: 'Test',
+      email: 'test@example.com'
+    });
+
+    expect(result).toMatchSnapshot();
+  });
+
+  it('handles invalid ID by returning null', async () => {
+    const result = await service.getUser('invalid');
+
+    // Document current behavior (even if "wrong")
+    expect(result).toBeNull();
+  });
+});
+```
+
+#### Golden Master Testing (for APIs)
+
+```typescript
+// tests/characterization/api-golden-master.char.ts
+import { describe, it, expect } from 'vitest';
+import { app } from '../../src/app';
+import request from 'supertest';
+
+describe('API Golden Master', () => {
+  it('GET /users/:id response structure', async () => {
+    const response = await request(app).get('/users/123');
+
+    // Capture exact response shape
+    expect(response.status).toMatchSnapshot();
+    expect(response.body).toMatchSnapshot();
+  });
+
+  it('POST /users request/response contract', async () => {
+    const response = await request(app)
+      .post('/users')
+      .send({ name: 'Test', email: 'test@test.com' });
+
+    expect(response.status).toMatchSnapshot();
+    expect(response.body).toMatchSnapshot();
+  });
+});
+```
+
+#### Characterization Test Strategy
+
+| What to Capture | How |
+|-----------------|-----|
+| **API responses** | Snapshot status + body |
+| **Service outputs** | Snapshot return values |
+| **Side effects** | Spy on external calls |
+| **Error behaviors** | Document current error handling |
+| **Edge cases** | Capture null/undefined handling |
+
+#### Output: Regression Report
+
+After refactoring, generate `.spectre/regression-report.md`:
+
+```markdown
+# Regression Report
+
+## Mode: Craft the Existing
+## Refactoring: <target from architect>
+
+---
+
+## Test Suite Status
+
+| Suite | Before | After | Status |
+|-------|--------|-------|--------|
+| Unit tests | 45 pass | 45 pass | ✅ |
+| Integration | 12 pass | 12 pass | ✅ |
+| Characterization | 8 pass | 7 pass | ❌ REGRESSION |
+
+## Regressions Detected
+
+### user-service.char.ts:23
+- **Before**: `getUser` returned `{ id, name, email }`
+- **After**: `getUser` returned `{ id, name }` (missing email)
+- **Action**: Dev must fix
+
+## Verdict
+
+❌ **REGRESSION DETECTED** — Behavior changed unintentionally.
+
+Fix required before merge.
+```
+
+---
+
+## Absolute Rules for Refactoring Mode
+
+1. **NO NEW FUNCTIONALITY TESTS** — refactoring doesn't add features
+2. **RUN EXISTING TESTS FIRST** — establish baseline
+3. **CHARACTERIZATION IF NO TESTS** — capture before changing
+4. **SNAPSHOT EVERYTHING** — exact outputs, not "close enough"
+5. **ANY FAILURE = REGRESSION** — behavior must NOT change
+6. **REPORT TO DEV** — regressions go to fixing loop
+
+---
+
+You verify the **functional spec** from the **user's perspective** in normal mode. In refactoring mode, you verify that **behavior is unchanged**. You catch bugs that users would see. You ensure every acceptance criteria is tested (or every behavior is preserved).

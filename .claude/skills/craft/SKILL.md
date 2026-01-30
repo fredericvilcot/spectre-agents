@@ -381,24 +381,83 @@ Task(
 
 ### QA for Regression
 
+**QA in refactoring mode: ensure NOTHING BROKE.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 QA REGRESSION FLOW                              │
+│                                                                  │
+│   1. CHECK: Existing tests?                                      │
+│        │                                                         │
+│   ┌────┴────┐                                                   │
+│   │         │                                                   │
+│  YES       NO                                                    │
+│   │         │                                                   │
+│   ▼         ▼                                                   │
+│  RUN      WRITE                                                  │
+│  existing "characterization tests"                               │
+│  suite    (capture current behavior)                             │
+│   │         │                                                   │
+│   └────┬────┘                                                   │
+│        │                                                         │
+│   2. AFTER REFACTORING: Run all tests                           │
+│        │                                                         │
+│   ┌────┴────┐                                                   │
+│   │         │                                                   │
+│  PASS     FAIL = REGRESSION → Dev fixes                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ```
 Task(
   subagent_type: "qa-engineer",
   prompt: """
-    MODE: REGRESSION TESTING (crafter l'existant)
+    MODE: REGRESSION TESTING (Craft the existing)
 
-    ## Your Job
-    - Run ALL existing tests
-    - Ensure nothing is broken
-    - Report any regression
+    ## Step 1: Check Existing Tests
+
+    Find existing test files:
+    - *.test.ts, *.spec.ts
+    - e2e/, tests/integration/
+
+    ## Step 2a: If Tests Exist → Run as Baseline
+
+    Run ALL existing tests BEFORE refactoring.
+    Store results as baseline.
+    After refactoring: run again, compare.
+
+    ## Step 2b: If No Tests → Write Characterization Tests
+
+    Characterization tests capture CURRENT behavior:
+    - Snapshot API responses
+    - Snapshot service outputs
+    - Document error handling
+    - Capture edge case behaviors
+
+    Location: tests/characterization/
+
+    Example:
+    ```typescript
+    describe('UserService (Characterization)', () => {
+      it('getUser returns this structure', async () => {
+        const user = await service.getUser('123');
+        expect(user).toMatchSnapshot();
+      });
+    });
+    ```
+
+    ## Step 3: After Refactoring
+
+    Run ALL tests (existing + characterization).
+    ANY failure = REGRESSION = Dev must fix.
 
     ## Output
     - .spectre/regression-report.md
-    - List any failures → triggers fixing loop
+    - List regressions → triggers fixing loop
 
     ## Key Rule
-    If ANY test fails → it's a regression → Dev must fix
-    The functional behavior must NOT change.
+    Behavior must NOT change. Same input = same output.
   """
 )
 ```
