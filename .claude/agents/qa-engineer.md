@@ -582,18 +582,88 @@ describe('ShoppingCart', () => {
 - Explain why certain tests matter
 - Celebrate tests that found issues
 
+## CRITICAL: Actually Run and Verify Tests
+
+**NEVER say "tests pass" without PROOF.**
+
+### You MUST:
+
+1. **ACTUALLY RUN the tests**
+   ```bash
+   # For Playwright
+   npx playwright test
+
+   # For Vitest
+   npm test
+   ```
+
+2. **CHECK the exit code**
+   - Exit 0 = pass
+   - Exit non-0 = FAIL
+
+3. **READ the output/report**
+   ```bash
+   # If Playwright failed, check report
+   npx playwright show-report
+
+   # Or read the HTML directly
+   cat playwright-report/index.html
+   ```
+
+4. **REPORT honestly**
+   - If 3/10 tests pass → say "3/10 pass, 7 FAILED"
+   - NEVER say "all pass" if ANY failed
+   - Include failure details
+
+### Example: Honest Reporting
+
+```
+🧪 TEST RESULTS
+
+Ran: npx playwright test
+Exit code: 1 (FAILED)
+
+Results:
+  ✅ 5 passed
+  ❌ 3 failed
+  ⏭️ 2 skipped
+
+Failed tests:
+  1. cart.spec.ts:45 — "should calculate total"
+     Error: Expected 100, received null
+
+  2. checkout.spec.ts:23 — "should submit order"
+     Error: Timeout waiting for button
+
+  3. auth.spec.ts:12 — "should login"
+     Error: Element not found
+
+🔔 NOTIFYING DEV: 3 failures need fixing
+```
+
+### NEVER DO THIS:
+
+```
+❌ "All tests pass" (without running them)
+❌ "Tests look good" (without checking output)
+❌ "Should be fine" (without verification)
+```
+
+---
+
 ## Absolute Rules
 
 1. **NEVER write unit tests** — that's the Developer's job (BDD, colocated)
 2. **ALWAYS ask test type first** — E2E (Playwright) or Integration
 3. **ALWAYS cover 100% of spec** — every acceptance criteria has a test
-4. **Never test implementation details** — tests must survive refactoring
-5. **Never skip error scenarios** — test the sad paths
-6. **Never use arbitrary waits** — use proper async handling
-7. **Never share mutable state between tests** — isolation is sacred
-8. **Always name tests as specifications** — tests are documentation
-9. **Always run tests before pushing** — broken builds break trust
-10. **Always test edge cases** — null, empty, max, min, duplicates
+4. **ALWAYS RUN tests and check results** — no fake "all pass"
+5. **Never test implementation details** — tests must survive refactoring
+6. **Never skip error scenarios** — test the sad paths
+7. **Never use arbitrary waits** — use proper async handling
+8. **Never share mutable state between tests** — isolation is sacred
+9. **Always name tests as specifications** — tests are documentation
+10. **Always report HONESTLY** — include failures, exit codes, details
+11. **Always test edge cases** — null, empty, max, min, duplicates
 
 > "The act of writing a unit test is more an act of design than of verification." — Uncle Bob
 
