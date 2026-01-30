@@ -11,6 +11,101 @@ allowed-tools: Read, Bash, Task, AskUserQuestion, Glob, Grep, WebFetch, Write
 
 ---
 
+## What The User Sees
+
+**Show the magic. Be explicit at every step.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  🚀 SPECTRE CRAFT                                               │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  📦 Detecting project...                                        │
+│     → Found: package.json, tsconfig.json                        │
+│     → Stack: TypeScript + React + Vite                          │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  ❓ QUESTIONS                                                    │
+│     → What do you want to do?                                   │
+│     → Do you have a spec?                                       │
+│     → Want QA tests?                                            │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  📚 LEARNING — Generating CRAFT skills for your stack...       │
+│     → Analyzing React patterns...                               │
+│     → Analyzing Vite configuration...                           │
+│     → Writing .spectre/stack-skills.md                          │
+│     ✅ CRAFT skills ready for Architect and Dev                 │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  📋 PO — Writing functional spec...                             │
+│     → Analyzing requirements...                                  │
+│     → User stories defined                                       │
+│     → Acceptance criteria written                               │
+│     → Writing .spectre/specs/functional/spec-v1.md              │
+│     ✅ Spec ready for review                                    │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  🏛️ ARCHITECT — Designing implementation...                     │
+│     → Reading CRAFT skills from .spectre/stack-skills.md       │
+│     → Applying hexagonal architecture                           │
+│     → Defining domain boundaries                                │
+│     → Writing .spectre/specs/design/design-v1.md               │
+│     ✅ Technical design ready                                   │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  ⚡ DEV + QA — Implementing in parallel...                      │
+│                                                                  │
+│     DEV:                                                         │
+│     → Reading design from .spectre/specs/design/design-v1.md   │
+│     → Implementing domain layer...                              │
+│     → Implementing application layer...                         │
+│     → Writing unit tests (BDD colocated)...                     │
+│     ✅ Implementation complete                                  │
+│                                                                  │
+│     QA:                                                          │
+│     → Reading spec from .spectre/specs/functional/spec-v1.md   │
+│     → Writing E2E tests in e2e/...                              │
+│     → Covering all acceptance criteria...                       │
+│     ✅ E2E tests complete                                       │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  🔄 FIXING LOOP                                                  │
+│     → Running all tests...                                       │
+│     → 2 failures detected                                        │
+│     → Dev fixing cart.test.ts:45...                             │
+│     → Re-running tests...                                        │
+│     ✅ All tests pass                                           │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  ✅ CRAFT COMPLETE                                              │
+│                                                                  │
+│     📁 Files created:                                           │
+│        .spectre/specs/functional/spec-v1.md                     │
+│        .spectre/specs/design/design-v1.md                       │
+│        src/domain/cart/cart.ts                                  │
+│        src/domain/cart/cart.test.ts                             │
+│        src/application/useAddToCart.ts                          │
+│        e2e/cart.spec.ts                                         │
+│                                                                  │
+│     🧪 Tests: 12 passed, 0 failed                               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Each step MUST output its progress explicitly.**
+
+---
+
 ## The Flow
 
 ```
@@ -376,8 +471,7 @@ QA_CONFIG = {
 │   ╔══════════════════════════════════════════════════════════╗  │
 │   ║              LEARNING AGENT (MANDATORY)                   ║  │
 │   ║   • Detect stack → context.json                          ║  │
-│   ║   • Inject stack skills → stack-skills.json              ║  │
-│   ║   • Learn project patterns → learnings/                  ║  │
+│   ║   • Generate CRAFT skills → stack-skills.md              ║  │
 │   ╚══════════════════════════════════════════════════════════╝  │
 │                          │                                       │
 │                          ▼                                       │
@@ -841,76 +935,93 @@ AskUserQuestion(
 │   ║              LEARNING AGENT (MANDATORY)                   ║  │
 │   ║                                                           ║  │
 │   ║   1. Detect stack → .spectre/context.json                 ║  │
-│   ║   2. Prepare stack skills → .spectre/stack-skills.json    ║  │
-│   ║   3. Learn project patterns → .spectre/learnings/         ║  │
-│   ║   4. Check CRAFT violations                               ║  │
+│   ║   2. Generate CRAFT skills → .spectre/stack-skills.md     ║  │
 │   ║                                                           ║  │
 │   ╚═══════════════════════════════════════════════════════════╝  │
 │        │                                                         │
 │        ▼                                                         │
-│   ARCHITECT (now has: CRAFT + stack skills + project patterns)  │
+│   ARCHITECT (reads stack-skills.md before designing)            │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Learning Agent — Explicit Output
+
+**The user MUST see this progress:**
+
+```
+📚 LEARNING — Generating CRAFT skills for your stack...
+
+   📦 Detecting project...
+      → Found: package.json, tsconfig.json, vite.config.ts
+      → Stack: TypeScript + React + Vite + Vitest + Zustand + Zod
+
+   ✍️ Writing CRAFT skills...
+      → React patterns (hooks, composition, state)
+      → Zustand patterns (stores, selectors, actions)
+      → Zod patterns (validation at boundaries)
+      → Testing patterns (BDD, colocated)
+      → Hexagonal structure (domain/application/infrastructure/ui)
+
+   📁 Output:
+      → .spectre/context.json (stack detected)
+      → .spectre/stack-skills.md (CRAFT skills)
+
+   ✅ CRAFT skills ready for Architect and Dev
+```
+
+### Learning Agent Task
 
 ```
 Task(
   subagent_type: "learning-agent",
   prompt: """
-    PRE-ARCHITECT LEARNING SCAN
+    GENERATE CRAFT SKILLS FOR STACK
 
-    ## Context
-    - Mode: <full-flow OR craft-the-existing>
-    - Spec: <spec-vN.md path if full-flow>
+    ## Step 1: Detect Stack
 
-    ## Your Mission
+    Check project files:
+    - package.json → dependencies
+    - tsconfig.json → TypeScript config
+    - vite.config.ts, next.config.js → bundler
+    - go.mod, Cargo.toml, pyproject.toml → language
 
-    1. DETECT STACK
-       Check package.json, tsconfig.json, go.mod, etc.
-       Write .spectre/context.json
+    Write .spectre/context.json with detected stack.
 
-    2. PREPARE STACK SKILLS
-       Based on detected stack (React, Node, Go...):
-       - React: hooks, components, state, data fetching
-       - Node: APIs, middleware, auth, database
-       - Go: packages, errors, concurrency
-       Write .spectre/stack-skills.json
-       Architect will READ this file.
+    OUTPUT TO USER:
+    "📦 Detecting project...
+       → Found: <files>
+       → Stack: <detected stack>"
 
-    3. LEARN PROJECT-SPECIFIC PATTERNS
-       DO NOT learn built-in CRAFT (hexagonal, Result<T,E>, SOLID)
-       LEARN: folders, naming, imports, test location
-       Write .spectre/learnings/patterns.json
+    ## Step 2: Generate CRAFT Skills
 
-    4. CHECK CRAFT VIOLATIONS
-       - any types
-       - throw in business logic
-       - framework in domain
-       If violations:
-         → Write .spectre/violations.json
-         → Report to user
-         → Ask: Fix now or continue?
+    Write .spectre/stack-skills.md with CRAFT-oriented skills.
+    Skills are written AS THE ARCHITECT would write them.
 
-    ## Output
-    - Stack detected and skills prepared for Architect
-    - Project patterns learned
-    - Violations reported (if any)
+    Include:
+    - TypeScript strict patterns
+    - Framework-specific CRAFT patterns (React, Vue, Node, Go...)
+    - State management patterns (if detected)
+    - Validation patterns (Zod, etc.)
+    - Testing patterns (BDD, colocated)
+    - Hexagonal architecture for this stack
+
+    OUTPUT TO USER:
+    "✍️ Writing CRAFT skills...
+       → <framework> patterns
+       → <state> patterns
+       → Testing patterns
+       → Hexagonal structure"
+
+    ## Step 3: Report Complete
+
+    OUTPUT TO USER:
+    "📁 Output:
+       → .spectre/context.json (stack detected)
+       → .spectre/stack-skills.md (CRAFT skills)
+
+     ✅ CRAFT skills ready for Architect and Dev"
   """
-)
-```
-
-### If Violations Found → User Decides
-
-```
-AskUserQuestion(
-  questions: [{
-    question: "CRAFT violations detected. Continue or fix first?",
-    header: "Violations",
-    options: [
-      { label: "Fix first", description: "Architect will propose fixes" },
-      { label: "Continue anyway", description: "Violations will remain" }
-    ]
-  }]
 )
 ```
 
