@@ -282,13 +282,32 @@ These are **learned from YOUR codebase** because they're YOUR choices.
 
 ```
 .spectre/
-├── context.json              # Detected stack
-├── stack-skills.json         # Skills to inject to Architect
-├── violations.json           # Current violations (if any)
-├── state.json                # Workflow state (learning: on/off)
-└── learnings/
-    └── patterns.json         # Project-specific patterns ONLY
+├── context.json              # Detected stack (gitignored)
+├── stack-skills.json         # Skills to inject (gitignored)
+├── violations.json           # Current violations (gitignored)
+├── state.json                # Workflow state (gitignored)
+├── learnings/
+│   └── patterns.json         # Project-specific patterns
+└── specs/                    # COMMITTED - versioned documentation
+    ├── functional/           # PO specs
+    └── design/               # Architect designs
 ```
+
+### Auto-Gitignore
+
+On first run, Learning Agent adds to `.gitignore`:
+
+```
+# Spectre Agents - generated files (keep specs/)
+.spectre/context.json
+.spectre/stack-skills.json
+.spectre/violations.json
+.spectre/state.json
+.spectre/test-repo/
+.spectre/*-report.md
+```
+
+**Specs are NOT gitignored** — they're versioned documentation that should be committed.
 
 ### context.json (Stack Detection)
 

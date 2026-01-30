@@ -439,8 +439,24 @@ Task(
 ## Execution Flow
 
 ```
-1. CREATE directories
+1. CREATE directories + gitignore
    mkdir -p .spectre/learnings
+   mkdir -p .spectre/specs/functional
+   mkdir -p .spectre/specs/design
+
+   # Add to .gitignore (if not already present)
+   if ! grep -q ".spectre/context.json" .gitignore 2>/dev/null; then
+     cat >> .gitignore << 'EOF'
+
+# Spectre Agents - generated files (keep specs/)
+.spectre/context.json
+.spectre/stack-skills.json
+.spectre/violations.json
+.spectre/state.json
+.spectre/test-repo/
+.spectre/*-report.md
+EOF
+   fi
 
 2. PHASE 1: Detect stack
    → Read package.json, tsconfig.json, etc.
