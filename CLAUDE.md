@@ -9,116 +9,118 @@ Spectre transforms Claude Code into a team of Software Craft experts. Clean arch
 ## Three Commands
 
 ```bash
-/craft    # Build with the full agent team
-/heal     # Re-launch agent loop to fix issues
-/learn    # Adapt to YOUR codebase patterns
+/craft    # Smart flow: learn stack → contextual choices → build
+/heal     # Auto-fix: route problems to right agent
+/learn    # Re-generate library skills if stack evolved
 ```
 
 ---
 
-## `/craft` — Smart Professional Flow
+## `/craft` — Learn First, Smart Choices
 
-**Spec first. Always ask. All agents run.**
+**Stack detection first. Then intelligent options based on what's detected.**
 
 ```
 /craft
   │
-  ├─ "Do you have a spec?"
-  │     ├─ YES → "Where?" (file/URL/paste)
-  │     └─ NO  → "What do you want?" → PO creates spec
+  ╔═══════════════════════════════════════════════════════════╗
+  ║  1. LEARNING (IMMEDIATE)                                  ║
+  ║                                                           ║
+  ║  📦 Detecting stack...                                    ║
+  ║     → typescript, react, fp-ts, zustand, zod, vitest     ║
+  ║                                                           ║
+  ║  🏛️ Architect generating library skills...                ║
+  ║     → TypeScript: utility types, strict mode              ║
+  ║     → fp-ts: Option, Either, pipe, flow                   ║
+  ║     → Zustand: stores, selectors                          ║
+  ║     → .spectre/stack-skills.md                           ║
+  ╚═══════════════════════════════════════════════════════════╝
   │
-  ├─ Stack auto-detected (or asked if no project)
+  ╔═══════════════════════════════════════════════════════════╗
+  ║  2. SMART CHOICES (contextual)                            ║
+  ║                                                           ║
+  ║  "I detected: TypeScript + React + fp-ts"                ║
+  ║                                                           ║
+  ║  • ✨ New feature                                         ║
+  ║  • 🐛 Fix a bug                                           ║
+  ║  • 💜 Improve existing                                    ║
+  ║      ├─ 🔄 Migrate to Result<T,E> (you have fp-ts!)      ║
+  ║      ├─ 🚫 Remove `any` types                             ║
+  ║      └─ 🏛️ Restructure to hexagonal                       ║
+  ║  • 🧪 Add tests                                           ║
+  ║  • 🔍 Audit my code                                       ║
+  ║  • 💬 Or type your own need...                           ║
+  ╚═══════════════════════════════════════════════════════════╝
   │
-  └─ MANDATORY CHAIN (ALL agents, NO shortcuts):
-       │
-       ├─ PO → .spectre/specs/spec-latest.md (user validates)
-       ├─ Architect → .spectre/design.md (implementation LAW)
-       └─ Dev ⇄ QA (parallel + autonomous fixing loop)
+  └─ QA config → PO → Architect → Dev + QA → Fixing loop
 ```
 
-### Key Rules
+### Free Text = Smart Routing
 
-- **ALL agents ALWAYS run** — No shortcuts, no skipping
-- **PO is 100% FUNCTIONAL** — No tech details, that's Architect's job
-- **Specs are VERSIONED** — spec-v1.md, spec-v2.md, spec-latest.md
-- **User validates spec** before Architect starts
-- **Architect's design.md is the LAW** — Dev implements EXACTLY that
+Type anything, get routed to the right CRAFT flow:
 
-### Test Responsibilities
+| You say | Spectre does |
+|---------|--------------|
+| "Create e2e regression tests" | QA Agent (regression mode) |
+| "Check my Tailwind is clean" | Architect Audit |
+| "Add dark mode" | Full flow: PO → Arch → Dev → QA |
+| "Migrate to fp-ts" | Architect refactoring plan |
+| "Just write unit tests" | Dev only (BDD tests) |
 
-| Who | What | Where |
-|-----|------|-------|
-| **Dev** | Unit tests (BDD) | Colocated `*.test.ts` |
-| **QA** | E2E (Playwright) or Integration | `e2e/` or `tests/integration/` |
+**Always respects CRAFT principles.**
 
-QA asks: "E2E or Integration?" — then writes tests covering 100% of spec.
+### QA Config (Upfront)
+
+```
+Want QA tests?
+├─ ✅ Yes → E2E or Integration?
+│           └─ Where? (e2e/ | custom path | different repo)
+└─ ⏭️ No → Dev only (unit tests)
+```
+
+If QA enabled: **Dev + QA run in parallel.**
 
 ---
 
-## `/heal` — Re-launch the Agent Loop
+## `/learn` — Re-generate Library Skills
 
-**`/heal` is NOT `npm test`.** It relaunches the full agent loop.
+```bash
+/learn    # Re-detect stack, regenerate skills
+```
+
+Use when stack evolved (added new library). Runs automatically at `/craft` start.
+
+**What it does:**
+1. Learning Agent reads `package.json`
+2. Architect generates library documentation
+3. Output: `.spectre/stack-skills.md`
+
+**What it generates:**
+- Library API and patterns (TypeScript, fp-ts, Zod, React...)
+- NOT CRAFT patterns (Architect already knows those)
+- NOT existing code patterns (might be garbage)
+
+---
+
+## `/heal` — Auto-Fix Loop
 
 ```
 /heal
   │
   ├─ Diagnose (tests, types, build, lint)
-  ├─ Route to right agent (Dev, Architect, PO)
+  ├─ Route to right agent
+  │     ├─ Test failing → Dev
+  │     ├─ Type error → Architect
+  │     └─ Spec gap → PO
   ├─ Agent fixes AUTONOMOUSLY
-  ├─ QA verifies
   └─ Loop until ALL GREEN
 ```
 
 ```bash
-/heal           # Full diagnostic + fix loop
+/heal           # Full diagnostic
 /heal tests     # Focus on test failures
 /heal types     # Focus on TypeScript errors
-/heal spec      # Sync spec ↔ implementation
 ```
-
-| Problem | Agent |
-|---------|-------|
-| Test failing | Dev fixes |
-| Type error | Architect fixes |
-| Design flaw | Architect redesigns |
-| Spec gap | PO completes |
-
----
-
-## `/learn` — Adapts to YOUR Codebase
-
-```bash
-/learn              # Full scan: stack + patterns + violations
-/learn <file>       # Learn from specific file
-```
-
-Detects your stack, patterns, conventions. On violations → triggers Architect reactively for refacto plan.
-
----
-
-## Autonomous Fixing Loop
-
-**THE LOOP NEVER STOPS UNTIL EVERYTHING IS GREEN.**
-
-```
-Dev + QA run in parallel
-        │
-   FAILURES?
-        │
-   ┌────┴────┐
-   │         │
-  NON       OUI
-   │         │
- DONE!   Dev/Architect fix (AUTO)
-              │
-         QA re-verify
-              │
-         Loop until ✅
-              │
-         (max 3 retries → /heal to continue)
-```
-
-**Key: NEVER ask user during fixing. Agents fix autonomously.**
 
 ---
 
@@ -126,69 +128,51 @@ Dev + QA run in parallel
 
 | Agent | Role | Output |
 |-------|------|--------|
-| **product-owner** | 100% functional specs, user stories | `.spectre/specs/spec-latest.md` |
-| **architect** | Technical design, CRAFT patterns | `.spectre/design.md` |
-| **frontend-engineer** | UI implementation + unit tests | Code + `*.test.ts` |
-| **backend-engineer** | API implementation + unit tests | Code + `*.test.ts` |
-| **qa-engineer** | E2E (Playwright) or Integration tests | `e2e/` or `tests/integration/` |
-| **learning-agent** | Stack detection, pattern learning | `.spectre/context.json` |
-| **orchestrator** | Coordinates reactive loop | State management |
+| **learning-agent** | Detects stack, spawns Architect for skills | `.spectre/context.json` |
+| **architect** | Library skills + Technical design | `.spectre/stack-skills.md`, `design.md` |
+| **product-owner** | Functional specs, user stories | `.spectre/specs/functional/` |
+| **frontend-engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
+| **backend-engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
+| **qa-engineer** | E2E or Integration tests | `e2e/` or custom path |
 
 ---
 
 ## Software Craft Principles
 
-Every agent follows these non-negotiable rules:
+Non-negotiable rules for ALL agents:
 
 | Principle | Implementation |
 |-----------|----------------|
 | **No `any`** | Strict TypeScript, types are documentation |
 | **No `throw`** | `Result<T, E>` — errors are values |
-| **Domain isolation** | Hexagonal architecture, no framework in domain |
-| **Colocated tests** | `*.test.ts` next to source |
+| **Domain isolation** | Hexagonal: domain has ZERO framework imports |
+| **Colocated tests** | `*.test.ts` next to source (BDD style) |
 | **Spec before code** | PO spec → Architect design → Dev implements |
-
-### The Masters
-
-- **Kent Beck** — TDD, "Make it work, make it right, make it fast"
-- **Robert C. Martin** — Clean Code, SOLID, Clean Architecture
-- **Martin Fowler** — Refactoring, Enterprise Patterns
-- **Eric Evans** — Domain-Driven Design
-- **Alistair Cockburn** — Hexagonal Architecture
 
 ---
 
 ## .spectre/ Directory
 
 ```
-.spectre/
+.spectre/                       # gitignored (except specs/)
+├── context.json                # Detected libraries
+├── stack-skills.md             # Library documentation (by Architect)
 ├── specs/
-│   ├── functional/         # PO's versioned specs
-│   │   ├── spec-v1.md      # version: 1.0.0 — IMMUTABLE
-│   │   ├── spec-v2.md      # version: 2.0.0 — PO review
-│   │   └── ...             # History preserved forever
-│   └── design/             # Architect's versioned designs
-│       ├── design-v1.md    # version: 1.0.0, based_on: spec-v2.md
-│       └── ...             # History preserved forever
-├── context.json            # Stack, patterns detected
-├── failures.md             # Test failures for fixing loop
-├── test-coverage.md        # QA coverage report
-└── state.json              # Workflow state
+│   ├── functional/             # PO specs (COMMITTED)
+│   │   └── spec-v1.md
+│   └── design/                 # Architect designs (COMMITTED)
+│       └── design-v1.md
+└── state.json                  # Workflow state
 ```
 
-### Versioning Rules
-
-- **VERSION IS THE KEY** — Everything versioned (filename + frontmatter)
-- **NEVER MODIFY ORIGINALS** — Always create new version file
-- **HISTORY IS SACRED** — Every version preserved forever
-- **FRONTMATTER REQUIRED** — version, status, parent, based_on (for design)
+**Specs are committed** — they're versioned documentation.
 
 ---
 
 ## Philosophy
 
-- **Reactive** — Agents collaborate, errors route automatically
-- **Autonomous** — Dev fixes without asking, loop until green
-- **Craft-first** — Software Craft principles in every line
-- **Spec-driven** — Nothing implemented without functional + technical spec
-- **Self-correcting** — Failures trigger fixes, not stops
+- **Learn first** — Know the stack before asking questions
+- **Smart routing** — Free text → right agent
+- **Craft-first** — Software Craft in every line
+- **Autonomous** — Agents fix without asking
+- **Parallel** — Dev + QA work simultaneously
