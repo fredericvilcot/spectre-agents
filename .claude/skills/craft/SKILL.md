@@ -256,9 +256,17 @@ Ask for details (free text):
 │   └──────────────────────────────────────────────────────────┘  │
 │                          │                                       │
 │                          ▼                                       │
+│   ╔══════════════════════════════════════════════════════════╗  │
+│   ║              LEARNING AGENT (MANDATORY)                   ║  │
+│   ║   • Detect stack → context.json                          ║  │
+│   ║   • Inject stack skills → stack-skills.json              ║  │
+│   ║   • Learn project patterns → learnings/                  ║  │
+│   ╚══════════════════════════════════════════════════════════╝  │
+│                          │                                       │
+│                          ▼                                       │
 │                   ┌──────────┐                                  │
 │                   │ Architect│ → Refactoring plan               │
-│                   └────┬─────┘   (what to change, how)          │
+│                   └────┬─────┘   (uses stack skills + patterns) │
 │                        │                                         │
 │                        ▼                                         │
 │                   ┌──────────┐                                  │
@@ -290,21 +298,44 @@ AskUserQuestion(
 )
 ```
 
+### Learning Agent (Before Architect)
+
+```
+Task(
+  subagent_type: "learning-agent",
+  prompt: """
+    MODE: CRAFT THE EXISTING (pre-refactoring scan)
+
+    ## Your Mission
+    1. DETECT stack → .spectre/context.json
+    2. PREPARE stack skills → .spectre/stack-skills.json
+    3. LEARN project patterns → .spectre/learnings/patterns.json
+    4. Violations will be fixed by refactoring (don't block)
+
+    ## Output
+    Context and skills ready for Architect.
+  """
+)
+```
+
 ### Architect for Refactoring
 
 ```
 Task(
   subagent_type: "architect",
   prompt: """
-    MODE: CRAFTER L'EXISTANT (pure technical refactoring)
+    MODE: CRAFT THE EXISTING (pure technical refactoring)
 
     CRAFT TARGET: <selected option>
-    STACK: <detected stack>
+    STACK CONTEXT: .spectre/context.json
+    STACK SKILLS: .spectre/stack-skills.json
+    PROJECT PATTERNS: .spectre/learnings/patterns.json
 
     ## Your Job
-    1. Analyze current codebase
-    2. Identify all violations of CRAFT target
-    3. Create refactoring plan in .spectre/specs/design/refacto-v1.md
+    1. READ injected context from Learning Agent
+    2. Analyze current codebase
+    3. Identify all violations of CRAFT target
+    4. Create refactoring plan in .spectre/specs/design/refacto-v1.md
 
     ## Output Format
     ```markdown
@@ -614,8 +645,97 @@ AskUserQuestion(
   }]
 )
 
-# If approved → mark spec status: approved → proceed to Architect
+# If approved → mark spec status: approved → proceed to Learning Agent
 # If changes needed → PO creates new version (NEVER modify original)
+```
+
+---
+
+## Step 4.5: Learning Agent — ALWAYS RUNS (Before Architect)
+
+**Learning Agent detects stack, injects skills to Architect, checks violations.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   PO approved spec (or "Craft the existing" mode)               │
+│        │                                                         │
+│        ▼                                                         │
+│   ╔══════════════════════════════════════════════════════════╗  │
+│   ║              LEARNING AGENT (MANDATORY)                   ║  │
+│   ║                                                           ║  │
+│   ║   1. Detect stack → .spectre/context.json                 ║  │
+│   ║   2. Prepare stack skills → .spectre/stack-skills.json    ║  │
+│   ║   3. Learn project patterns → .spectre/learnings/         ║  │
+│   ║   4. Check CRAFT violations                               ║  │
+│   ║                                                           ║  │
+│   ╚═══════════════════════════════════════════════════════════╝  │
+│        │                                                         │
+│        ▼                                                         │
+│   ARCHITECT (now has: CRAFT + stack skills + project patterns)  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+```
+Task(
+  subagent_type: "learning-agent",
+  prompt: """
+    PRE-ARCHITECT LEARNING SCAN
+
+    ## Context
+    - Mode: <full-flow OR craft-the-existing>
+    - Spec: <spec-vN.md path if full-flow>
+
+    ## Your Mission
+
+    1. DETECT STACK
+       Check package.json, tsconfig.json, go.mod, etc.
+       Write .spectre/context.json
+
+    2. PREPARE STACK SKILLS
+       Based on detected stack (React, Node, Go...):
+       - React: hooks, components, state, data fetching
+       - Node: APIs, middleware, auth, database
+       - Go: packages, errors, concurrency
+       Write .spectre/stack-skills.json
+       Architect will READ this file.
+
+    3. LEARN PROJECT-SPECIFIC PATTERNS
+       DO NOT learn built-in CRAFT (hexagonal, Result<T,E>, SOLID)
+       LEARN: folders, naming, imports, test location
+       Write .spectre/learnings/patterns.json
+
+    4. CHECK CRAFT VIOLATIONS
+       - any types
+       - throw in business logic
+       - framework in domain
+       If violations:
+         → Write .spectre/violations.json
+         → Report to user
+         → Ask: Fix now or continue?
+
+    ## Output
+    - Stack detected and skills prepared for Architect
+    - Project patterns learned
+    - Violations reported (if any)
+  """
+)
+```
+
+### If Violations Found → User Decides
+
+```
+AskUserQuestion(
+  questions: [{
+    question: "CRAFT violations detected. Continue or fix first?",
+    header: "Violations",
+    options: [
+      { label: "Fix first", description: "Architect will propose fixes" },
+      { label: "Continue anyway", description: "Violations will remain" }
+    ]
+  }]
+)
 ```
 
 ---
@@ -629,12 +749,21 @@ Task(
   subagent_type: "architect",
   prompt: """
     FUNCTIONAL SPEC: .spectre/specs/functional/spec-vN.md (latest approved)
-    STACK: <stack>
+    STACK CONTEXT: .spectre/context.json (from Learning Agent)
+    STACK SKILLS: .spectre/stack-skills.json (injected by Learning Agent)
+    PROJECT PATTERNS: .spectre/learnings/patterns.json (from Learning Agent)
+
+    ## IMPORTANT: Read Injected Context First
+    1. READ .spectre/context.json for detected stack
+    2. READ .spectre/stack-skills.json for stack-specific patterns
+    3. READ .spectre/learnings/patterns.json for project conventions
 
     ## Your Job
     1. Find latest approved functional spec
     2. Check for existing designs in .spectre/specs/design/
-    3. Create design-v(M+1).md with frontmatter:
+    3. Apply BOTH built-in CRAFT AND stack-specific skills
+    4. Follow project-specific conventions (naming, folders, imports)
+    5. Create design-v(M+1).md with frontmatter:
        ---
        version: "(M+1).0.0"
        status: draft

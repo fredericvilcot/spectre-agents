@@ -1,57 +1,89 @@
 ---
 name: learn
-description: "Real-time CRAFT guardian. Auto-learns patterns, watches for violations, triggers Architect immediately. Always on by default."
+description: "Auto-learns project patterns by default. Detects stack, injects skills to Architect, learns YOUR conventions. On violations, triggers architect reactively. Fully integrated in reactive loop."
 context: conversation
 allowed-tools: Read, Bash, Glob, Grep, Write, Task, AskUserQuestion
 ---
 
-# Spectre Learn — Real-Time CRAFT Guardian
+# Spectre Learn — Stack Detection & Pattern Learning
 
-**Always watching. Always enforcing. Always learning.**
+**Detect. Inject. Learn. Guard.**
 
 ---
 
 ## Philosophy
 
-Learning is **continuous**, not on-demand. The Learning Agent:
-
-1. **Watches** code changes in real-time
-2. **Detects** CRAFT violations immediately
-3. **Triggers** Architect to propose fixes
-4. **Prompts** user for approval
+Learning is about understanding YOUR project, not teaching CRAFT.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    REAL-TIME GUARDIAN                            │
 │                                                                  │
-│   Code changes (save, commit, pull)                              │
+│   BUILT-IN (Never learned)       PROJECT-SPECIFIC (Learned)     │
+│   ────────────────────────       ──────────────────────────     │
+│                                                                  │
+│   ✅ Hexagonal architecture      📁 Folder names (features/)    │
+│   ✅ Result<T, E>                📝 File naming (kebab-case)    │
+│   ✅ No `any`                    📦 Import aliases (@/)         │
+│   ✅ SOLID principles            🧪 Test location (colocated)   │
+│   ✅ Domain isolation            🎨 Component patterns          │
+│   ✅ Dependency rule             🔧 API patterns                │
+│                                                                  │
+│   These are CRAFT.               These are YOUR conventions.    │
+│   ALWAYS enforced.               LEARNED from YOUR code.        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## The Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   /learn (or auto during /craft)                                │
 │        │                                                         │
 │        ▼                                                         │
-│   ┌─────────────────┐                                           │
-│   │ Learning Agent  │ ← ALWAYS WATCHING                         │
-│   │                 │                                           │
-│   │ • Detect stack  │                                           │
-│   │ • Learn patterns│                                           │
-│   │ • Check CRAFT   │                                           │
-│   └────────┬────────┘                                           │
-│            │                                                     │
-│     ┌──────┴──────┐                                             │
-│     │             │                                             │
-│  CLEAN        VIOLATION                                          │
-│     │             │                                             │
-│     ▼             ▼                                             │
-│   Store      ┌──────────┐                                       │
-│   patterns   │ Architect│ ← IMMEDIATE TRIGGER                   │
-│              │          │                                       │
-│              │ Propose  │                                       │
-│              │ fix      │                                       │
-│              └────┬─────┘                                       │
-│                   │                                             │
-│                   ▼                                             │
-│              ┌──────────┐                                       │
-│              │  User    │ ← PROMPT FOR APPROVAL                 │
-│              │ decides  │                                       │
-│              └──────────┘                                       │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  1. DETECT STACK                                        │   │
+│   │     → React? Node? Go? Rust?                            │   │
+│   │     → Write .spectre/context.json                       │   │
+│   └─────────────────────────────────┬───────────────────────┘   │
+│                                     │                            │
+│                                     ▼                            │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  2. INJECT STACK SKILLS → Architect                     │   │
+│   │     → React: hooks, components, state                   │   │
+│   │     → Node: APIs, middleware, auth                      │   │
+│   │     → Go: packages, errors, concurrency                 │   │
+│   └─────────────────────────────────┬───────────────────────┘   │
+│                                     │                            │
+│                                     ▼                            │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  3. LEARN PROJECT-SPECIFIC PATTERNS                     │   │
+│   │     → Folder structure (src/features/ vs src/modules/)  │   │
+│   │     → Naming conventions (kebab vs camelCase)           │   │
+│   │     → Import style (@/ vs ~/ vs relative)               │   │
+│   │     → Test patterns (colocated vs separate)             │   │
+│   └─────────────────────────────────┬───────────────────────┘   │
+│                                     │                            │
+│                                     ▼                            │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  4. CHECK VIOLATIONS (vs CRAFT built-in)                │   │
+│   │     → `any` types? → Violation                          │   │
+│   │     → `throw` in business? → Violation                  │   │
+│   │     → Framework in domain? → Violation                  │   │
+│   └─────────────────────────────────┬───────────────────────┘   │
+│                                     │                            │
+│                            ┌────────┴────────┐                  │
+│                            │                 │                  │
+│                        VIOLATIONS         CLEAN                  │
+│                            │                 │                  │
+│                            ▼                 ▼                  │
+│                   ┌──────────────┐    ┌─────────────┐           │
+│                   │   Architect  │    │    Store    │           │
+│                   │   triggered  │    │   patterns  │           │
+│                   └──────────────┘    └─────────────┘           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -61,182 +93,354 @@ Learning is **continuous**, not on-demand. The Learning Agent:
 ## Commands
 
 ```bash
-/learn              # Force re-scan now
+/learn              # Full scan: detect stack → inject → learn → check
 /learn --off        # Disable auto-learning (not recommended)
-/learn --from <x>   # One-shot learn from external source
+/learn --from <x>   # Learn patterns from external source
 ```
 
 | Command | Action |
 |---------|--------|
-| `/learn` | Force immediate re-scan of project |
-| `/learn --off` | Disable real-time watching |
-| `/learn --from <path>` | Learn from external (repo, file, folder, URL) |
-
-**That's it. Simple.**
+| `/learn` | Full scan (runs BEFORE Architect in /craft chain) |
+| `/learn --off` | Disable auto-learning |
+| `/learn --from <path>` | Learn from external (repo, file, folder) |
 
 ---
 
 ## Auto-Learning (Default: ON)
 
-Learning Agent activates automatically on:
-
-- First `/craft` or `/heal`
-- Any code change detected
-- Git pull/merge
+Learning Agent runs automatically:
+- **BEFORE Architect** in `/craft` chain
+- On first `/craft` or `/heal`
+- When `.spectre/context.json` doesn't exist
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AUTO-LEARNING TRIGGERS                        │
+│                /craft CHAIN WITH AUTO-LEARN                      │
 │                                                                  │
-│   /craft or /heal                                                │
+│   User request                                                   │
 │        │                                                         │
-│        ├── .spectre/context.json exists?                        │
-│        │        │                                                │
-│        │   ┌────┴────┐                                          │
-│        │   │         │                                          │
-│        │  YES       NO                                           │
-│        │   │         │                                          │
-│        │   │         ▼                                          │
-│        │   │    Learning Agent                                   │
-│        │   │    starts watching                                  │
-│        │   │         │                                          │
-│        │   └────┬────┘                                          │
-│        │        │                                                │
-│        ▼        ▼                                                │
-│   Continue with learned context                                  │
+│        ▼                                                         │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                     PO (if needed)                        │  │
+│   │                   spec-vN.md                              │  │
+│   └─────────────────────────────┬────────────────────────────┘  │
+│                                 │                                │
+│                                 ▼                                │
+│   ╔══════════════════════════════════════════════════════════╗  │
+│   ║              LEARNING AGENT (ALWAYS HERE)                 ║  │
+│   ║                                                           ║  │
+│   ║   1. Detect stack                                         ║  │
+│   ║   2. Inject stack skills to Architect                     ║  │
+│   ║   3. Learn project-specific patterns                      ║  │
+│   ║   4. Check violations                                     ║  │
+│   ║                                                           ║  │
+│   ╚═══════════════════════════════════════════════════════════╝  │
+│                                 │                                │
+│                                 ▼                                │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                    ARCHITECT                              │  │
+│   │   (now has: CRAFT + stack skills + project patterns)     │  │
+│   │                   design-vN.md                            │  │
+│   └─────────────────────────────┬────────────────────────────┘  │
+│                                 │                                │
+│                                 ▼                                │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                      Dev → QA                             │  │
+│   └──────────────────────────────────────────────────────────┘  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Real-Time Violation Detection
+## Execution
 
-When the Learning Agent detects a CRAFT violation:
+When `/learn` is invoked:
 
-### 1. Immediate Architect Trigger
+### Spawn Learning Agent
 
 ```
-Learning Agent detects violation
-       │
-       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      ARCHITECT TRIGGERED                         │
-│                                                                  │
-│   "⚠️ CRAFT violation detected in src/api/client.ts"            │
-│                                                                  │
-│   Violation: `any` type on line 45                              │
-│                                                                  │
-│   Architect is analyzing...                                      │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+Task(
+  subagent_type: "learning-agent",
+  prompt: """
+    FULL LEARNING SCAN
+
+    ## Step 1: Detect Stack
+
+    Check for:
+    - package.json → Node/React/Vue ecosystem
+    - tsconfig.json → TypeScript config
+    - go.mod → Go
+    - Cargo.toml → Rust
+    - pyproject.toml → Python
+
+    Write .spectre/context.json with detected stack.
+
+    ## Step 2: Prepare Stack Skills for Architect
+
+    Based on detected stack, identify skills to inject:
+
+    React detected → React skills:
+    - Hooks patterns (useEffect, useMemo, useCallback)
+    - Component composition
+    - State management (Zustand, Context, etc.)
+    - Data fetching patterns (React Query, SWR)
+
+    Node detected → Node skills:
+    - API design (REST, GraphQL)
+    - Middleware patterns
+    - Auth patterns (JWT, sessions)
+    - Database patterns (Repository, Unit of Work)
+
+    Go detected → Go skills:
+    - Package structure
+    - Error handling (no exceptions)
+    - Concurrency patterns
+    - Interface design
+
+    Write .spectre/stack-skills.json
+
+    ## Step 3: Learn PROJECT-SPECIFIC Patterns ONLY
+
+    DO NOT LEARN:
+    - Hexagonal architecture (built-in CRAFT)
+    - Result<T, E> (built-in CRAFT)
+    - SOLID principles (built-in CRAFT)
+    - Domain isolation (built-in CRAFT)
+
+    LEARN:
+    - Folder structure (src/features/ vs src/modules/ vs src/app/)
+    - File naming (kebab-case vs camelCase vs PascalCase)
+    - Import aliases (@/ vs ~/ vs relative paths)
+    - Test location (colocated *.test.ts vs tests/ folder)
+    - Component structure (atoms/molecules/organisms vs feature-based)
+    - API route patterns (REST conventions, naming)
+
+    Write .spectre/learnings/patterns.json
+
+    ## Step 4: Check Violations (vs CRAFT built-in)
+
+    ALWAYS CHECK:
+    - `: any` types (>0 = violation)
+    - `throw new Error` in services/domain
+    - Framework imports in domain/
+    - Missing tests for domain logic
+    - `as unknown as` type assertions
+
+    If violations → write .spectre/violations.json → trigger Architect
+    If clean → report success
+  """
+)
 ```
 
-### 2. Architect Proposes Fix
+---
+
+## What Gets Learned vs What's Built-In
+
+### BUILT-IN CRAFT (Never Learned)
+
+These are **always enforced** by all agents. Learning Agent doesn't learn them because they're already in every agent's DNA.
+
+| Principle | Why Built-In |
+|-----------|--------------|
+| Hexagonal / Clean Architecture | Core CRAFT principle |
+| Result<T, E> (no throw) | Core CRAFT principle |
+| No `any` | Core CRAFT principle |
+| SOLID | Core CRAFT principle |
+| Domain isolation | Core CRAFT principle |
+| Dependency rule | Core CRAFT principle |
+| Colocated tests | Core CRAFT principle |
+
+### STACK-SPECIFIC (Injected Dynamically)
+
+These are **injected to Architect** based on detected stack.
+
+| Stack | Injected Skills |
+|-------|-----------------|
+| **React** | Hooks, components, state, data fetching |
+| **Vue** | Composition API, reactivity, Pinia |
+| **Node** | APIs, middleware, auth, database patterns |
+| **Go** | Packages, error handling, concurrency |
+| **Rust** | Ownership, lifetimes, error handling |
+
+### PROJECT-SPECIFIC (Actually Learned)
+
+These are **learned from YOUR codebase** because they're YOUR choices.
+
+| What | Examples |
+|------|----------|
+| **Folder structure** | `src/features/` vs `src/modules/` vs `app/` |
+| **File naming** | `user-service.ts` vs `UserService.ts` |
+| **Import aliases** | `@/components` vs `~/components` vs `../../` |
+| **Test location** | `*.test.ts` colocated vs `tests/` folder |
+| **Component patterns** | Atomic design vs feature-based |
+| **API patterns** | `/api/v1/users` vs `/users` |
+
+---
+
+## Storage
+
+```
+.spectre/
+├── context.json              # Detected stack
+├── stack-skills.json         # Skills to inject to Architect
+├── violations.json           # Current violations (if any)
+├── state.json                # Workflow state (learning: on/off)
+└── learnings/
+    └── patterns.json         # Project-specific patterns ONLY
+```
+
+### context.json (Stack Detection)
+
+```json
+{
+  "stack": {
+    "language": "typescript",
+    "runtime": "node",
+    "framework": "react",
+    "meta_framework": "vite",
+    "testing": "vitest",
+    "styling": "tailwind",
+    "state": "zustand",
+    "data_fetching": "react-query"
+  },
+  "detectedAt": "2024-01-15T10:30:00Z"
+}
+```
+
+### stack-skills.json (Injected to Architect)
+
+```json
+{
+  "react": {
+    "hooks": {
+      "useEffect": "Side effects, cleanup",
+      "useMemo": "Expensive computations",
+      "useCallback": "Stable function refs"
+    },
+    "state": {
+      "zustand": "Lightweight store",
+      "pattern": "Single store, slices"
+    },
+    "data": {
+      "react-query": "Server state",
+      "pattern": "useQuery, useMutation"
+    }
+  },
+  "injectTo": "architect"
+}
+```
+
+### patterns.json (Project-Specific ONLY)
+
+```json
+{
+  "learnedAt": "2024-01-15T10:30:00Z",
+  "projectSpecific": {
+    "folders": {
+      "features": "src/features/",
+      "shared": "src/shared/",
+      "lib": "src/lib/"
+    },
+    "naming": {
+      "files": "kebab-case",
+      "components": "PascalCase",
+      "hooks": "useCamelCase"
+    },
+    "imports": {
+      "alias": "@/",
+      "style": "absolute"
+    },
+    "tests": {
+      "location": "colocated",
+      "pattern": "*.test.ts"
+    }
+  },
+  "notLearned": [
+    "hexagonal (built-in)",
+    "result-types (built-in)",
+    "solid (built-in)"
+  ]
+}
+```
+
+---
+
+## Violation Detection
+
+When violations are found:
+
+### 1. Write violations.json
+
+```json
+{
+  "detectedAt": "2024-01-15T10:30:00Z",
+  "violations": [
+    {
+      "type": "any_type",
+      "severity": "critical",
+      "file": "src/api/client.ts",
+      "line": 45,
+      "code": "data: any",
+      "fix": "Use proper type or unknown"
+    }
+  ]
+}
+```
+
+### 2. Trigger Architect Reactively
 
 ```
 Task(
   subagent_type: "architect",
   prompt: """
-    REAL-TIME CRAFT VIOLATION DETECTED
+    LEARNING AGENT ALERT: CRAFT violations detected
 
-    ## Violation
-    - File: <file>
-    - Line: <line>
-    - Type: <any | throw | god-class | etc>
-    - Code: <snippet>
+    ## Violations
+    <content of violations.json>
 
     ## Your Mission
-    1. Analyze the violation
-    2. Propose a PURELY TECHNICAL fix
-    3. Present to user immediately
+    1. Analyze each violation
+    2. Propose fixes (quick plan, not full design doc)
+    3. Present to user
 
-    ## Output
-    Quick fix proposal (inline, not a full document):
-    - What's wrong
-    - How to fix
-    - Risk level
+    ## Output Format
+    Quick fix proposal:
+    - File: X
+    - Issue: Y
+    - Fix: Z
+    - Risk: Low/Medium
+
+    Ask: [ Fix now ] [ Later ] [ Ignore file ]
   """
 )
 ```
 
-### 3. User Prompt (Immediate)
+### 3. User Decides
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                  │
-│  ⚠️ CRAFT VIOLATION DETECTED                                    │
-│                                                                  │
-│  File: src/api/client.ts:45                                     │
-│  Issue: `any` type found                                        │
-│                                                                  │
-│  Architect suggests:                                             │
-│  Replace `data: any` with `data: ApiResponse<T>`                │
-│                                                                  │
-│  [ 💜 Fix now ]  [ ⏭️ Later ]  [ 🚫 Ignore this file ]          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+AskUserQuestion(
+  questions: [{
+    question: "CRAFT violations detected. What do you want to do?",
+    header: "Violations",
+    options: [
+      { label: "Fix now", description: "Architect will create refactoring plan" },
+      { label: "Later", description: "Continue, fix during /heal" },
+      { label: "Ignore", description: "Not now (violations remain)" }
+    ]
+  }]
+)
 ```
 
 ---
 
-## CRAFT Violations Watched
+## Learn From External
 
-**All Architect principles are monitored in real-time.**
-
-### 🔴 Critical (Block & Fix Immediately)
-
-| Violation | Detection | Architect Rule |
-|-----------|-----------|----------------|
-| `any` type | `: any` in code | "Never use `any`" |
-| `throw` for expected | `throw new Error` in services/domain | "Use Result types" |
-| Framework in domain | Import React/Express/DB in `domain/` | "Domain is sacred" |
-| No tests for business logic | Domain file without `.test.ts` | "Untested = legacy" |
-| Dependency Rule violation | Domain imports from infrastructure | "Dependencies point inward" |
-| Hidden coupling | Direct instantiation (`new Service()`) | "Make dependencies explicit" |
-
-### 🟠 Warning (Fix Soon)
-
-| Violation | Detection | Architect Rule |
-|-----------|-----------|----------------|
-| God class | >300 lines or >10 methods | Single Responsibility |
-| Long method | >20 lines | "Functions do one thing" |
-| Long parameter list | >4 parameters | Introduce Parameter Object |
-| Type assertions | `as unknown as` | Type safety |
-| Missing strict mode | `"strict": false` | Type safety |
-| Poor naming | Abbreviations, single letters | "Names reveal intent" |
-
-### 🟡 Code Smells (Suggest Refactor)
-
-| Smell | Detection | Refactoring |
-|-------|-----------|-------------|
-| Feature Envy | Method uses other class data heavily | Move Method |
-| Data Clumps | Same params in multiple functions | Extract Parameter Object |
-| Primitive Obsession | `string` for email/money/id | Extract Value Object |
-| Shotgun Surgery | One change = many files | Extract Class |
-| Divergent Change | Many reasons to change one file | Split by responsibility |
-
-### SOLID Violations
-
-| Principle | Violation Sign | Detection |
-|-----------|----------------|-----------|
-| **S**ingle Responsibility | Class does too much | >1 reason to change |
-| **O**pen/Closed | Modifying for new features | Switch/if chains for types |
-| **L**iskov Substitution | Override breaks behavior | Override changes semantics |
-| **I**nterface Segregation | Fat interfaces | Interface with >5 methods |
-| **D**ependency Inversion | Concrete dependencies | Import implementation, not interface |
-
----
-
-## One-Shot External Learning
-
-`/learn --from <source>` learns from external inspiration without disabling auto-learn.
+`/learn --from <source>` learns project-specific patterns from external sources.
 
 ```bash
 /learn --from ../other-project        # Local folder
-/learn --from ./legacy/old-service    # Subfolder
-/learn --from https://github.com/...  # Remote repo
-/learn --from pattern:hexagonal       # Named pattern
+/learn --from https://github.com/...  # Remote repo (clone first)
 ```
 
 ### Flow
@@ -246,104 +450,53 @@ Task(
        │
        ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      ARCHITECT ANALYSIS                          │
 │                                                                  │
-│   Scan external source                                           │
-│        │                                                         │
-│        ▼                                                         │
-│   Generate Learning Report                                       │
-│        │                                                         │
-│        ▼                                                         │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │                                                           │  │
-│   │  ✅ WILL LEARN (CRAFT compliant)                         │  │
-│   │  - Feature folders                                        │  │
-│   │  - Result<T, E> types                                     │  │
-│   │                                                           │  │
-│   │  ❌ WON'T LEARN (CRAFT violations)                       │  │
-│   │  - `any` types (5 occurrences)                           │  │
-│   │  - `throw` in services                                    │  │
-│   │                                                           │  │
-│   │  [ 💜 Apply learnings ]  [ ❌ Cancel ]                   │  │
-│   │                                                           │  │
-│   └──────────────────────────────────────────────────────────┘  │
+│   1. Scan source for patterns                                    │
+│                                                                  │
+│   2. Filter: PROJECT-SPECIFIC only                               │
+│      ✅ Folder structure                                         │
+│      ✅ Naming conventions                                       │
+│      ✅ Import aliases                                           │
+│      ❌ Hexagonal (built-in, don't learn)                        │
+│      ❌ Result<T,E> (built-in, don't learn)                      │
+│                                                                  │
+│   3. Check: Any CRAFT violations in source?                      │
+│      ❌ `any` found? → DON'T learn from this file                │
+│      ❌ `throw` in domain? → DON'T learn from this file          │
+│                                                                  │
+│   4. Present learnings to user                                   │
+│                                                                  │
+│   [ Apply ] [ Cancel ]                                           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Storage
+## Real-Time Watching
+
+When code is pushed manually (outside /craft):
 
 ```
-.spectre/
-├── context.json              # Stack + learned patterns
-├── violations.json           # Current violations (if any)
-└── state.json                # Workflow state (learning: on/off)
-```
-
----
-
-## Implementation
-
-### On First Run
-
-```
-Task(
-  subagent_type: "learning-agent",
-  prompt: """
-    INITIALIZE REAL-TIME GUARDIAN
-
-    1. Detect stack (package.json, tsconfig, etc.)
-    2. Scan codebase for patterns
-    3. Check for existing CRAFT violations
-    4. Write .spectre/context.json
-    5. If violations → trigger Architect immediately
-
-    CRAFT RULES (NON-NEGOTIABLE):
-    - No `any`
-    - No `throw` for expected errors (use Result<T, E>)
-    - Domain isolated from frameworks
-    - Colocated tests
-    - Single responsibility
-
-    Stay watching for changes.
-  """
-)
-```
-
-### On Code Change
-
-```
-# File changed: src/api/client.ts
-
-Learning Agent:
-  1. Read changed file
-  2. Check against CRAFT rules
-  3. If violation:
-     → Trigger Architect
-     → Architect proposes fix
-     → User prompted immediately
-  4. If clean:
-     → Update patterns if new pattern detected
-```
-
-### On Violation Fix
-
-```
-User approves fix
-       │
-       ▼
-Dev implements fix
-       │
-       ▼
-QA runs regression tests
-       │
-       ▼
-Learning Agent confirms fix
-       │
-       ▼
-Remove from violations.json
+┌─────────────────────────────────────────────────────────────────┐
+│                    REAL-TIME WATCHING                            │
+│                                                                  │
+│   Code pushed (git, manual edit)                                 │
+│        │                                                         │
+│        ▼                                                         │
+│   Learning Agent detects change                                  │
+│        │                                                         │
+│        ├── New stack detected? → Inject skills to Architect      │
+│        │                                                         │
+│        ├── New pattern detected? → Add to learnings              │
+│        │   (only if CRAFT compliant)                            │
+│        │                                                         │
+│        └── Violation detected? → Trigger Architect               │
+│                   │                                              │
+│                   ▼                                              │
+│            User prompted                                         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -352,9 +505,11 @@ Remove from violations.json
 
 | Aspect | Behavior |
 |--------|----------|
-| **Default** | Auto-learning ON |
-| **Watching** | Real-time, always |
-| **On violation** | Architect triggered immediately |
-| **User prompt** | Immediate, inline |
-| **External learning** | One-shot, doesn't disable auto |
-| **CRAFT rules** | Non-negotiable, always enforced |
+| **Auto-learning** | ON by default |
+| **Position in chain** | BEFORE Architect |
+| **Stack detection** | Always, writes context.json |
+| **Skill injection** | Stack skills → Architect |
+| **What's learned** | PROJECT-SPECIFIC patterns only |
+| **What's built-in** | CRAFT principles (never learned) |
+| **On violation** | Architect triggered reactively |
+| **Real-time** | Watches changes, updates patterns |
