@@ -1,13 +1,5 @@
-# Spectre runtime state (regenerated per session)
+# Spectre - ALL generated files (specs, context, skills, state)
 .spectre/
 
 # Claude local files (status, architecture, notes)
 .claude/local/
-
-# Spectre Agents - generated files (keep specs/)
-.spectre/context.json
-.spectre/stack-skills.json
-.spectre/violations.json
-.spectre/state.json
-.spectre/test-repo/
-.spectre/*-report.md
