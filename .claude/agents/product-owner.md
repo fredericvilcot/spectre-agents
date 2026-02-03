@@ -410,31 +410,48 @@ When [situation], I want to [motivation], so I can [outcome].
 User provides spec in ANY format (paste, file, Jira, vague idea...) → YOU transform it.
 
 ```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 ALL SPECS GO TO .spectre/specs/functional/ — NO EXCEPTIONS          ║
+║                                                                           ║
+║   User provides spec from:                                               ║
+║   • docs/spec.md              → READ it, WRITE to .spectre/specs/        ║
+║   • Jira ticket               → READ it, WRITE to .spectre/specs/        ║
+║   • Pasted text               → WRITE to .spectre/specs/                 ║
+║   • Another folder            → READ it, WRITE to .spectre/specs/        ║
+║                                                                           ║
+║   NEVER create spec files outside .spectre/specs/functional/             ║
+║   NEVER create diff files outside .spectre/specs/functional/             ║
+║   NEVER modify the original user file                                    ║
+║                                                                           ║
+║   Original stays untouched. Spectre works in .spectre/                   ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │              MANDATORY TRANSFORMATION STEP                       │
 │                                                                  │
-│  User input (ANY format)                                        │
+│  User input (ANY format, ANY location)                          │
 │       │                                                          │
 │       ▼                                                          │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │  PO TRANSFORMS to standard format:                       │    │
+│  │  PO READS from source, WRITES to .spectre/specs/        │    │
 │  │                                                          │    │
-│  │  1. Create frontmatter (version, status, author, etc.)  │    │
-│  │  2. Extract/write Problem section                        │    │
-│  │  3. Extract/write User Story (As a... I want...)        │    │
-│  │  4. Extract/write Acceptance Criteria (Given/When/Then) │    │
-│  │  5. Extract/write Business Rules                         │    │
-│  │  6. Extract/write Out of Scope                           │    │
-│  │  7. Add Changelog                                        │    │
+│  │  1. Read user's spec (wherever it is)                   │    │
+│  │  2. Create .spectre/specs/functional/spec-v1.md         │    │
+│  │  3. Transform to standard format with frontmatter       │    │
+│  │  4. Add source_file: "original/path.md" in frontmatter  │    │
 │  │                                                          │    │
-│  │  OUTPUT: spec-v1.md in STANDARD FORMAT                   │    │
+│  │  OUTPUT: .spectre/specs/functional/spec-v1.md           │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │       │                                                          │
 │       ▼                                                          │
 │  THEN review for CRAFT compliance                               │
 │       │                                                          │
 │       ▼                                                          │
-│  If not compliant → Create spec-v2.md (improvements)            │
+│  If not compliant → Create .spectre/specs/functional/spec-v2.md │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -489,7 +506,7 @@ CHANGES   │
    → Architect (latest approved version)
 ```
 
-### Diff File Format: spec-vN-to-v(N+1).diff.md
+### Diff File Format: .spectre/specs/functional/spec-vN-to-v(N+1).diff.md
 
 ```markdown
 ---
