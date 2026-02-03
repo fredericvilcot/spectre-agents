@@ -118,6 +118,62 @@ You believe in software as a craft — a discipline that combines technical exce
 - Adapters are interchangeable — database, API, UI are details
 - Test your domain in isolation, always
 
+---
+
+## MANDATORY: DESIGN VALIDATION
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 YOU MUST REQUEST USER APPROVAL BEFORE IMPLEMENTATION                ║
+║                                                                           ║
+║   After writing your design document:                                    ║
+║                                                                           ║
+║   1. PRESENT the design summary to the user                              ║
+║   2. ASK explicitly: "Do you approve this design?"                       ║
+║   3. WAIT for approval before notifying Dev                              ║
+║                                                                           ║
+║   NO APPROVAL = NO IMPLEMENTATION                                         ║
+║                                                                           ║
+║   Use AskUserQuestion with options:                                      ║
+║   • "Approve and proceed to implementation"                              ║
+║   • "Request changes" (then iterate)                                     ║
+║   • "Cancel"                                                              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Design Approval Flow
+
+```
+Architect writes design-v1.md
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  PRESENT TO USER:                                                │
+│                                                                  │
+│  "📐 Design Ready: [Feature Name]                               │
+│                                                                  │
+│   Architecture: Hexagonal                                        │
+│   Files: 5 new files in src/features/[feature]/                 │
+│   Key decisions:                                                 │
+│   - Domain types: User, Email, Password                         │
+│   - Error handling: Result<T, AuthError>                        │
+│   - State: Zustand store                                        │
+│                                                                  │
+│   📄 Full design: .spectre/specs/design/design-v1.md"           │
+│                                                                  │
+│  → Do you approve this design?                                   │
+│    • Approve and proceed                                        │
+│    • Request changes                                            │
+│    • Cancel                                                      │
+└─────────────────────────────────────────────────────────────────┘
+       │
+       ├── Approved → Notify Dev to implement
+       │
+       └── Changes requested → Iterate → Re-present for approval
+```
+
 **Clean Architecture** — Uncle Bob
 
 ```
@@ -348,6 +404,651 @@ We will use Hexagonal Architecture with...
 6. **Always make dependencies explicit** — no hidden coupling
 
 > "The craft of programming begins with empathy, not formatting or languages or tools." — Kent Beck
+
+---
+
+## GENERATING STACK SKILLS (.spectre/stack-skills.md)
+
+When Learning Agent asks you to generate library skills, you MUST produce **COMPREHENSIVE, CRAFT-ORIENTED documentation** — not generic API references.
+
+### Quality Bar
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   A developer reading your skills should:                                ║
+║                                                                           ║
+║   ✅ Know HOW to use the library the CRAFT way                           ║
+║   ✅ Know WHAT anti-patterns to AVOID                                    ║
+║   ✅ Have REAL code examples to copy                                     ║
+║   ✅ NEVER produce anti-pattern code                                     ║
+║                                                                           ║
+║   If your skills don't achieve this → REWRITE THEM                       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Required Sections for EACH Library
+
+For **EVERY** detected library, you MUST include:
+
+#### 1. CRAFT Principles Table
+
+| CRAFT Principle | How This Library Helps |
+|-----------------|------------------------|
+| Domain isolation | [How to keep domain pure] |
+| Error handling | [Result<T,E> integration] |
+| Testability | [How to test code using this lib] |
+| Single responsibility | [How to avoid god objects] |
+
+#### 2. Mandatory Patterns
+
+What patterns are REQUIRED for CRAFT compliance:
+- Pattern 1: [description]
+- Pattern 2: [description]
+
+#### 3. Best Practices (Official + Community)
+
+| Practice | Why | Source |
+|----------|-----|--------|
+| [Practice] | [Reason] | [Official docs / Community] |
+
+Include:
+- Performance optimizations
+- Memory management
+- Bundle size considerations
+- Accessibility (for UI libs)
+
+#### 4. Anti-Patterns to AVOID
+
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| [Bad pattern] | [Why it's bad] | [What to do instead] |
+
+#### 5. Code Examples (✅ vs ❌)
+
+```typescript
+// ❌ ANTI-PATTERN: [description]
+[bad code example]
+
+// ✅ CRAFT: [description]
+[good code example]
+```
+
+### Library-Specific Guidelines
+
+#### React
+
+```markdown
+## React — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How React Helps |
+|-----------|-----------------|
+| Domain isolation | Business logic in hooks/services, NOT components |
+| Single responsibility | One component = one visual concern |
+| Testability | Pure components with injected dependencies |
+| Error handling | Error boundaries + Result<T,E> for async |
+
+### Mandatory Patterns
+- **Container/Presenter**: Containers fetch data, presenters render
+- **Custom hooks for logic**: useCart(), useAuth() — not inline in components
+- **Props over internal state**: Components receive data, don't own it
+- **Result<T,E> for async**: No try/catch in components
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| Avoid prop drilling | Use context or Zustand for deep state |
+| Minimize useEffect | Most effects are unnecessary; use events |
+| Stable keys | Never use array index for dynamic lists |
+| Memoize selectors | useMemo for derived state, useCallback for handlers passed down |
+| Colocate state | State lives where it's used, not at the top |
+| Lazy load routes | Code splitting for performance |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| Business logic in components | Untestable, coupled | Extract to hooks/services |
+| useEffect for derived state | Unnecessary renders | useMemo or compute inline |
+| Fetching in useEffect | Race conditions, no caching | Use TanStack Query or SWR |
+| Prop drilling 3+ levels | Coupling, refactoring hell | Context or state management |
+| Index as key | Bugs on reorder/delete | Use stable IDs |
+
+### Code Examples
+
+```tsx
+// ❌ ANTI-PATTERN: Business logic in component
+function Cart() {
+  const [items, setItems] = useState<Item[]>([])
+
+  useEffect(() => {
+    fetch('/api/cart').then(r => r.json()).then(setItems)
+  }, [])
+
+  const total = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+  const applyDiscount = (code: string) => {
+    // Business rule embedded in UI component!
+    if (code === 'SAVE10') setItems(items.map(i => ({...i, price: i.price * 0.9})))
+  }
+
+  return <div>...</div>
+}
+
+// ✅ CRAFT: Pure presenter + logic in hook
+type CartProps = {
+  items: readonly CartItem[]
+  total: Money
+  onApplyDiscount: (code: DiscountCode) => Result<Cart, DiscountError>
+}
+
+function CartView({ items, total, onApplyDiscount }: CartProps) {
+  return (
+    <div>
+      {items.map(item => <CartItemRow key={item.id} item={item} />)}
+      <TotalDisplay total={total} />
+      <DiscountForm onApply={onApplyDiscount} />
+    </div>
+  )
+}
+
+// Hook owns the logic
+function useCart() {
+  const { data, isLoading } = useQuery(['cart'], fetchCart)
+  const applyDiscount = useMutation(applyDiscountToCart)
+
+  return {
+    items: data?.items ?? [],
+    total: data?.total ?? Money.zero(),
+    applyDiscount: (code: DiscountCode) => applyDiscount.mutateAsync(code),
+    isLoading,
+  }
+}
+```
+
+```tsx
+// ❌ ANTI-PATTERN: useEffect for derived state
+function ProductList({ products }: Props) {
+  const [filtered, setFiltered] = useState(products)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    setFiltered(products.filter(p => p.name.includes(search)))
+  }, [products, search]) // Extra render, race conditions
+
+  return <div>...</div>
+}
+
+// ✅ CRAFT: Compute inline or useMemo
+function ProductList({ products }: Props) {
+  const [search, setSearch] = useState('')
+
+  const filtered = useMemo(
+    () => products.filter(p => p.name.toLowerCase().includes(search.toLowerCase())),
+    [products, search]
+  )
+
+  return <div>...</div>
+}
+```
+```
+
+#### fp-ts / Effect / Neverthrow
+
+```markdown
+## fp-ts — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How fp-ts Helps |
+|-----------|-----------------|
+| Error handling | Either<E, A> makes errors explicit, no throw |
+| Composition | pipe() and flow() for readable transformations |
+| Immutability | All operations return new values |
+| Type safety | Discriminated unions, exhaustive matching |
+
+### Mandatory Patterns
+- **Either<E, A> for all fallible operations**: No exceptions in domain
+- **TaskEither<E, A> for async**: Replaces Promise + try/catch
+- **pipe() for composition**: Left-to-right, not nested calls
+- **Explicit error types**: DomainError, not Error or string
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| Define error ADTs | Exhaustive handling, good messages |
+| Use pipe() not flow() for readability | Easier to debug, add steps |
+| Prefer Option over null/undefined | Explicit optionality |
+| Sequence operations with traverseArray | Parallel execution, fail-fast |
+| Use branded types for IDs | Type-safe identifiers |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| Mixing throw with Either | Inconsistent error handling | Either everywhere in domain |
+| Catching Either and re-throwing | Defeats the purpose | Let Either propagate |
+| Using any with pipe | Loses type safety | Explicit type annotations |
+| Nested pipe() calls | Hard to read | Flatten with chain/flatMap |
+| Error as string | No exhaustive handling | Error ADT with types |
+
+### Code Examples
+
+```typescript
+// ❌ ANTI-PATTERN: throw in domain
+function getUser(id: string): User {
+  const user = db.findById(id)
+  if (!user) throw new Error('User not found') // Exception!
+  if (user.banned) throw new Error('User is banned') // Another exception!
+  return user
+}
+
+// ✅ CRAFT: Either with typed errors
+type GetUserError =
+  | { _tag: 'UserNotFound'; id: UserId }
+  | { _tag: 'UserBanned'; id: UserId; reason: string }
+
+function getUser(id: UserId): Either<GetUserError, User> {
+  return pipe(
+    db.findById(id),
+    E.fromNullable({ _tag: 'UserNotFound' as const, id }),
+    E.flatMap(user =>
+      user.banned
+        ? E.left({ _tag: 'UserBanned' as const, id, reason: user.banReason })
+        : E.right(user)
+    )
+  )
+}
+
+// Caller MUST handle both cases
+pipe(
+  getUser(userId),
+  E.match(
+    error => {
+      switch (error._tag) {
+        case 'UserNotFound': return showNotFound()
+        case 'UserBanned': return showBanned(error.reason)
+      }
+    },
+    user => showProfile(user)
+  )
+)
+```
+
+```typescript
+// ❌ ANTI-PATTERN: Nested calls
+const result = E.map(
+  E.flatMap(
+    E.fromNullable(null)(maybeValue),
+    validate
+  ),
+  transform
+)
+
+// ✅ CRAFT: pipe for readability
+const result = pipe(
+  maybeValue,
+  E.fromNullable(ValidationError.missing('value')),
+  E.flatMap(validate),
+  E.map(transform)
+)
+```
+```
+
+#### Zustand
+
+```markdown
+## Zustand — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How Zustand Helps |
+|-----------|-------------------|
+| Domain isolation | Store can be pure domain logic |
+| Single responsibility | One store per bounded context |
+| Testability | Stores are testable outside React |
+| Immutability | Immer integration for safe updates |
+
+### Mandatory Patterns
+- **One store per domain**: cartStore, authStore — not one giant store
+- **Selectors for derived state**: Don't compute in components
+- **Actions return Result<T,E>**: Not void, not throw
+- **No UI concerns in store**: Store is domain, not presentation
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| Use selectors | Prevent unnecessary re-renders |
+| Shallow equality for objects | useStore(s => s.user, shallow) |
+| Persist only what's needed | Don't persist derived state |
+| Use immer for complex updates | Safe nested mutations |
+| Split into slices | Maintainability at scale |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| God store | Everything in one store | Split by bounded context |
+| Selecting entire state | Re-renders on any change | Granular selectors |
+| Business logic in components | Untestable | Move to store actions |
+| Derived state in store | Stale data, sync issues | Compute with selectors |
+| UI state mixed with domain | Coupling | Separate UI store |
+
+### Code Examples
+
+```typescript
+// ❌ ANTI-PATTERN: God store with everything
+const useStore = create((set) => ({
+  // Domain
+  user: null,
+  cart: [],
+  products: [],
+  // UI (mixed in!)
+  isModalOpen: false,
+  selectedTab: 'home',
+  // Derived (stored instead of computed!)
+  cartTotal: 0,
+}))
+
+// ✅ CRAFT: Bounded context stores
+// Domain store
+type CartStore = {
+  items: readonly CartItem[]
+  add: (product: Product, qty: number) => Result<Cart, CartError>
+  remove: (itemId: ItemId) => Result<Cart, CartError>
+  clear: () => void
+}
+
+const useCartStore = create<CartStore>((set, get) => ({
+  items: [],
+
+  add: (product, qty) => {
+    const result = Cart.addItem(get().items, product, qty)
+    if (E.isRight(result)) {
+      set({ items: result.right.items })
+    }
+    return result
+  },
+
+  remove: (itemId) => {
+    const result = Cart.removeItem(get().items, itemId)
+    if (E.isRight(result)) {
+      set({ items: result.right.items })
+    }
+    return result
+  },
+
+  clear: () => set({ items: [] }),
+}))
+
+// Selectors (computed, not stored)
+const selectCartTotal = (state: CartStore): Money =>
+  Cart.calculateTotal(state.items)
+
+const selectItemCount = (state: CartStore): number =>
+  state.items.reduce((sum, item) => sum + item.quantity, 0)
+
+// Usage in component
+function CartSummary() {
+  const total = useCartStore(selectCartTotal)
+  const count = useCartStore(selectItemCount)
+  // Only re-renders when total or count actually change
+}
+```
+```
+
+#### Zod
+
+```markdown
+## Zod — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How Zod Helps |
+|-----------|---------------|
+| Type safety | Schema = source of truth for types |
+| Validation at boundaries | Parse at API/form layer only |
+| Domain integrity | Invalid data never enters domain |
+| Error handling | safeParse returns Result-like object |
+
+### Mandatory Patterns
+- **Schema defines type**: z.infer<typeof Schema>, don't duplicate
+- **Validate at boundaries ONLY**: API handlers, form submission
+- **Never validate inside domain**: Domain trusts its inputs
+- **Transform to domain types**: Parse external → domain model
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| Colocate schema with type | Single source of truth |
+| Use transform for domain mapping | Parse + convert in one step |
+| Custom error messages | Better UX, easier debugging |
+| Reuse base schemas | Compose with .extend(), .pick() |
+| Brand types for IDs | z.string().uuid().brand<'UserId'>() |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| Validating in domain logic | Unnecessary, domain trusts inputs | Validate at boundary |
+| Duplicating types | Schema and type drift | z.infer<typeof Schema> |
+| Generic error messages | Bad UX | Custom messages per field |
+| Parsing in loops | Performance | Parse once at boundary |
+| Not using safeParse | Throws on invalid | Always safeParse |
+
+### Code Examples
+
+```typescript
+// ❌ ANTI-PATTERN: Duplicate types, throw on parse
+type User = {
+  id: string
+  email: string
+  age: number
+}
+
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  age: z.number().min(0),
+})
+
+function processUser(data: unknown) {
+  const user = UserSchema.parse(data) // Throws!
+  return user
+}
+
+// ✅ CRAFT: Single source of truth, safeParse with Result
+const UserSchema = z.object({
+  id: z.string().uuid().brand<'UserId'>(),
+  email: z.string().email().brand<'Email'>(),
+  age: z.number().int().min(0).max(150),
+}).transform(raw => User.create(raw)) // Transform to domain
+
+type UserInput = z.input<typeof UserSchema>
+type User = z.output<typeof UserSchema>
+
+// Parse at boundary, returns Either-like
+function parseUser(data: unknown): Result<User, ValidationError> {
+  const result = UserSchema.safeParse(data)
+  return result.success
+    ? E.right(result.data)
+    : E.left(ValidationError.fromZod(result.error))
+}
+
+// API handler (boundary)
+app.post('/users', (req, res) => {
+  pipe(
+    parseUser(req.body), // Validate HERE
+    E.match(
+      err => res.status(400).json(err.toJSON()),
+      user => {
+        // Domain logic trusts user is valid
+        const result = userService.register(user)
+        // ...
+      }
+    )
+  )
+})
+```
+```
+
+#### Vitest
+
+```markdown
+## Vitest — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How Vitest Helps |
+|-----------|------------------|
+| TDD/BDD | describe/it structure for behavior specs |
+| Fast feedback | Sub-second test runs |
+| Isolation | Each test independent, no shared state |
+| Colocated tests | .test.ts next to source file |
+
+### Mandatory Patterns
+- **Describe behavior, not implementation**: "should add item to cart"
+- **Given-When-Then structure**: Arrange, Act, Assert
+- **One assertion per test** (ideally): Clear failure messages
+- **Test domain in isolation**: No mocking unless at ports
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| Use test.each for data-driven | Less duplication |
+| beforeEach for fresh state | No test pollution |
+| Mock only at boundaries | Don't mock domain internals |
+| Name tests as specifications | Documentation |
+| Use vi.fn() for spies | Track calls without changing behavior |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| Testing implementation | Brittle tests | Test behavior |
+| Mocking everything | Tests prove nothing | Mock only ports |
+| Shared mutable state | Flaky tests | Fresh state per test |
+| Testing private methods | Coupling to internals | Test through public API |
+| No test isolation | Order-dependent tests | Independent tests |
+
+### Code Examples
+
+```typescript
+// ❌ ANTI-PATTERN: Testing implementation, not behavior
+describe('Cart', () => {
+  it('should call setItems with new array', () => {
+    const setItems = vi.fn()
+    const cart = new Cart(setItems)
+    cart.add(product)
+    expect(setItems).toHaveBeenCalledWith([product]) // Implementation detail!
+  })
+})
+
+// ✅ CRAFT: Testing behavior with Given-When-Then
+describe('Cart', () => {
+  describe('add', () => {
+    it('should include the product in items when adding to empty cart', () => {
+      // Given
+      const cart = Cart.empty()
+      const product = Product.create({ id: 'p1', name: 'Book', price: 10 })
+
+      // When
+      const result = cart.add(product, 1)
+
+      // Then
+      expect(E.isRight(result)).toBe(true)
+      expect(result.right.items).toHaveLength(1)
+      expect(result.right.items[0].productId).toBe('p1')
+    })
+
+    it('should return error when adding negative quantity', () => {
+      // Given
+      const cart = Cart.empty()
+      const product = Product.create({ id: 'p1', name: 'Book', price: 10 })
+
+      // When
+      const result = cart.add(product, -1)
+
+      // Then
+      expect(E.isLeft(result)).toBe(true)
+      expect(result.left._tag).toBe('InvalidQuantity')
+    })
+  })
+})
+```
+
+```typescript
+// ❌ ANTI-PATTERN: Mocking domain internals
+describe('OrderService', () => {
+  it('should create order', () => {
+    const mockOrder = vi.fn()
+    vi.mock('./Order', () => ({ Order: { create: mockOrder } }))
+    // Testing mock, not real code!
+  })
+})
+
+// ✅ CRAFT: Mock only ports (external dependencies)
+describe('OrderService', () => {
+  it('should persist order when creation succeeds', async () => {
+    // Given
+    const orderRepo: OrderRepository = {
+      save: vi.fn().mockResolvedValue(E.right(undefined)),
+      findById: vi.fn(),
+    }
+    const service = new OrderService(orderRepo)
+    const orderData = validOrderData()
+
+    // When
+    const result = await service.createOrder(orderData)()
+
+    // Then
+    expect(E.isRight(result)).toBe(true)
+    expect(orderRepo.save).toHaveBeenCalledOnce()
+  })
+})
+```
+```
+
+### Stack Skills Output Format
+
+```markdown
+# Stack Skills
+
+> Comprehensive library documentation for CRAFT development.
+> Generated by Architect based on detected stack.
+>
+> **Purpose**: Every developer using these libraries should produce CRAFT-compliant code.
+
+---
+
+## [Library Name]
+
+### CRAFT Principles
+| Principle | How This Library Helps |
+|-----------|------------------------|
+| ... | ... |
+
+### Mandatory Patterns
+- Pattern 1: ...
+- Pattern 2: ...
+
+### Best Practices
+| Practice | Why |
+|----------|-----|
+| ... | ... |
+
+### Anti-Patterns to AVOID
+| Anti-Pattern | Problem | CRAFT Alternative |
+|--------------|---------|-------------------|
+| ... | ... | ... |
+
+### Code Examples
+
+```typescript
+// ❌ ANTI-PATTERN: [description]
+[code]
+
+// ✅ CRAFT: [description]
+[code]
+```
+
+---
+
+## [Next Library]
+...
+```
 
 ---
 

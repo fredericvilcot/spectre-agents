@@ -70,26 +70,79 @@ You are the Spectre Learning Agent — the stack detector.
 ## What Gets Generated
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                  │
-│   ✅ ARCHITECT GENERATES            ❌ NEVER GENERATE           │
-│   ──────────────────────            ─────────────────           │
-│                                                                  │
-│   Library knowledge:                 CRAFT patterns:            │
-│   • TypeScript utilities             • Hexagonal architecture   │
-│   • fp-ts (Option, Either, pipe)     • Result<T, E>            │
-│   • React hooks API                  • SOLID principles         │
-│   • Tailwind classes                 • Domain isolation         │
-│   • Zod schemas                      (Architect already knows)  │
-│   • Zustand store API                                           │
-│   • Vitest matchers                  Patterns from CODE:        │
-│   • etc.                             • Don't scan existing code │
-│                                      • It might be garbage      │
-│                                                                  │
-│   This is LIBRARY DOCUMENTATION,                                 │
-│   written by Architect with CRAFT mindset.                      │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🎯 COMPREHENSIVE LIBRARY SKILLS (CRAFT + BEST PRACTICES)               ║
+║                                                                           ║
+║   For EACH detected library, Architect generates:                        ║
+║                                                                           ║
+║   1. CRAFT USAGE                                                          ║
+║      → How this library helps respect CRAFT principles                   ║
+║      → Mandatory patterns for clean architecture                         ║
+║      → Integration with Result<T, E>, domain isolation                   ║
+║                                                                           ║
+║   2. GLOBAL BEST PRACTICES                                                ║
+║      → Official recommendations from library authors                     ║
+║      → Performance optimizations                                          ║
+║      → Common anti-patterns to AVOID                                      ║
+║      → Memory leaks and pitfalls                                         ║
+║                                                                           ║
+║   3. CODE EXAMPLES                                                        ║
+║      → ✅ CRAFT-compliant patterns                                       ║
+║      → ❌ Anti-patterns (what NOT to do)                                 ║
+║      → Real-world usage, not hello-world                                 ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║   ❌ NEVER GENERATE                                                       ║
+║                                                                           ║
+║   • Generic API reference (docs exist for that)                          ║
+║   • Hello-world examples                                                 ║
+║   • Patterns from existing code (might be garbage)                       ║
+║   • Basic CRAFT principles (Architect already knows them)                ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Example: What a GOOD Skill Looks Like
+
+```markdown
+## React — CRAFT Skills
+
+### CRAFT Principles
+| Principle | How React Helps |
+|-----------|-----------------|
+| Domain isolation | Keep business logic OUT of components |
+| Single responsibility | One component = one visual concern |
+| Testability | Pure components are easy to test |
+
+### Mandatory Patterns
+- Business logic in custom hooks or services, NOT in components
+- Components receive data, don't fetch it
+- Use Result<T, E> for async operations, not try/catch
+
+### Best Practices (Official + Community)
+| Practice | Why |
+|----------|-----|
+| Avoid prop drilling | Use context or state management |
+| Minimize useEffect | Most effects are unnecessary |
+| Keys must be stable | Never use index as key for dynamic lists |
+| Memoize expensive computations | useMemo for heavy calculations |
+
+### Anti-Patterns to AVOID
+```tsx
+// ❌ Business logic in component
+function Cart() {
+  const [items, setItems] = useState([])
+  const total = items.reduce((sum, i) => sum + i.price, 0) // Logic in component!
+  const applyDiscount = (code) => { ... } // Business rule in UI!
+}
+
+// ✅ CRAFT: Logic extracted, component is pure UI
+function Cart({ items, total, onApplyDiscount }: CartProps) {
+  return <div>...</div>
+}
+```
 ```
 
 ---
@@ -175,40 +228,59 @@ date-fns, lodash, ramda
 
 ## Phase 2: Ask Architect for Skills
 
-**Spawn Architect to generate library documentation.**
+**Spawn Architect to generate COMPREHENSIVE library skills.**
 
 ```
 Task(
   subagent_type: "architect",
   prompt: """
-    GENERATE LIBRARY SKILLS
+    🔔 GENERATE COMPREHENSIVE LIBRARY SKILLS
 
     ## Detected Libraries
     <list from context.json>
 
-    ## Your Mission
-    For EACH library, write practical documentation:
-    - Core API
-    - Common patterns
-    - Useful examples
+    ## Your Mission: CRAFT + BEST PRACTICES
 
-    ## What NOT to Include
-    - CRAFT patterns (you already know them)
-    - Code analysis (don't scan existing code)
+    For EACH library, generate a COMPLETE skill covering:
 
-    ## Output
+    ### 1. CRAFT Integration
+    - How does this library help respect CRAFT principles?
+    - What CRAFT patterns are MANDATORY when using it?
+    - How to integrate with Result<T, E>, domain isolation, etc.?
+
+    ### 2. Best Practices (Official + Community)
+    - What do the library authors recommend?
+    - Performance optimizations
+    - Memory management
+    - Common pitfalls
+
+    ### 3. Anti-Patterns to AVOID
+    - What mistakes do developers commonly make?
+    - What patterns lead to unmaintainable code?
+    - What causes performance issues?
+
+    ### 4. Code Examples
+    - ✅ CRAFT-compliant pattern (the RIGHT way)
+    - ❌ Anti-pattern (what NOT to do)
+    - Real-world examples, not hello-world
+
+    ## Output Format
     Write to: .spectre/stack-skills.md
 
-    Format:
-    # Stack Skills
+    Each library section MUST include:
+    - CRAFT Principles table
+    - Mandatory Patterns
+    - Best Practices table
+    - Anti-Patterns with ❌/✅ code examples
 
-    ## [Library Name]
-    [Documentation]
+    ## Quality Bar
+    A developer reading these skills should:
+    - Know HOW to use the library the CRAFT way
+    - Know WHAT to avoid
+    - Have real code examples to follow
+    - Never produce anti-pattern code
 
-    ---
-
-    ## [Next Library]
-    ...
+    BE COMPREHENSIVE. These skills are the foundation for all implementation.
   """
 )
 ```
