@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Setup Spectre Reactive System in a project
+# Setup Clean Claude Reactive System in a project
 # Configures hooks, creates shared state, and copies scripts
 
 PROJECT_DIR="${1:-.}"
-SPECTRE_AGENTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CLEAN_CLAUDE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors
 RED='\033[0;31m'
@@ -21,17 +21,17 @@ success() { echo -e "${GREEN}✓${NC} $1"; }
 warn() { echo -e "${YELLOW}!${NC} $1"; }
 error() { echo -e "${RED}✗${NC} $1" >&2; exit 1; }
 
-echo -e "${BOLD}${CYAN}Spectre Reactive System Setup${NC}"
+echo -e "${BOLD}${CYAN}Clean Claude Reactive System Setup${NC}"
 echo "Setting up intelligent multi-agent routing in: $PROJECT_DIR"
 echo ""
 
 cd "$PROJECT_DIR"
 
-# 1. Create .spectre directory
-info "Creating .spectre directory..."
-mkdir -p .spectre
+# 1. Create .clean-claude directory
+info "Creating .clean-claude directory..."
+mkdir -p .clean-claude
 
-cat > .spectre/state.json << 'EOF'
+cat > .clean-claude/state.json << 'EOF'
 {
     "workflow": null,
     "feature": null,
@@ -48,22 +48,22 @@ cat > .spectre/state.json << 'EOF'
 }
 EOF
 
-touch .spectre/errors.jsonl
-touch .spectre/events.jsonl
-touch .spectre/learnings.jsonl
-echo '{}' > .spectre/ownership.json
-echo '{}' > .spectre/context.json
+touch .clean-claude/errors.jsonl
+touch .clean-claude/events.jsonl
+touch .clean-claude/learnings.jsonl
+echo '{}' > .clean-claude/ownership.json
+echo '{}' > .clean-claude/context.json
 
-success "Created .spectre directory with state files"
+success "Created .clean-claude directory with state files"
 
 # 2. Create scripts directory
 info "Setting up router scripts..."
-mkdir -p scripts/spectre
-cp "$SPECTRE_AGENTS_DIR/scripts/spectre-router.sh" scripts/spectre/
-cp "$SPECTRE_AGENTS_DIR/scripts/on-agent-stop.sh" scripts/spectre/
-cp "$SPECTRE_AGENTS_DIR/scripts/check-test-results.sh" scripts/spectre/
-chmod +x scripts/spectre/*.sh
-success "Copied router scripts to scripts/spectre/"
+mkdir -p scripts/clean-claude
+cp "$CLEAN_CLAUDE_DIR/scripts/clean-claude-router.sh" scripts/clean-claude/
+cp "$CLEAN_CLAUDE_DIR/scripts/on-agent-stop.sh" scripts/clean-claude/
+cp "$CLEAN_CLAUDE_DIR/scripts/check-test-results.sh" scripts/clean-claude/
+chmod +x scripts/clean-claude/*.sh
+success "Copied router scripts to scripts/clean-claude/"
 
 # 3. Configure hooks in settings
 info "Configuring Claude Code hooks..."
@@ -77,7 +77,7 @@ HOOKS_CONFIG=$(cat << 'EOF'
             "hooks": [
                 {
                     "type": "command",
-                    "command": "./scripts/spectre/on-agent-stop.sh"
+                    "command": "./scripts/clean-claude/on-agent-stop.sh"
                 }
             ]
         }
@@ -88,7 +88,7 @@ HOOKS_CONFIG=$(cat << 'EOF'
             "hooks": [
                 {
                     "type": "command",
-                    "command": "./scripts/spectre/check-test-results.sh"
+                    "command": "./scripts/clean-claude/check-test-results.sh"
                 }
             ]
         }
@@ -107,8 +107,8 @@ if [[ -f .claude/settings.json ]]; then
         success "Merged hooks into existing settings"
     else
         warn "jq not found - please manually add hooks to .claude/settings.json"
-        echo "$HOOKS_CONFIG" > .spectre/hooks-to-add.json
-        echo "Hooks saved to .spectre/hooks-to-add.json"
+        echo "$HOOKS_CONFIG" > .clean-claude/hooks-to-add.json
+        echo "Hooks saved to .clean-claude/hooks-to-add.json"
     fi
 else
     cat > .claude/settings.json << EOF
@@ -126,31 +126,31 @@ success "Created docs/features directory"
 
 # 5. Update .gitignore
 if [[ -f .gitignore ]]; then
-    if ! grep -q ".spectre/state.json" .gitignore 2>/dev/null; then
-        info "Adding .spectre runtime files to .gitignore..."
+    if ! grep -q ".clean-claude/state.json" .gitignore 2>/dev/null; then
+        info "Adding .clean-claude runtime files to .gitignore..."
         cat >> .gitignore << 'EOF'
 
-# Spectre Agents - Runtime state (regenerated)
-.spectre/state.json
-.spectre/events.jsonl
-.spectre/context.json
-.spectre/ownership.json
-.spectre/trigger
+# Clean Claude Agents - Runtime state (regenerated)
+.clean-claude/state.json
+.clean-claude/events.jsonl
+.clean-claude/context.json
+.clean-claude/ownership.json
+.clean-claude/trigger
 
-# Spectre Agents - Persistent (keep in git for learning)
-# .spectre/errors.jsonl
-# .spectre/learnings.jsonl
+# Clean Claude Agents - Persistent (keep in git for learning)
+# .clean-claude/errors.jsonl
+# .clean-claude/learnings.jsonl
 EOF
         success "Updated .gitignore"
     fi
 else
     cat > .gitignore << 'EOF'
-# Spectre Agents - Runtime state
-.spectre/state.json
-.spectre/events.jsonl
-.spectre/context.json
-.spectre/ownership.json
-.spectre/trigger
+# Clean Claude Agents - Runtime state
+.clean-claude/state.json
+.clean-claude/events.jsonl
+.clean-claude/context.json
+.clean-claude/ownership.json
+.clean-claude/trigger
 EOF
     success "Created .gitignore"
 fi
@@ -159,8 +159,8 @@ echo ""
 echo -e "${GREEN}${BOLD}Setup complete!${NC}"
 echo ""
 echo -e "${CYAN}Directory structure:${NC}"
-echo "  .spectre/              → Shared state between agents"
-echo "  scripts/spectre/       → Router and hook scripts"
+echo "  .clean-claude/              → Shared state between agents"
+echo "  scripts/clean-claude/       → Router and hook scripts"
 echo "  docs/features/         → Feature documentation output"
 echo ""
 echo -e "${CYAN}Features:${NC}"
@@ -172,7 +172,7 @@ echo "  • Automatic retry with context"
 echo ""
 echo -e "${CYAN}Usage:${NC}"
 echo "  /reactive-loop                    → Start a feature"
-echo "  ./scripts/spectre/spectre-router.sh status  → Check status"
-echo "  ./scripts/spectre/spectre-router.sh init <feature> [stack]"
+echo "  ./scripts/clean-claude/clean-claude-router.sh status  → Check status"
+echo "  ./scripts/clean-claude/clean-claude-router.sh init <feature> [stack]"
 echo ""
 echo -e "${YELLOW}Stacks available:${NC} frontend, backend, fullstack"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Spectre Agents Uninstaller
+# Clean Claude Uninstaller
 
 CLAUDE_DIR="$HOME/.claude"
 
@@ -11,10 +11,10 @@ NC='\033[0m'
 
 success() { echo -e "${GREEN}✓${NC} $1"; }
 
-echo -e "${BOLD}Spectre Agents Uninstaller${NC}"
+echo -e "${BOLD}Clean Claude Uninstaller${NC}"
 echo ""
 
-# Spectre agents list
+# Clean Claude agents list
 AGENTS=(
     "architect"
     "product-owner"
@@ -23,7 +23,7 @@ AGENTS=(
     "orchestrator"
 )
 
-# Spectre skills list
+# Clean Claude skills list
 SKILLS=(
     "typescript-craft"
     "react-craft"

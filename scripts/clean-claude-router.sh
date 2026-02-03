@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Spectre Router - Intelligent routing between agents
+# Clean Claude Router - Intelligent routing between agents
 # Routes based on error type, file ownership, and workflow phase
 
-SPECTRE_DIR=".spectre"
-STATE_FILE="$SPECTRE_DIR/state.json"
-ERRORS_FILE="$SPECTRE_DIR/errors.jsonl"
-EVENTS_FILE="$SPECTRE_DIR/events.jsonl"
-LEARNINGS_FILE="$SPECTRE_DIR/learnings.jsonl"
-OWNERSHIP_FILE="$SPECTRE_DIR/ownership.json"
-LINKS_FILE="$SPECTRE_DIR/links.json"
+CLEAN_CLAUDE_DIR=.clean-claude
+STATE_FILE="$CLEAN_CLAUDE_DIR/state.json"
+ERRORS_FILE="$CLEAN_CLAUDE_DIR/errors.jsonl"
+EVENTS_FILE="$CLEAN_CLAUDE_DIR/events.jsonl"
+LEARNINGS_FILE="$CLEAN_CLAUDE_DIR/learnings.jsonl"
+OWNERSHIP_FILE="$CLEAN_CLAUDE_DIR/ownership.json"
+LINKS_FILE="$CLEAN_CLAUDE_DIR/links.json"
 
 # Colors
 RED='\033[0;31m'
@@ -289,10 +289,10 @@ trigger_agent() {
     local reason="$2"
     local context="${3:-}"
 
-    echo -e "${CYAN}[SPECTRE]${NC} Triggering ${YELLOW}$agent${NC} — $reason"
+    echo -e "${CYAN}[CLEAN CLAUDE]${NC} Triggering ${YELLOW}$agent${NC} — $reason"
 
     # Write trigger file
-    cat > "$SPECTRE_DIR/trigger" << EOF
+    cat > "$CLEAN_CLAUDE_DIR/trigger" << EOF
 {
     "agent": "$agent",
     "reason": "$reason",
@@ -360,13 +360,13 @@ handle_agent_complete() {
 
                 trigger_agent "$fixer" "Fix error: $error_type" "$last_error"
             else
-                echo -e "${RED}[SPECTRE]${NC} Max retries ($max_retries) exceeded"
+                echo -e "${RED}[CLEAN CLAUDE]${NC} Max retries ($max_retries) exceeded"
                 set_state "phase" "\"blocked\""
                 set_state "status" "\"needs_help\""
-                echo -e "${YELLOW}[SPECTRE]${NC} Manual intervention required"
+                echo -e "${YELLOW}[CLEAN CLAUDE]${NC} Manual intervention required"
             fi
         else
-            echo -e "${GREEN}[SPECTRE]${NC} All tests passed!"
+            echo -e "${GREEN}[CLEAN CLAUDE]${NC} All tests passed!"
             set_state "phase" "\"complete\""
             set_state "status" "\"success\""
 
@@ -380,7 +380,7 @@ handle_agent_complete() {
     local next_agent=$(get_next_workflow_agent "$agent")
 
     if [[ "$next_agent" == "complete" ]]; then
-        echo -e "${GREEN}[SPECTRE]${NC} Workflow complete!"
+        echo -e "${GREEN}[CLEAN CLAUDE]${NC} Workflow complete!"
         set_state "phase" "\"complete\""
         set_state "status" "\"success\""
     elif [[ "$next_agent" != "unknown" ]]; then
@@ -415,7 +415,7 @@ handle_test_result() {
 EOF
 
         log_event "error_detected" "system" "$error_type in $error_file"
-        echo -e "${RED}[SPECTRE]${NC} Error detected: ${YELLOW}$error_type${NC}"
+        echo -e "${RED}[CLEAN CLAUDE]${NC} Error detected: ${YELLOW}$error_type${NC}"
 
         # Check for similar past errors and suggest learnings
         suggest_from_learnings "$error_type" "$error_message"
@@ -435,7 +435,7 @@ EOF
         fi
 
         log_event "tests_passed" "system" "All tests passing"
-        echo -e "${GREEN}[SPECTRE]${NC} All tests passing"
+        echo -e "${GREEN}[CLEAN CLAUDE]${NC} All tests passing"
     fi
 }
 
@@ -451,7 +451,7 @@ handle_error() {
 EOF
 
     log_event "error" "$agent" "$error_type"
-    echo -e "${RED}[SPECTRE]${NC} Error from $agent: $error_type"
+    echo -e "${RED}[CLEAN CLAUDE]${NC} Error from $agent: $error_type"
 }
 
 # ============================================================================
@@ -476,7 +476,7 @@ record_fix_learning() {
 {"timestamp":"$timestamp","error_type":"$error_type","file_pattern":"$error_file","fixed_by":"$fixer","solution":"$fix_summary","confidence":0.7}
 EOF
 
-    echo -e "${CYAN}[SPECTRE]${NC} Learning recorded: $error_type → $fixer"
+    echo -e "${CYAN}[CLEAN CLAUDE]${NC} Learning recorded: $error_type → $fixer"
 }
 
 record_success_learning() {
@@ -485,7 +485,7 @@ record_success_learning() {
 
     if [[ "$retry_count" -gt 0 ]]; then
         # We had errors but fixed them - boost confidence in the learnings
-        echo -e "${CYAN}[SPECTRE]${NC} Workflow succeeded after $retry_count retries - learnings reinforced"
+        echo -e "${CYAN}[CLEAN CLAUDE]${NC} Workflow succeeded after $retry_count retries - learnings reinforced"
     fi
 }
 
@@ -505,7 +505,7 @@ suggest_from_learnings() {
         local past_fixer=$(echo "$similar" | jq -r '.fixed_by')
         local confidence=$(echo "$similar" | jq -r '.confidence')
 
-        echo -e "${CYAN}[SPECTRE]${NC} Similar error found in learnings:"
+        echo -e "${CYAN}[CLEAN CLAUDE]${NC} Similar error found in learnings:"
         echo -e "  Past fix: $past_solution"
         echo -e "  Fixed by: $past_fixer (confidence: $confidence)"
     fi
@@ -535,7 +535,7 @@ update_ownership() {
 
 show_status() {
     echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║         SPECTRE STATUS                 ║${NC}"
+    echo -e "${BLUE}║         CLEAN CLAUDE STATUS                 ║${NC}"
     echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
     echo ""
 
@@ -580,7 +580,7 @@ init_state() {
     local feature="${1:-unnamed}"
     local stack="${2:-frontend}"
 
-    mkdir -p "$SPECTRE_DIR"
+    mkdir -p "$CLEAN_CLAUDE_DIR"
 
     cat > "$STATE_FILE" << EOF
 {
@@ -604,7 +604,7 @@ EOF
     touch "$LEARNINGS_FILE"
     echo "{}" > "$OWNERSHIP_FILE"
 
-    echo -e "${GREEN}[SPECTRE]${NC} Initialized for feature: $feature (stack: $stack)"
+    echo -e "${GREEN}[CLEAN CLAUDE]${NC} Initialized for feature: $feature (stack: $stack)"
 }
 
 # Initialize for agent mode with links
@@ -615,11 +615,11 @@ init_agent() {
     local task="${4:-ad-hoc}"
 
     if [[ -z "$primary" ]]; then
-        echo -e "${RED}[SPECTRE]${NC} Error: primary agent required"
+        echo -e "${RED}[CLEAN CLAUDE]${NC} Error: primary agent required"
         exit 1
     fi
 
-    mkdir -p "$SPECTRE_DIR"
+    mkdir -p "$CLEAN_CLAUDE_DIR"
 
     # Create links configuration
     local links_json="[]"
@@ -661,7 +661,7 @@ EOF
     touch "$LEARNINGS_FILE"
     echo "{}" > "$OWNERSHIP_FILE"
 
-    echo -e "${GREEN}[SPECTRE]${NC} Agent mode initialized"
+    echo -e "${GREEN}[CLEAN CLAUDE]${NC} Agent mode initialized"
     echo -e "  ${YELLOW}Primary:${NC} $primary"
     if [[ -n "$links" ]]; then
         echo -e "  ${YELLOW}Links:${NC} $links"
@@ -692,8 +692,8 @@ show_links() {
         echo ""
         echo -e "  Task: $task"
     else
-        echo -e "${YELLOW}[SPECTRE]${NC} No agent links configured"
-        echo "Use: spectre-router.sh agent <primary> [--link <agents>]"
+        echo -e "${YELLOW}[CLEAN CLAUDE]${NC} No agent links configured"
+        echo "Use: clean-claude-router.sh agent <primary> [--link <agents>]"
     fi
 }
 
@@ -768,7 +768,7 @@ main() {
             done
 
             if [[ -z "$primary" ]]; then
-                echo "Usage: spectre-router.sh agent <agent-name> [--link <agents>] [--stack <stack>] [--task <desc>]"
+                echo "Usage: clean-claude-router.sh agent <agent-name> [--link <agents>] [--stack <stack>] [--task <desc>]"
                 exit 1
             fi
 
@@ -787,9 +787,9 @@ main() {
             show_links
             ;;
         *)
-            echo "Spectre Router - Intelligent multi-agent routing"
+            echo "Clean Claude Router - Intelligent multi-agent routing"
             echo ""
-            echo "Usage: spectre-router.sh <action> [args]"
+            echo "Usage: clean-claude-router.sh <action> [args]"
             echo ""
             echo "Actions:"
             echo "  agent <name> [options]     Start agent with optional reactive links"
@@ -809,8 +809,8 @@ main() {
             echo "Agent shorthand: front, back, arch, qa, po"
             echo ""
             echo "Examples:"
-            echo "  spectre-router.sh agent frontend-engineer --link qa-engineer"
-            echo "  spectre-router.sh agent arch --link front,qa --task \"Build login\""
+            echo "  clean-claude-router.sh agent frontend-engineer --link qa-engineer"
+            echo "  clean-claude-router.sh agent arch --link front,qa --task \"Build login\""
             exit 1
             ;;
     esac

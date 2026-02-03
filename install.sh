@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Spectre Agents Installer
+# Clean Claude Installer
 # Installs craft-oriented agents and skills for Claude Code
 
-REPO_URL="https://github.com/fredericvilcot/spectre-agents"
+REPO_URL="https://github.com/fredericvilcot/clean-claude"
 CLAUDE_DIR="$HOME/.claude"
 SCRIPT_DIR="${BASH_SOURCE[0]:-}"
 if [[ -n "$SCRIPT_DIR" ]]; then
@@ -34,12 +34,19 @@ SKILLS_COUNT=0
 banner() {
     echo ""
     echo -e "${PURPLE}"
-    echo '   ███████╗██████╗ ███████╗ ██████╗████████╗██████╗ ███████╗'
-    echo '   ██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝'
-    echo '   ███████╗██████╔╝█████╗  ██║        ██║   ██████╔╝█████╗  '
-    echo '   ╚════██║██╔═══╝ ██╔══╝  ██║        ██║   ██╔══██╗██╔══╝  '
-    echo '   ███████║██║     ███████╗╚██████╗   ██║   ██║  ██║███████╗'
-    echo '   ╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝'
+    echo '    ██████╗██╗     ███████╗ █████╗ ███╗   ██╗'
+    echo '   ██╔════╝██║     ██╔════╝██╔══██╗████╗  ██║'
+    echo '   ██║     ██║     █████╗  ███████║██╔██╗ ██║'
+    echo '   ██║     ██║     ██╔══╝  ██╔══██║██║╚██╗██║'
+    echo '   ╚██████╗███████╗███████╗██║  ██║██║ ╚████║'
+    echo '    ╚═════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝'
+    echo ''
+    echo '    ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗'
+    echo '   ██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝'
+    echo '   ██║     ██║     ███████║██║   ██║██║  ██║█████╗  '
+    echo '   ██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝  '
+    echo '   ╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗'
+    echo '    ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝'
     echo -e "${NC}"
     echo -e "${DIM}   Stop prompting. Start crafting.${NC}"
     echo ""

@@ -1,9 +1,9 @@
-# Spectre Agents Installer for Windows
+# Clean Claude Installer for Windows
 # Installs craft-oriented agents and skills for Claude Code
 
 $ErrorActionPreference = "Stop"
 
-$RepoUrl = "https://github.com/fredericvilcot/spectre-agents"
+$RepoUrl = "https://github.com/fredericvilcot/clean-claude"
 $ClaudeDir = "$env:USERPROFILE\.claude"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
@@ -40,9 +40,9 @@ function Install-Local {
 }
 
 function Install-Remote {
-    Write-Info "Cloning Spectre Agents..."
+    Write-Info "Cloning Clean Claude..."
 
-    $tmpDir = Join-Path $env:TEMP "spectre-agents-$(Get-Random)"
+    $tmpDir = Join-Path $env:TEMP "clean-claude-$(Get-Random)"
 
     try {
         git clone --depth 1 --quiet $RepoUrl $tmpDir
@@ -67,7 +67,7 @@ function Install-Remote {
     }
 }
 
-Write-Host "Spectre Agents Installer" -ForegroundColor White -BackgroundColor DarkBlue
+Write-Host "Clean Claude Installer" -ForegroundColor White -BackgroundColor DarkBlue
 Write-Host "Craft-oriented agents and skills for Claude Code"
 Write-Host ""
 
@@ -83,4 +83,4 @@ Write-Host ""
 Write-Success "Installation complete!"
 Write-Host ""
 Write-Host "Restart Claude Code to load the new components."
-Write-Host "See https://github.com/fredericvilcot/spectre-agents for documentation."
+Write-Host "See https://github.com/fredericvilcot/clean-claude for documentation."

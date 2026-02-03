@@ -1,5 +1,5 @@
-# Spectre - ALL generated files (specs, context, skills, state)
-.spectre/
+# Clean Claude - ALL generated files (specs, context, skills, state)
+.clean-claude/
 
 # Claude local files (status, architecture, notes)
 .claude/local/
