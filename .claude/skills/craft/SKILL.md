@@ -207,12 +207,28 @@ After learning-agent returns detected stack, ask **CONTEXTUAL** questions:
 
 ### IF EMPTY PROJECT (no stack detected):
 
-**Don't assume what they need. Ask what they want to BUILD first.**
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏗️ BOOTSTRAP FLOW — ARCHITECT FIRST, THEN DEV                          ║
+║                                                                           ║
+║   Even for init, the ARCHITECT designs the structure.                    ║
+║   Dev only implements what Architect designed.                           ║
+║                                                                           ║
+║   SMART BOOTSTRAP = MINIMAL STRUCTURE                                     ║
+║   → Don't over-engineer an empty project                                 ║
+║   → No domain/application/infrastructure for a hello-world               ║
+║   → Hexagonal layers come with the FIRST REAL FEATURE                    ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Step 1: Ask what they want to BUILD**
 
 ```json
 {
   "questions": [{
-    "question": "Empty project. Describe what you want to build:",
+    "question": "Empty project. What do you want to build?",
     "header": "Project",
     "multiSelect": false,
     "options": [
@@ -225,16 +241,121 @@ After learning-agent returns detected stack, ask **CONTEXTUAL** questions:
 }
 ```
 
-**Then suggest the appropriate stack based on their answer:**
+**Step 2: Confirm stack choice**
 
-| They said | Suggest |
-|-----------|---------|
-| Web app with UI | "React + Vite + TypeScript?" or let them specify |
-| API / Backend | "Node + Fastify + TypeScript?" or "Go?" etc. |
-| CLI tool | "Node + TypeScript?" or "Rust?" etc. |
-| Library | Ask target ecosystem (npm, cargo, etc.) |
+| They said | Suggest options |
+|-----------|-----------------|
+| Web app with UI | React/Vue/Svelte + Vite + TypeScript |
+| API / Backend | Node+Fastify / Go / Rust / Python |
+| CLI tool | Node+Commander / Rust+Clap / Go |
+| Library | Ask target ecosystem (npm, cargo, pypi) |
 
-**After init → Re-run learning to detect new stack → Then ask what feature to build.**
+**Step 3: SPAWN ARCHITECT for bootstrap design**
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    🏗️ BOOTSTRAP DESIGN — MINIMAL STRUCTURE
+
+    Project type: [Web app / API / CLI / Library]
+    Stack: [chosen stack]
+
+    ## YOUR MISSION: Design MINIMAL bootstrap
+
+    This is a NEW project. Design the MINIMUM viable structure:
+
+    ### FOR WEB APP (React/Vue/etc.):
+    ```
+    src/
+    ├── main.tsx          ← Entry point at ROOT of src/
+    ├── App.tsx           ← Main component
+    ├── App.test.tsx      ← Colocated test
+    └── vite-env.d.ts
+    ```
+
+    Config files: package.json, tsconfig.json, vite.config.ts, vitest setup
+
+    ### FOR API/BACKEND:
+    ```
+    src/
+    ├── main.ts           ← Entry point
+    ├── app.ts            ← App setup
+    ├── app.test.ts       ← Colocated test
+    └── health.ts         ← Health check endpoint
+    ```
+
+    ### FOR CLI:
+    ```
+    src/
+    ├── main.ts           ← Entry point
+    ├── cli.ts            ← CLI definition
+    └── cli.test.ts       ← Colocated test
+    ```
+
+    ### FOR LIBRARY:
+    ```
+    src/
+    ├── index.ts          ← Public API
+    └── index.test.ts     ← Colocated test
+    ```
+
+    ## CRITICAL RULES
+
+    ❌ DON'T create domain/, application/, infrastructure/ yet
+       → Those come with the FIRST REAL FEATURE
+
+    ❌ DON'T create a test/ folder
+       → Tests are COLOCATED (*.test.ts next to source)
+
+    ❌ DON'T over-engineer
+       → This is a bootstrap, not a finished app
+
+    ✅ DO create minimal working structure
+    ✅ DO set up tooling (TypeScript strict, Vitest, ESLint)
+    ✅ DO include ONE test to verify setup works
+
+    ## OUTPUT
+
+    Write bootstrap design to: .clean-claude/specs/design/bootstrap-design.md
+
+    Include:
+    - File structure (minimal)
+    - Config files needed
+    - Commands to run (npm create, installs, etc.)
+    - ONE smoke test to verify it works
+  """
+)
+```
+
+**Step 4: SPAWN appropriate Dev to implement bootstrap**
+
+```
+Task(
+  subagent_type: "frontend-engineer",  // or backend-engineer based on project type
+  prompt: """
+    🔧 IMPLEMENT BOOTSTRAP
+
+    Read the design: .clean-claude/specs/design/bootstrap-design.md
+
+    Implement EXACTLY what Architect designed.
+    DO NOT add anything else.
+    DO NOT create architecture folders (domain/, etc.) unless in design.
+
+    After implementation:
+    - Run: npm install (or equivalent)
+    - Run: npm test (verify smoke test passes)
+    - Run: npm run build (verify it compiles)
+  """
+)
+```
+
+**Step 5: Re-run learning → Ask what feature to build**
+
+After bootstrap completes:
+1. Re-run learning-agent to detect new stack
+2. Ask: "Project initialized. What feature do you want to build?"
+3. NOW the full flow applies: PO → Architect (with hexagonal) → Dev + QA
 
 ### IF STACK EXISTS (project initialized):
 

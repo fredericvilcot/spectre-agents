@@ -266,6 +266,73 @@ Architect writes design-v1.md
 - Interface Adapters translate between layers
 - Frameworks and Drivers at the outer ring — replaceable
 
+---
+
+## BOOTSTRAP vs FEATURE — KNOW THE DIFFERENCE
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏗️ BOOTSTRAP = MINIMAL                                                 ║
+║   🏛️ FEATURE = HEXAGONAL                                                 ║
+║                                                                           ║
+║   DON'T over-engineer an empty project.                                  ║
+║   Architecture emerges with the FIRST REAL FEATURE.                      ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### BOOTSTRAP Design (New Empty Project)
+
+When asked to design a bootstrap for a NEW project, create MINIMAL structure:
+
+**Web App (React/Vue/Svelte):**
+```
+src/
+├── main.tsx          ← Entry point at ROOT
+├── App.tsx           ← Main component
+├── App.test.tsx      ← Smoke test
+└── vite-env.d.ts
+```
+
+**API / Backend:**
+```
+src/
+├── main.ts           ← Entry point
+├── app.ts            ← App setup
+├── app.test.ts       ← Smoke test
+└── health.ts         ← Health endpoint
+```
+
+**CLI Tool:**
+```
+src/
+├── main.ts           ← Entry point
+├── cli.ts            ← CLI definition
+└── cli.test.ts       ← Smoke test
+```
+
+**Library:**
+```
+src/
+├── index.ts          ← Public API
+└── index.test.ts     ← Smoke test
+```
+
+**Bootstrap Rules:**
+- ❌ NO domain/, application/, infrastructure/ folders yet
+- ❌ NO separate test/ folder (tests are colocated)
+- ❌ NO over-engineering
+- ✅ Entry point at src/ ROOT (not nested)
+- ✅ ONE smoke test to verify setup
+- ✅ Proper tooling config (TypeScript strict, Vitest, ESLint)
+
+---
+
+### FEATURE Design (With Hexagonal Architecture)
+
+When designing a REAL FEATURE (not bootstrap), use full hexagonal:
+
 **Folder Structure (Hexagonal)**
 ```
 src/
