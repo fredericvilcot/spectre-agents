@@ -207,22 +207,34 @@ After learning-agent returns detected stack, ask **CONTEXTUAL** questions:
 
 ### IF EMPTY PROJECT (no stack detected):
 
+**Don't assume what they need. Ask what they want to BUILD first.**
+
 ```json
 {
   "questions": [{
-    "question": "Empty project. What do you want to create?",
-    "header": "Init",
+    "question": "Empty project. Describe what you want to build:",
+    "header": "Project",
     "multiSelect": false,
     "options": [
-      { "label": "Init frontend (Recommended)", "description": "React + Vite + TypeScript + Vitest" },
-      { "label": "Init backend", "description": "Node + TypeScript + Express/Fastify" },
-      { "label": "Init fullstack", "description": "Frontend + Backend monorepo" }
+      { "label": "Web app with UI", "description": "User-facing application" },
+      { "label": "API / Backend service", "description": "Data processing, business logic" },
+      { "label": "CLI tool", "description": "Command-line application" },
+      { "label": "Library / Package", "description": "Reusable code for other projects" }
     ]
   }]
 }
 ```
 
-**After init → Re-run learning to detect new stack → Then ask what to build.**
+**Then suggest the appropriate stack based on their answer:**
+
+| They said | Suggest |
+|-----------|---------|
+| Web app with UI | "React + Vite + TypeScript?" or let them specify |
+| API / Backend | "Node + Fastify + TypeScript?" or "Go?" etc. |
+| CLI tool | "Node + TypeScript?" or "Rust?" etc. |
+| Library | Ask target ecosystem (npm, cargo, etc.) |
+
+**After init → Re-run learning to detect new stack → Then ask what feature to build.**
 
 ### IF STACK EXISTS (project initialized):
 
