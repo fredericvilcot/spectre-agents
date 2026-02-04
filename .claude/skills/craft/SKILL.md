@@ -210,25 +210,29 @@ After learning-agent returns detected stack, ask **CONTEXTUAL** questions:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🏗️ BOOTSTRAP FLOW — ARCHITECT FIRST, THEN DEV                          ║
+║   🏗️ EMPTY PROJECT = ASK FOR FIRST FEATURE FIRST                        ║
 ║                                                                           ║
-║   Even for init, the ARCHITECT designs the structure.                    ║
-║   Dev only implements what Architect designed.                           ║
+║   DON'T design architecture in a vacuum!                                 ║
+║   Architecture is DRIVEN by the first feature.                           ║
 ║                                                                           ║
-║   SMART BOOTSTRAP = MINIMAL STRUCTURE                                     ║
-║   → Don't over-engineer an empty project                                 ║
-║   → No domain/application/infrastructure for a hello-world               ║
-║   → Hexagonal layers come with the FIRST REAL FEATURE                    ║
+║   Flow:                                                                   ║
+║   1. What type of project? (Web app, API, CLI, Library)                  ║
+║   2. Confirm stack                                                        ║
+║   3. What's your FIRST FEATURE? ← KEY QUESTION                           ║
+║   4. PO specs the first feature                                          ║
+║   5. Architect designs (stack setup + feature architecture)              ║
+║   6. Dev implements                                                       ║
+║   7. Architect documents & asks "Reference architecture?"                ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-**Step 1: Ask what they want to BUILD**
+**Step 1: Ask what type of project**
 
 ```json
 {
   "questions": [{
-    "question": "Empty project. What do you want to build?",
+    "question": "Empty project. What type of application?",
     "header": "Project",
     "multiSelect": false,
     "options": [
@@ -250,112 +254,171 @@ After learning-agent returns detected stack, ask **CONTEXTUAL** questions:
 | CLI tool | Node+Commander / Rust+Clap / Go |
 | Library | Ask target ecosystem (npm, cargo, pypi) |
 
-**Step 3: SPAWN ARCHITECT for bootstrap design**
+**Step 3: Ask for FIRST FEATURE** ← CRITICAL
+
+```json
+{
+  "questions": [{
+    "question": "What's your first feature? (This will guide the architecture)",
+    "header": "First Feature",
+    "multiSelect": false,
+    "options": [
+      { "label": "Describe it", "description": "I'll tell you what I want to build" }
+    ]
+  }]
+}
+```
+
+User describes their first feature (e.g., "minimal dashboard page", "user authentication", "product listing").
+
+**Step 4: QA Config (same as normal flow)**
+
+Ask about QA tests (Step 5 of normal flow applies here too).
+
+**Step 5: PO specs the first feature**
+
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    📋 SPEC FOR FIRST FEATURE
+
+    Project type: [Web app / API / CLI / Library]
+    Stack: [chosen stack]
+    First feature: [user's description]
+
+    Create a FUNCTIONAL spec for this first feature.
+    This is a NEW project, so keep it focused and achievable.
+
+    Output: .clean-claude/specs/functional/first-feature-spec.md
+  """
+)
+```
+
+**USER APPROVES SPEC** (blocking checkpoint)
+
+**Step 6: Architect designs EVERYTHING together**
 
 ```
 Task(
   subagent_type: "architect",
   prompt: """
-    🏗️ BOOTSTRAP DESIGN — MINIMAL STRUCTURE
+    🏗️ DESIGN: STACK SETUP + FIRST FEATURE
 
     Project type: [Web app / API / CLI / Library]
     Stack: [chosen stack]
+    First feature spec: .clean-claude/specs/functional/first-feature-spec.md
 
-    ## YOUR MISSION: Design MINIMAL bootstrap
+    ## YOUR MISSION
 
-    This is a NEW project. Design the MINIMUM viable structure:
+    Design the COMPLETE initial architecture that includes:
+    1. Stack setup (tooling, config)
+    2. Architecture for the first feature (hexagonal if needed)
 
-    ### FOR WEB APP (React/Vue/etc.):
+    ## DESIGN PRINCIPLES
+
+    The architecture should be DRIVEN by the feature:
+    - Simple feature (dashboard page) → simpler structure
+    - Complex feature (auth system) → may need more layers
+
+    DON'T over-engineer. DON'T under-engineer.
+    Design what's NEEDED for THIS feature.
+
+    ## STRUCTURE EXAMPLES
+
+    For a simple UI feature (dashboard, landing page):
     ```
     src/
-    ├── main.tsx          ← Entry point at ROOT of src/
-    ├── App.tsx           ← Main component
-    ├── App.test.tsx      ← Colocated test
+    ├── main.tsx
+    ├── App.tsx
+    ├── App.test.tsx
+    ├── components/
+    │   └── Dashboard/
+    │       ├── Dashboard.tsx
+    │       └── Dashboard.test.tsx
     └── vite-env.d.ts
     ```
 
-    Config files: package.json, tsconfig.json, vite.config.ts, vitest setup
-
-    ### FOR API/BACKEND:
+    For a feature with business logic (auth, cart, orders):
     ```
     src/
-    ├── main.ts           ← Entry point
-    ├── app.ts            ← App setup
-    ├── app.test.ts       ← Colocated test
-    └── health.ts         ← Health check endpoint
+    ├── main.tsx
+    ├── domain/
+    │   └── [feature]/
+    ├── application/
+    │   └── [feature]/
+    ├── infrastructure/
+    │   └── [feature]/
+    └── ui/
+        └── [feature]/
     ```
-
-    ### FOR CLI:
-    ```
-    src/
-    ├── main.ts           ← Entry point
-    ├── cli.ts            ← CLI definition
-    └── cli.test.ts       ← Colocated test
-    ```
-
-    ### FOR LIBRARY:
-    ```
-    src/
-    ├── index.ts          ← Public API
-    └── index.test.ts     ← Colocated test
-    ```
-
-    ## CRITICAL RULES
-
-    ❌ DON'T create domain/, application/, infrastructure/ yet
-       → Those come with the FIRST REAL FEATURE
-
-    ❌ DON'T create a test/ folder
-       → Tests are COLOCATED (*.test.ts next to source)
-
-    ❌ DON'T over-engineer
-       → This is a bootstrap, not a finished app
-
-    ✅ DO create minimal working structure
-    ✅ DO set up tooling (TypeScript strict, Vitest, ESLint)
-    ✅ DO include ONE test to verify setup works
 
     ## OUTPUT
 
-    Write bootstrap design to: .clean-claude/specs/design/bootstrap-design.md
+    Write design to: .clean-claude/specs/design/initial-design.md
 
     Include:
-    - File structure (minimal)
+    - File structure (adapted to the feature)
     - Config files needed
-    - Commands to run (npm create, installs, etc.)
-    - ONE smoke test to verify it works
+    - Architecture decisions (why this structure)
+    - Implementation tasks for Dev
   """
 )
 ```
 
-**Step 4: SPAWN appropriate Dev to implement bootstrap**
+**USER APPROVES DESIGN** (blocking checkpoint)
+
+**Step 7: Dev implements**
 
 ```
 Task(
-  subagent_type: "frontend-engineer",  // or backend-engineer based on project type
+  subagent_type: "frontend-engineer",  // or backend-engineer
   prompt: """
-    🔧 IMPLEMENT BOOTSTRAP
+    🔧 IMPLEMENT INITIAL DESIGN
 
-    Read the design: .clean-claude/specs/design/bootstrap-design.md
+    Read the design: .clean-claude/specs/design/initial-design.md
 
     Implement EXACTLY what Architect designed.
-    DO NOT add anything else.
-    DO NOT create architecture folders (domain/, etc.) unless in design.
+    DO NOT add anything not in the design.
 
     After implementation:
-    - Run: npm install (or equivalent)
-    - Run: npm test (verify smoke test passes)
-    - Run: npm run build (verify it compiles)
+    - Run: npm install
+    - Run: npm test
+    - Run: npm run build
   """
 )
 ```
 
-**Step 5: Re-run learning → Ask what feature to build**
+**Step 8: Verification loop until green**
 
-After bootstrap completes:
-1. Re-run learning-agent to detect new stack
-2. Ask: "Project initialized. What feature do you want to build?"
-3. NOW the full flow applies: PO → Architect (with hexagonal) → Dev + QA
+**Step 9: Architect documents and asks about reference**
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    📚 DOCUMENT ARCHITECTURE & ASK ABOUT REFERENCE
+
+    Implementation is complete. Now:
+
+    1. ANALYZE the implemented code
+    2. CREATE .clean-claude/architecture-guide.md
+       - Document the actual structure
+       - Naming conventions used
+       - Patterns implemented
+       - How to add new features
+
+    3. ASK USER (via AskUserQuestion):
+       "Architecture documented. Should this be the reference for all future features?"
+       - "Yes, this is the standard" → Commit architecture-guide.md
+       - "No, this is just for now" → Don't commit, keep as draft
+
+    If user says YES:
+    - Commit the architecture-guide.md
+    - All future features MUST follow this structure
+  """
+)
+```
 
 ### IF STACK EXISTS (project initialized):
 
