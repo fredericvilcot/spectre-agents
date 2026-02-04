@@ -180,23 +180,51 @@ If QA enabled: **Dev + QA run in parallel.**
 
 ---
 
-## `/learn` — Re-generate Library Skills
+## `/learn` — Stack & Architecture Learning
 
 ```bash
-/learn    # Re-detect stack, regenerate skills
+/learn                      # Learn everything (stack + architecture)
+/learn stack                # Stack only (libraries)
+/learn architecture         # Architecture only (project patterns)
+/learn <url|path>           # Analyze external source (GitHub URL or folder)
 ```
 
-Use when stack evolved (added new library). Runs automatically at `/craft` start.
+### What It Learns
 
-**What it does:**
-1. Learning Agent reads `package.json`
-2. Architect generates library documentation
-3. Output: `.clean-claude/stack-skills.md`
+| Mode | What | Output |
+|------|------|--------|
+| **stack** | Installed libraries | `.clean-claude/stack-skills.md` |
+| **architecture** | Project patterns (CRAFT-validated) | `.clean-claude/architecture-guide.md` |
+| **external** | External repo/folder analysis | `.clean-claude/external-analysis.md` |
 
-**What it generates:**
-- Library API and patterns (TypeScript, fp-ts, Zod, React...)
-- NOT CRAFT patterns (Architect already knows those)
-- NOT existing code patterns (might be garbage)
+### CRAFT Validation (Critical)
+
+```
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   🚫 NEVER LEARN FROM CODE SMELLS                            ║
+║                                                               ║
+║   Learning Agent VALIDATES before extracting patterns:       ║
+║   • `any` types? → REJECT                                    ║
+║   • `throw` without Result? → REJECT                         ║
+║   • No clear architecture? → WARN                            ║
+║   • No tests? → REJECT                                       ║
+║                                                               ║
+║   Non-CRAFT code → Report violations, DON'T learn patterns  ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+```
+
+### External Analysis
+
+```bash
+/learn https://github.com/org/repo    # Analyze GitHub repo
+/learn ./other-project                # Analyze local folder
+```
+
+Generates a report:
+- ✅ CRAFT-compliant: Lists patterns worth adopting
+- ⚠️ NOT compliant: Lists violations, recommends alternatives
 
 ---
 
@@ -335,24 +363,58 @@ Non-negotiable rules for ALL agents:
 ## .clean-claude/ Directory
 
 ```
-.clean-claude/                       # gitignored (except specs/)
-├── context.json                # Detected libraries
-├── stack-skills.md             # Library documentation (by Architect)
-├── specs/
-│   ├── functional/             # PO specs (COMMITTED)
-│   │   └── spec-v1.md
-│   └── design/                 # Architect designs (COMMITTED)
-│       └── design-v1.md
-└── state.json                  # Workflow state
+.clean-claude/
+├── context.json                # Detected libraries (gitignored)
+├── stack-skills.md             # Library documentation (gitignored)
+├── external-analysis.md        # External source reports (gitignored)
+├── state.json                  # Workflow state (gitignored)
+│
+├── architecture-guide.md       # Project patterns — COMMITTED ✅
+│
+└── specs/                      # All specs — COMMITTED ✅
+    ├── functional/             # PO specs
+    │   └── spec-v1.md
+    └── design/                 # Architect designs
+        └── design-v1.md
 ```
 
-**Specs are committed** — they're versioned documentation.
+**Committed files = shared documentation:**
+- `architecture-guide.md` — Reference architecture for all µApps
+- `specs/` — Versioned functional and technical specs
+
+---
+
+## Auto Architecture Capture
+
+**First feature → Reference architecture for all future features.**
+
+```
+/craft "Create authentication µApp"
+  │
+  ├─ Implementation complete
+  │
+  └─ "First feature complete. Capture as reference architecture?"
+       │
+       ├─ Yes → Generate .clean-claude/architecture-guide.md
+       │        Future µApps MUST follow this structure
+       │
+       └─ No → Skip (architecture guide created later)
+```
+
+### Monolith Consistency
+
+For monoliths with multiple µApps:
+- **First µApp** → Captures the reference architecture
+- **All other µApps** → MUST follow the same patterns
+- Architect reads `architecture-guide.md` BEFORE designing new features
 
 ---
 
 ## Philosophy
 
-- **Learn first** — Know the stack before asking questions
+- **Learn first** — Know the stack AND validate CRAFT compliance before acting
+- **Never learn from smells** — Reject anti-patterns, suggest fixes
+- **Architecture consistency** — First feature = reference for all µApps
 - **Smart routing** — Free text → right agent
 - **Craft-first** — Software Craft in every line
 - **Autonomous** — Agents fix without asking

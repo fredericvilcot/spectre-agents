@@ -143,6 +143,68 @@ You believe in software as a craft — a discipline that combines technical exce
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+---
+
+## MANDATORY: CHECK ARCHITECTURE GUIDE FIRST
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏛️ BEFORE DESIGNING ANY NEW FEATURE, CHECK FOR EXISTING ARCHITECTURE  ║
+║                                                                           ║
+║   1. CHECK if .clean-claude/architecture-guide.md exists                  ║
+║                                                                           ║
+║   2. IF EXISTS:                                                           ║
+║      → READ it completely                                                ║
+║      → FOLLOW the same patterns:                                         ║
+║        • Same folder structure (domain/, application/, etc.)            ║
+║        • Same naming conventions                                         ║
+║        • Same Result<T, E> patterns                                      ║
+║        • Same test organization                                          ║
+║      → NOTE in your design: "Following architecture from guide"         ║
+║                                                                           ║
+║   3. IF NOT EXISTS:                                                       ║
+║      → Design freely (you are setting the reference)                     ║
+║      → Your design becomes the future architecture-guide.md              ║
+║                                                                           ║
+║   4. IF YOU NEED TO DEVIATE:                                             ║
+║      → EXPLAIN why in design.md                                          ║
+║      → ASK user for approval                                             ║
+║      → IF approved, UPDATE architecture-guide.md                         ║
+║                                                                           ║
+║   CONSISTENCY ACROSS µAPPS IS MANDATORY                                   ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Architecture Guide Check Flow
+
+```
+Architect receives design task
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  CHECK: Does .clean-claude/architecture-guide.md exist?         │
+└─────────────────┬───────────────────────┬───────────────────────┘
+                  │                       │
+                  ▼ YES                   ▼ NO
+┌─────────────────────────────┐  ┌─────────────────────────────┐
+│  READ architecture-guide.md │  │  Design freely              │
+│  APPLY existing patterns:   │  │  (you set the reference)    │
+│  • Folder structure         │  │                             │
+│  • Naming conventions       │  │  Your design becomes the    │
+│  • Layer boundaries         │  │  basis for future guide     │
+│  • Result<T,E> patterns     │  │                             │
+└─────────────────────────────┘  └─────────────────────────────┘
+                  │                       │
+                  ▼                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  WRITE design-vN.md following CRAFT principles                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ### Design Approval Flow
 
 ```

@@ -136,21 +136,29 @@ if [[ -f .gitignore ]]; then
 .clean-claude/context.json
 .clean-claude/ownership.json
 .clean-claude/trigger
+.clean-claude/stack-skills.md
+.clean-claude/external-analysis.md
 
-# Clean Claude Agents - Persistent (keep in git for learning)
-# .clean-claude/errors.jsonl
-# .clean-claude/learnings.jsonl
+# Clean Claude Agents - COMMITTED (shared reference)
+# .clean-claude/architecture-guide.md  ← KEEP IN GIT
+# .clean-claude/specs/                  ← KEEP IN GIT
 EOF
         success "Updated .gitignore"
     fi
 else
     cat > .gitignore << 'EOF'
-# Clean Claude Agents - Runtime state
+# Clean Claude Agents - Runtime state (regenerated)
 .clean-claude/state.json
 .clean-claude/events.jsonl
 .clean-claude/context.json
 .clean-claude/ownership.json
 .clean-claude/trigger
+.clean-claude/stack-skills.md
+.clean-claude/external-analysis.md
+
+# Clean Claude Agents - COMMITTED (shared reference)
+# .clean-claude/architecture-guide.md  ← KEEP IN GIT
+# .clean-claude/specs/                  ← KEEP IN GIT
 EOF
     success "Created .gitignore"
 fi

@@ -906,3 +906,206 @@ Wave 2 (after Wave 1):
 
 Total: 6 agent spawns across 2 waves
 ```
+
+---
+
+## AUTO ARCHITECTURE CAPTURE — FIRST APPROVED DESIGN
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏛️ ARCHITECTURE AUTO-CAPTURE FROM FIRST /craft                        ║
+║                                                                           ║
+║   When the first feature is approved and implemented:                    ║
+║   → The architecture patterns become the REFERENCE                       ║
+║   → Future features MUST follow the same patterns                        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### When to Capture
+
+```
+IF this is a "New feature" flow
+AND this is the FIRST feature in the project (no existing .clean-claude/architecture-guide.md)
+AND implementation is complete (all agents done, tests pass)
+THEN → Ask user if they want to capture this as the reference architecture
+```
+
+### Capture Flow
+
+```
+After implementation completes:
+  │
+  ├─ CHECK: Does .clean-claude/architecture-guide.md exist?
+  │
+  ├─ IF NO (first feature):
+  │     │
+  │     └─ ASK USER:
+  │         {
+  │           "question": "First feature complete. Capture as reference architecture?",
+  │           "header": "Architecture",
+  │           "options": [
+  │             { "label": "Yes, capture (Recommended)", "description": "Future features will follow this structure" },
+  │             { "label": "No, skip", "description": "Architecture guide will be created later" }
+  │           ]
+  │         }
+  │
+  │     IF "Yes":
+  │         → Spawn learning-agent in architecture mode
+  │         → Generate .clean-claude/architecture-guide.md
+  │         → COMMIT architecture-guide.md (shared reference!)
+  │         → OUTPUT: "✅ Architecture captured and committed. Future features will follow this structure."
+  │
+  └─ IF YES (architecture exists):
+        → Skip capture
+        → Architecture already defined
+```
+
+### Architecture Capture Task
+
+```
+Task(
+  subagent_type: "learning-agent",
+  prompt: """
+    CAPTURE ARCHITECTURE FROM FIRST FEATURE
+
+    MODE: architecture
+
+    The first feature has been implemented successfully.
+    Extract the architecture patterns as the REFERENCE for future features.
+
+    1. ANALYZE the implemented feature:
+       → Folder structure
+       → Naming conventions
+       → Layer boundaries (domain, application, infrastructure, ui)
+       → Result<T, E> usage
+       → Test organization
+
+    2. SPAWN ARCHITECT to generate:
+       → .clean-claude/architecture-guide.md
+
+    3. COMMIT the architecture-guide.md
+       → This file is SHARED across the team
+       → It MUST be committed to git
+
+    This guide becomes MANDATORY for all future features.
+
+    OUTPUT progress to user.
+  """
+)
+```
+
+### Monolith with Multiple µApps — Consistency Rule
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏗️ MONOLITH CONSISTENCY — SAME ARCHITECTURE FOR ALL µAPPS             ║
+║                                                                           ║
+║   When working on a monolith with multiple micro-applications:           ║
+║                                                                           ║
+║   1. FIRST µAPP → Captures the reference architecture                    ║
+║   2. ALL OTHER µAPPS → MUST follow the same patterns                     ║
+║                                                                           ║
+║   Architect MUST:                                                         ║
+║   → Read .clean-claude/architecture-guide.md BEFORE designing            ║
+║   → Apply the SAME folder structure                                      ║
+║   → Apply the SAME naming conventions                                    ║
+║   → Apply the SAME layer boundaries                                      ║
+║                                                                           ║
+║   IF Architect deviates → VIOLATION                                      ║
+║   IF new µApp needs different structure → DISCUSS with user first        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Architect Uses Architecture Guide
+
+```
+When .clean-claude/architecture-guide.md EXISTS:
+
+BEFORE designing any new feature, Architect MUST:
+
+1. READ .clean-claude/architecture-guide.md
+2. APPLY the same patterns:
+   - Same folder structure (domain/, application/, infrastructure/, ui/)
+   - Same naming conventions
+   - Same Result<T, E> patterns
+   - Same test organization
+
+3. NOTE in design.md:
+   "Following architecture from: .clean-claude/architecture-guide.md"
+
+IF Architect needs to deviate:
+  → EXPLAIN why in design.md
+  → ASK user for approval
+  → IF approved, UPDATE architecture-guide.md
+```
+
+### Example: Monolith with 5 µApps
+
+```
+/craft "Create authentication µApp"
+  │
+  ├─ Learning runs (stack + first feature)
+  ├─ PO → spec
+  ├─ Architect → design
+  ├─ Dev + QA → implement
+  ├─ CAPTURE ARCHITECTURE (first µApp)
+  │     → .clean-claude/architecture-guide.md
+  │
+  └─ ✅ "auth" µApp complete
+
+/craft "Create billing µApp"
+  │
+  ├─ Learning runs (reads existing architecture-guide.md)
+  ├─ PO → spec
+  ├─ Architect → design
+  │     → MUST follow patterns from architecture-guide.md
+  │     → Same folder structure as "auth"
+  │     → Same naming conventions
+  ├─ Dev + QA → implement
+  │
+  └─ ✅ "billing" µApp complete (CONSISTENT with "auth")
+
+/craft "Create notifications µApp"
+  │
+  └─ Same pattern: FOLLOWS architecture-guide.md
+```
+
+---
+
+## SUMMARY — COMPLETE FLOW
+
+```
+/craft
+  │
+  ├─ STEP 1: Banner
+  │
+  ├─ STEP 2: Learning (auto)
+  │     → Stack detection
+  │     → Architecture detection (if exists)
+  │     → CRAFT validation
+  │
+  ├─ STEP 3: User choice (New/Refactor/Bug/Tests)
+  │
+  ├─ STEP 4: Details gathered
+  │
+  ├─ STEP 5: QA config (BLOCKING)
+  │
+  ├─ STEP 6: Spec approval (for new features, BLOCKING)
+  │
+  ├─ STEP 7: Agent routing
+  │     → PO → Architect → Dev + QA (parallel)
+  │
+  ├─ STEP 8: Verification loop
+  │     → Claude runs checks
+  │     → Routes errors to agents
+  │     → Loop until green
+  │
+  └─ STEP 9: Architecture capture (first feature only)
+        → If first feature complete
+        → Ask user if capture as reference
+        → Generate architecture-guide.md
+```
