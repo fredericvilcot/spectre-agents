@@ -77,17 +77,17 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║                                                                           ║
 ║   1b. ARCHITECTURE REFERENCE = BLOCKING                                   ║
 ║      → ONE file with frontmatter: `clean-claude: architecture-reference` ║
-║      → learning-agent detects it (any location) → context.json           ║
+║      → Claude detects it during project scan → context.json              ║
 ║      → IF found → Architect MUST read & follow it                        ║
 ║      → Architect MUST confirm: "Architecture Reference: [path] (vN) ✅"  ║
 ║      → NO CONFIRMATION = DESIGN REJECTED                                 ║
 ║      → After implementation → Architect proposes updates (versioned)     ║
 ║                                                                           ║
-║   1c. STACK SKILLS = BEFORE DEV (not at start!)                          ║
-║      → Skills generated at Step 6, JUST BEFORE dev implementation        ║
-║      → learning-agent spawns Architect for stack-skills.md               ║
-║      → This keeps Step 1 fast (project detection only)                   ║
-║      → Output: "🏛️ Stack skills generated → stack-skills.md"            ║
+║   1c. STACK SKILLS = ARCHITECT'S JOB                                     ║
+║      → Architect generates stack-skills.md WITH the design               ║
+║      → No separate learning-agent needed                                 ║
+║      → Skills inform devs how to use libraries the CRAFT way             ║
+║      → Output: .clean-claude/stack-skills.md                             ║
 ║                                                                           ║
 ║   2. DEV ROUTING = ANALYZE WHAT THE CODE DOES                             ║
 ║      → UI, rendering, user interaction? → frontend-engineer              ║
@@ -308,12 +308,13 @@ Generates a report:
 
 | Agent | Role | Output |
 |-------|------|--------|
-| **learning-agent** | Project detection (fast) + Skills generation (before dev) | `.clean-claude/context.json` |
-| **architect** | Library skills + Technical design | `.clean-claude/stack-skills.md`, `design.md` |
+| **architect** | Stack skills + Technical design | `.clean-claude/stack-skills.md`, `design.md` |
 | **product-owner** | Functional specs, user stories | `.clean-claude/specs/functional/` |
 | **frontend-engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
 | **backend-engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **qa-engineer** | E2E or Integration tests | `e2e/` or custom path |
+
+> **Note:** Claude orchestrates directly. No learning-agent. Project detection is done by Claude.
 
 ---
 

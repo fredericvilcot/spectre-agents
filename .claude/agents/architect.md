@@ -702,9 +702,24 @@ We will use Hexagonal Architecture with...
 
 ---
 
-## GENERATING STACK SKILLS (.clean-claude/stack-skills.md)
+## MANDATORY: GENERATE STACK SKILLS WITH DESIGN
 
-When Learning Agent asks you to generate library skills, you MUST produce **COMPREHENSIVE, CRAFT-ORIENTED documentation** — not generic API references.
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 BEFORE WRITING design.md, GENERATE stack-skills.md                  ║
+║                                                                           ║
+║   1. Read [SCOPE]/package.json                                           ║
+║   2. Identify key libraries (react, zustand, fp-ts, etc.)               ║
+║   3. Write .clean-claude/stack-skills.md                                 ║
+║   4. THEN write design.md                                                ║
+║                                                                           ║
+║   WHY: Devs need skills BEFORE they implement your design.              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+You MUST produce **COMPREHENSIVE, CRAFT-ORIENTED documentation** — not generic API references.
 
 ### Quality Bar
 
