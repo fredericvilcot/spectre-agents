@@ -11,47 +11,74 @@ tools: Read, Glob, Grep, Bash, Write, Task
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   ⚡ PRIORITY 0: MONOREPO = BLAZING FAST DETECTION                        ║
+║   ⚡⚡⚡ PRIORITY 0: MONOREPO = 5 SECONDS MAX ⚡⚡⚡                       ║
 ║                                                                           ║
-║   THIS RULE OVERRIDES EVERYTHING ELSE                                     ║
+║   🚨🚨🚨 THIS IS YOUR FIRST AND ONLY TASK IF MONOREPO 🚨🚨🚨              ║
 ║                                                                           ║
-║   FIRST THING YOU DO (before ANY scan):                                   ║
-║   1. Check: package.json → "workspaces" field?                           ║
-║   2. Check: lerna.json exists?                                           ║
-║   3. Check: nx.json exists?                                              ║
-║   4. Check: pnpm-workspace.yaml exists?                                  ║
-║   5. Check: turbo.json exists?                                           ║
+║   BEFORE DOING ANYTHING ELSE — RUN THESE EXACT COMMANDS:                 ║
 ║                                                                           ║
-║   IF ANY = true:                                                          ║
-║   ┌───────────────────────────────────────────────────────────────────┐  ║
-║   │ STOP IMMEDIATELY                                                   │  ║
-║   │                                                                    │  ║
-║   │ 1. List workspaces (apps/, modules/, packages/, etc.)             │  ║
-║   │ 2. Count them                                                      │  ║
-║   │ 3. Return to orchestrator with ONLY this info                     │  ║
-║   │ 4. ❌ DO NOT scan stack                                           │  ║
-║   │ 5. ❌ DO NOT spawn Architect                                      │  ║
-║   │ 6. ❌ DO NOT do CRAFT validation                                  │  ║
-║   │                                                                    │  ║
-║   │ Orchestrator will ask user for scope, THEN call you again         │  ║
-║   └───────────────────────────────────────────────────────────────────┘  ║
+║   ┌─────────────────────────────────────────────────────────────────┐    ║
+║   │ STEP 1: Read package.json (1 Read call)                         │    ║
+║   │         → Check: has "workspaces" field?                        │    ║
+║   │                                                                 │    ║
+║   │ STEP 2: Check config files (1 Glob call)                        │    ║
+║   │         → Glob("{lerna,nx,turbo}.json,pnpm-workspace.yaml")     │    ║
+║   │         → Any exists?                                           │    ║
+║   │                                                                 │    ║
+║   │ IF STEP 1 OR STEP 2 = YES → MONOREPO CONFIRMED                  │    ║
+║   │                                                                 │    ║
+║   │ STEP 3: List workspaces (3-4 Glob calls)                        │    ║
+║   │         → Glob("apps/*", depth=1)                               │    ║
+║   │         → Glob("packages/*", depth=1)                           │    ║
+║   │         → Glob("modules/*", depth=1)                            │    ║
+║   │         → Glob("libs/*", depth=1)                               │    ║
+║   │                                                                 │    ║
+║   │ STEP 4: STOP. RETURN. DO NOTHING ELSE.                          │    ║
+║   └─────────────────────────────────────────────────────────────────┘    ║
 ║                                                                           ║
-║   TARGET: < 5 SECONDS for monorepo detection                             ║
+║   TOTAL: 5-6 tool calls. THAT'S IT.                                      ║
 ║                                                                           ║
-║   OUTPUT FORMAT:                                                          ║
-║   {                                                                       ║
-║     "monorepo": {                                                        ║
-║       "detected": true,                                                  ║
-║       "type": "npm-workspaces",                                          ║
-║       "workspaces": { "apps": [...], "modules": [...] },                 ║
-║       "count": 60                                                        ║
-║     },                                                                    ║
-║     "stack": null,           // NOT SCANNED YET                          ║
-║     "craftValidation": null  // NOT SCANNED YET                          ║
-║   }                                                                       ║
+║   ════════════════════════════════════════════════════════════════════   ║
 ║                                                                           ║
-║   IF SINGLE APP (no monorepo indicators):                                 ║
-║   → Continue with full scan (stack + CRAFT + Architect)                  ║
+║   🚫 FORBIDDEN DURING MONOREPO DETECTION:                                ║
+║                                                                           ║
+║   ❌ DO NOT read any .ts or .tsx files                                   ║
+║   ❌ DO NOT read any package.json inside workspaces                      ║
+║   ❌ DO NOT analyze stack or dependencies                                ║
+║   ❌ DO NOT spawn Architect                                              ║
+║   ❌ DO NOT do CRAFT validation                                          ║
+║   ❌ DO NOT write context.json with stack info                           ║
+║   ❌ DO NOT count files or analyze code                                  ║
+║   ❌ DO NOT use Grep to search code                                      ║
+║   ❌ DO NOT do ANYTHING that takes more than 5 seconds                   ║
+║                                                                           ║
+║   ════════════════════════════════════════════════════════════════════   ║
+║                                                                           ║
+║   OUTPUT (return this and STOP):                                         ║
+║                                                                           ║
+║   "Monorepo detected: [type] with [N] workspaces"                        ║
+║   "apps/: [list first 5]..."                                             ║
+║   "modules/: [list first 5]..."                                          ║
+║                                                                           ║
+║   Then orchestrator asks scope → calls you AGAIN for full scan           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   ⏱️ TIME CHECK — IF YOU'RE TAKING MORE THAN 5 SECONDS, STOP             ║
+║                                                                           ║
+║   Monorepo detection should be:                                           ║
+║   • 1-2 Read calls (package.json, maybe one config)                      ║
+║   • 3-4 Glob calls (list workspace directories)                          ║
+║   • 0 Grep calls                                                          ║
+║   • 0 Task calls (no Architect)                                          ║
+║   • 0 Write calls (no context.json yet)                                  ║
+║                                                                           ║
+║   If you find yourself doing more → YOU'RE DOING IT WRONG                ║
+║   STOP and just return the monorepo info                                 ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
