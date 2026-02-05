@@ -1466,6 +1466,107 @@ Dev and QA implement these EXACT tests:
 - [ ] `[Component].test.tsx`: "renders initial state"
 - [ ] `[Component].test.tsx`: "handles user interaction"
 
+## Execution Strategy
+
+> 🧠 **SMART PARALLELIZATION — Analyze dependencies, maximize throughput**
+
+### Detection Logic
+
+```
+FOR each unit in your design (file, component, module):
+  → Does it DEPEND on another unit being completed first?
+  → Does it SHARE files with another unit?
+  → Can it be built in ISOLATION?
+
+IF units are independent → GROUP them in same Wave (parallel)
+IF units have dependencies → SEQUENCE them in different Waves
+```
+
+### Output Format
+
+```markdown
+## Execution Plan
+
+### Wave 1 (parallel)
+- `UserCard.tsx` — isolated component, no deps
+- `SettingsPanel.tsx` — isolated component, no deps
+- `ActivityFeed.tsx` — isolated component, no deps
+
+### Wave 2 (parallel, after Wave 1)
+- `Dashboard.tsx` — imports UserCard, SettingsPanel, ActivityFeed
+
+### Wave 3 (parallel with Wave 2)
+- QA: E2E tests — can run while integration happens
+```
+
+### When to Parallelize
+
+| Scenario | Parallel? | Why |
+|----------|-----------|-----|
+| 3 isolated components | ✅ Yes | No shared files, no deps |
+| 3 independent API endpoints | ✅ Yes | Different routes, different handlers |
+| Dev + QA | ✅ Yes | E2E tests don't need impl complete |
+| Entity → Repository → UseCase | ❌ No | Each layer needs previous |
+| Component + its hooks | ❌ No | Tight coupling, same context |
+
+### When NOT to Parallelize
+
+```
+❌ Small coherent units (entity + value objects)
+   → 1 agent keeps consistency
+
+❌ Files that will be edited together
+   → Merge conflicts, context loss
+
+❌ < 50 lines total
+   → Overhead > gain
+```
+
+### Example: Dashboard with Widgets
+
+```
+Design asks for: Dashboard with 4 widgets + shared state
+
+ANALYSIS:
+- RevenueChart: isolated, 150 lines, own data fetch
+- UserStats: isolated, 100 lines, own data fetch
+- ActivityFeed: isolated, 200 lines, own data fetch
+- AlertsPanel: isolated, 80 lines, own data fetch
+- DashboardLayout: imports all 4 widgets
+- useDashboardState: shared hook
+
+EXECUTION PLAN:
+Wave 1 (4 agents parallel): RevenueChart, UserStats, ActivityFeed, AlertsPanel
+Wave 2 (1 agent): useDashboardState (needs widget types)
+Wave 3 (1 agent): DashboardLayout (imports everything)
+Wave 4 (1 agent): QA E2E tests
+```
+
+### Example: Hexagonal Feature (Sequential)
+
+```
+Design asks for: New "Payment" feature with hexagonal architecture
+
+ANALYSIS:
+- PaymentError.ts: foundation, no deps
+- Payment.ts: entity, uses PaymentError
+- PaymentPort.ts: interface, uses Payment
+- PaymentUseCase.ts: uses Port + Entity
+- PaymentRepository.ts: implements Port
+- PaymentForm.tsx: uses UseCase
+
+EXECUTION PLAN:
+Wave 1: PaymentError (foundation)
+Wave 2: Payment (entity needs errors)
+Wave 3: PaymentPort (interface needs entity)
+Wave 4: PaymentUseCase + PaymentRepository (parallel, both need port)
+Wave 5: PaymentForm (needs use case)
+Wave 6: QA E2E tests
+```
+
+> **KEY INSIGHT:** Parallelization is about INDEPENDENCE, not quantity.
+> 1 complex feature = sequential. 5 simple widgets = parallel.
+
 ## Reactive Links
 
 If issues arise during implementation:
