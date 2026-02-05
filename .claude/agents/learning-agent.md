@@ -707,6 +707,30 @@ The `/craft` command uses these fields to show RELEVANT refactor options only.
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 MONOREPO = DELAY SKILLS GENERATION                                  ║
+║                                                                           ║
+║   In monorepo mode:                                                       ║
+║   1. DETECT structure only (fast)                                        ║
+║   2. Return workspaces list to orchestrator                              ║
+║   3. ❌ DO NOT spawn Architect for skills yet                            ║
+║                                                                           ║
+║   WHY? Different workspaces have different stacks:                       ║
+║   - apps/pci-gateway → React + Vite + TanStack Query                    ║
+║   - apps/dedicated   → Angular + RxJS                                    ║
+║                                                                           ║
+║   Skills are generated AFTER scope selection by orchestrator.            ║
+║   This keeps skills relevant (no Angular skills in React context).       ║
+║                                                                           ║
+║   FLOW:                                                                   ║
+║   learning-agent → structure only → return                               ║
+║   orchestrator → ask scope → spawn Architect for THAT scope              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 ### Monorepo Detection Steps
 
 ```

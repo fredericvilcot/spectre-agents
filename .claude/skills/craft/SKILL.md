@@ -262,7 +262,63 @@ Task(
  Which workspace do you want to work on?
 ```
 
-**Ask scope (ONLY if monorepo):**
+**Ask scope (ONLY if monorepo) — DYNAMIC options:**
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🧠 SMART: OPTIONS FROM DETECTED STRUCTURE                              ║
+║                                                                           ║
+║   Build options from learning-agent's monorepo.workspaces:               ║
+║                                                                           ║
+║   IF apps/ has many entries → "apps/ (90 apps)" → ask which one         ║
+║   IF packages/ exists → "packages/ (42 packages)" → ask which one        ║
+║   IF only 3-4 total → list them directly                                ║
+║   ALWAYS include "Root level" option                                     ║
+║                                                                           ║
+║   NO HARDCODED LIST — options come from actual scan                      ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Example for large monorepo (205 packages):**
+
+```json
+{
+  "questions": [{
+    "question": "What type of workspace?",
+    "header": "Scope",
+    "multiSelect": false,
+    "options": [
+      { "label": "App (90 apps)", "description": "Micro-frontend application" },
+      { "label": "Module (73 modules)", "description": "Shared module" },
+      { "label": "Package (42 packages)", "description": "Reusable library" },
+      { "label": "Root level", "description": "Monorepo config, CI, tooling" }
+    ]
+  }]
+}
+```
+
+**Then follow-up (if user chose "App"):**
+
+```json
+{
+  "questions": [{
+    "question": "Which app? (type to search)",
+    "header": "App",
+    "multiSelect": false,
+    "options": [
+      { "label": "pci-gateway", "description": "PCI Gateway" },
+      { "label": "hub", "description": "Customer Hub" },
+      { "label": "dedicated", "description": "Dedicated Servers" },
+      { "label": "Another app", "description": "I'll type the name" }
+    ]
+  }]
+}
+```
+
+**Example for small monorepo (7 packages):**
+
 ```json
 {
   "questions": [{
@@ -279,7 +335,48 @@ Task(
 }
 ```
 
-**After scope selected — Show scoped results:**
+**After scope selected — Detect stack AND generate skills:**
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 MONOREPO: SKILLS GENERATED HERE (not in learning-agent)             ║
+║                                                                           ║
+║   After scope selection, orchestrator:                                   ║
+║   1. Reads scope's package.json → detect stack                           ║
+║   2. SPAWNS Architect for stack-skills.md (this scope only)             ║
+║   3. Skills are relevant to selected scope (no pollution)               ║
+║                                                                           ║
+║   If user changes scope later → re-spawn Architect (new skills)         ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Step 1: Read scope's package.json:**
+
+```bash
+# Read scope-specific dependencies
+cat apps/auth/package.json | jq '.dependencies, .devDependencies'
+```
+
+**Step 2: Spawn Architect for skills (scope only):**
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    Generate library skills for this SCOPE ONLY:
+
+    Scope: apps/auth
+    Stack: typescript, react, zustand, tanstack-query
+
+    DO NOT include skills for other stacks in monorepo.
+    Output: .clean-claude/stack-skills.md
+  """
+)
+```
+
+**Step 3: Show results:**
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -294,6 +391,9 @@ Task(
  │  📦 Stack                                                         │
  │     typescript, react, zustand, tanstack-query                   │
  │                                                                   │
+ │  🏛️ Skills: generated for THIS scope                             │
+ │     → .clean-claude/stack-skills.md                              │
+ │                                                                   │
  │  📐 Architecture                                                  │
  │     Local:  apps/auth/ARCHITECTURE.md (v1)                       │
  │     Root:   docs/monorepo-architecture.md (inherited)            │
@@ -301,6 +401,27 @@ Task(
  │  ✅ CRAFT: compliant                                              │
  │                                                                   │
  └───────────────────────────────────────────────────────────────────┘
+```
+
+### Scope Change Mid-Session
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔄 USER CHANGES SCOPE MID-SESSION                                      ║
+║                                                                           ║
+║   If user says: "Actually, work on apps/billing instead"                 ║
+║                                                                           ║
+║   1. Acknowledge scope change                                            ║
+║   2. Read new scope's package.json                                       ║
+║   3. Re-spawn Architect → new stack-skills.md                           ║
+║   4. Continue from STEP 3 (CHOOSE)                                       ║
+║                                                                           ║
+║   OUTPUT:                                                                 ║
+║   "🔄 Scope changed to apps/billing                                      ║
+║      → Regenerating skills for new stack..."                             ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
 ### IF SINGLE APP — Show results directly (no scope question)
