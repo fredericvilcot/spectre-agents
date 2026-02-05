@@ -508,17 +508,51 @@ Task(
 Task(
   subagent_type: "frontend-engineer",  // or backend-engineer
   prompt: """
-    🔧 IMPLEMENT INITIAL DESIGN
+    🔧 IMPLEMENT FROM DESIGN
 
-    Read the design: .clean-claude/specs/design/initial-design.md
+    ## YOUR ASSIGNMENT
+    Wave: [N]
+    Files to create: [list from Implementation Checklist]
 
-    Implement EXACTLY what Architect designed.
-    DO NOT add anything not in the design.
+    ## INSTRUCTIONS
+    1. READ the design: .clean-claude/specs/design/[design-file].md
+    2. FIND the "Implementation Checklist" section
+    3. IMPLEMENT ALL files assigned to your Wave
+    4. Each file MUST have colocated test (*.test.ts)
 
-    After implementation:
-    - Run: npm install
-    - Run: npm test
-    - Run: npm run build
+    ## MANDATORY OUTPUT FORMAT
+
+    When you finish, you MUST output this EXACT format:
+
+    ---
+    ## ✅ FILES CREATED
+
+    | File | Tests | Status |
+    |------|-------|--------|
+    | src/domain/order/Order.ts | Order.test.ts | ✅ Created |
+    | src/domain/order/OrderError.ts | OrderError.test.ts | ✅ Created |
+    | src/domain/order/OrderId.ts | - | ✅ Created |
+
+    ## ❌ FILES NOT CREATED (if any)
+
+    | File | Reason |
+    |------|--------|
+    | src/domain/order/OrderStatus.ts | Blocked by missing dependency |
+
+    ## 🧪 TEST RESULTS
+
+    ```
+    ✓ Order.test.ts (5 tests)
+    ✓ OrderError.test.ts (3 tests)
+    Total: 8 tests passing
+    ```
+
+    ## 📊 WAVE COMPLETION
+
+    Wave [N]: [X]/[Y] files ([Z]%)
+    ---
+
+    IF YOU DON'T OUTPUT THIS FORMAT → YOUR WORK IS NOT COUNTED
   """
 )
 ```
@@ -1351,41 +1385,97 @@ QA               │ ✓  │  ✓   │ ✓  │ ✓  │ -  │   ✓    │
 
 ### Parallel Spawn Template
 
-**When spawning parallel agents, include notification instructions:**
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 MANDATORY OUTPUT FORMAT FOR ALL DEV AGENTS                          ║
+║                                                                           ║
+║   Every dev Task() MUST include this in the prompt:                       ║
+║                                                                           ║
+║   """                                                                     ║
+║   ## MANDATORY OUTPUT (copy this format exactly)                         ║
+║                                                                           ║
+║   ### ✅ FILES CREATED                                                   ║
+║   | File | Test | Status |                                               ║
+║   |------|------|--------|                                               ║
+║   | path/to/file.ts | file.test.ts | ✅ |                                ║
+║                                                                           ║
+║   ### ❌ FILES NOT CREATED (if any)                                      ║
+║   | File | Reason |                                                      ║
+║   |------|--------|                                                      ║
+║   | path/to/missing.ts | [why] |                                         ║
+║                                                                           ║
+║   ### 📊 COMPLETION: [X]/[Y] files ([Z]%)                                ║
+║   """                                                                     ║
+║                                                                           ║
+║   WITHOUT THIS OUTPUT → ORCHESTRATOR CANNOT TRACK PROGRESS               ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**When spawning parallel agents:**
 
 ```
 // PARALLEL SPAWN — All in ONE message
 Task(
   subagent_type: "frontend-engineer",
   prompt: """
-    Implement: src/types/
+    ## ASSIGNMENT
+    Wave: 1
+    Files: src/domain/common/Result.ts, src/domain/common/Result.test.ts
 
-    NOTIFICATION RULES:
-    - When DONE → Return list of files created/modified
-    - If you find a bug in hooks/ or pages/ → Note it for routing
-    - If you need something from another folder → Note the dependency
+    ## INSTRUCTIONS
+    1. READ design.md → Find Implementation Checklist
+    2. CREATE all files assigned to you
+    3. Each file needs colocated test
+
+    ## MANDATORY OUTPUT (copy this format exactly)
+
+    ### ✅ FILES CREATED
+    | File | Test | Status |
+    |------|------|--------|
+    | src/domain/common/Result.ts | Result.test.ts | ✅ |
+
+    ### ❌ FILES NOT CREATED (if any)
+    | File | Reason |
+    |------|--------|
+
+    ### 📊 COMPLETION: 2/2 files (100%)
   """
 )
 Task(
   subagent_type: "frontend-engineer",
   prompt: """
-    Implement: src/hooks/
+    ## ASSIGNMENT
+    Wave: 1
+    Files: src/domain/order/Order.ts, src/domain/order/Order.test.ts
 
-    NOTIFICATION RULES:
-    - When DONE → Return list of files created/modified
-    - If types/ doesn't have what you need → Note it
-    - If you find a bug in other code → Note it for routing
+    ## INSTRUCTIONS
+    [same as above]
+
+    ## MANDATORY OUTPUT (copy this format exactly)
+    [same format]
   """
 )
 Task(
   subagent_type: "qa-engineer",
   prompt: """
+    ## ASSIGNMENT
     Write E2E tests for: [feature]
+    Test files: e2e/order.spec.ts
 
-    NOTIFICATION RULES:
-    - When DONE → Return list of test files
-    - If test fails → Include file:line and which code caused it
-    - Route failures to the right Dev (based on file ownership)
+    ## MANDATORY OUTPUT (copy this format exactly)
+
+    ### ✅ TEST FILES CREATED
+    | File | Tests | Status |
+    |------|-------|--------|
+    | e2e/order.spec.ts | 5 tests | ✅ |
+
+    ### 🧪 TEST RESULTS
+    ✓ 5 passing
+    ✗ 0 failing
+
+    ### 📊 COMPLETION: 1/1 files (100%)
   """
 )
 ```
