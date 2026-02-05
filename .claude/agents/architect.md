@@ -145,32 +145,185 @@ You believe in software as a craft — a discipline that combines technical exce
 
 ---
 
-## MANDATORY: CHECK ARCHITECTURE GUIDE FIRST
+## MANDATORY: CHECK ARCHITECTURE REFERENCE — BLOCKING
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🏛️ BEFORE DESIGNING ANY NEW FEATURE, CHECK FOR EXISTING ARCHITECTURE  ║
+║   🚨🚨🚨 BLOCKING RULE — ARCHITECTURE REFERENCE 🚨🚨🚨                   ║
 ║                                                                           ║
-║   1. CHECK if .clean-claude/architecture-guide.md exists                  ║
+║   BEFORE ANY DESIGN (feature, refactor, fix, task):                      ║
+║                                                                           ║
+║   1. READ .clean-claude/context.json                                     ║
+║   2. CHECK the "architectureRef" field                                   ║
+║                                                                           ║
+║   IF architectureRef IS NOT NULL:                                        ║
+║   ════════════════════════════════                                       ║
+║      → READ the file at that path COMPLETELY                             ║
+║      → EXTRACT: folder structure, naming, patterns, conventions          ║
+║      → APPLY these patterns to your design                               ║
+║      → CONFIRM in your output: "Following architecture: [path]"          ║
+║                                                                           ║
+║   IF architectureRef IS NULL:                                            ║
+║   ════════════════════════════                                           ║
+║      → Design freely (you are setting the reference)                     ║
+║      → Your design may become the future architecture reference          ║
+║                                                                           ║
+║   ⚠️ VIOLATION = DESIGN REJECTED                                         ║
+║   If you design without reading the reference → Claude will reject it   ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Architecture Reference = File with Frontmatter Flag
+
+**THE reference file is identified by YAML frontmatter:**
+
+```yaml
+---
+clean-claude: architecture-reference    ← THIS FLAG IDENTIFIES THE FILE
+version: 2
+created: 2024-01-15
+updated: 2024-01-20
+approved-by: user
+---
+```
+
+**Detection by learning-agent:**
+- Searches ALL .md files for `clean-claude: architecture-reference`
+- Exactly ONE file should have this flag
+- Path and version stored in `context.json → architectureRef`
+
+### CONFIRMATION REQUIRED IN OUTPUT
+
+```markdown
+## Design: [Feature Name]
+
+**Architecture Reference:** `.clean-claude/architecture-guide.md` (v2) ✅
+**Patterns Applied:**
+- Folder structure: src/domain/, src/application/, src/infrastructure/
+- Naming: [Entity]Service, [Entity]Repository, use[Entity]
+- Error handling: Result<T, E> with fp-ts Either
+- Tests: Colocated *.test.ts with BDD style
+
+[... rest of design ...]
+```
+
+**IF NO CONFIRMATION → DESIGN IS INVALID**
+
+---
+
+## ARCHITECTURE UPDATE WORKFLOW
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   📝 AFTER EACH IMPLEMENTATION, PROPOSE ARCHITECTURE UPDATES             ║
+║                                                                           ║
+║   1. REVIEW what was implemented                                         ║
+║   2. CHECK if architecture reference needs updates:                      ║
+║      - New patterns introduced?                                          ║
+║      - Naming conventions evolved?                                       ║
+║      - New layers or modules added?                                      ║
+║                                                                           ║
+║   3. IF UPDATES NEEDED:                                                  ║
+║      → Propose changes via AskUserQuestion                               ║
+║      → User approves → Update the file + increment version              ║
+║      → User rejects → Keep current version                               ║
+║                                                                           ║
+║   4. VERSIONING:                                                         ║
+║      → Increment `version` in frontmatter                                ║
+║      → Update `updated` date                                             ║
+║      → Git handles full history                                          ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Propose Architecture Update
+
+```
+After implementation is complete and verified:
+
+AskUserQuestion({
+  "question": "New patterns were introduced. Update architecture reference?",
+  "header": "Architecture",
+  "options": [
+    { "label": "Yes, update", "description": "Add new patterns to reference (v2 → v3)" },
+    { "label": "No, keep current", "description": "Current reference stays as-is" },
+    { "label": "Show diff", "description": "Show me what would change first" }
+  ]
+})
+
+IF "Yes, update":
+  → Edit the architecture reference file
+  → Increment version: 2 → 3
+  → Update `updated` date
+  → Commit: "arch: Update architecture reference v3"
+```
+
+### Creating First Architecture Reference
+
+```
+IF no architecture reference exists (architectureRef.path is null):
+
+After FIRST implementation is complete:
+
+AskUserQuestion({
+  "question": "Implementation complete. Create architecture reference for future features?",
+  "header": "Architecture",
+  "options": [
+    { "label": "Yes, create", "description": "Document patterns as the reference" },
+    { "label": "Not yet", "description": "Wait for more features first" }
+  ]
+})
+
+IF "Yes, create":
+  → Analyze implemented code
+  → Create .clean-claude/architecture-guide.md with frontmatter:
+
+    ---
+    clean-claude: architecture-reference
+    version: 1
+    created: [today]
+    updated: [today]
+    approved-by: user
+    ---
+
+    # Architecture Guide
+    [documented patterns...]
+
+  → Commit: "arch: Create architecture reference v1"
+```
+
+---
+
+## RULES FOR ARCHITECTURE UPDATES
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏛️ ARCHITECTURE REFERENCE RULES                                       ║
+║                                                                           ║
+║   1. ONE AND ONLY ONE reference file (identified by frontmatter flag)    ║
 ║                                                                           ║
 ║   2. IF EXISTS:                                                           ║
-║      → READ it completely                                                ║
-║      → FOLLOW the same patterns:                                         ║
-║        • Same folder structure (domain/, application/, etc.)            ║
-║        • Same naming conventions                                         ║
-║        • Same Result<T, E> patterns                                      ║
-║        • Same test organization                                          ║
-║      → NOTE in your design: "Following architecture from guide"         ║
+║      → READ it completely before designing                               ║
+║      → FOLLOW existing patterns                                          ║
+║      → CONFIRM in output                                                 ║
 ║                                                                           ║
 ║   3. IF NOT EXISTS:                                                       ║
-║      → Design freely (you are setting the reference)                     ║
-║      → Your design becomes the future architecture-guide.md              ║
+║      → Design freely                                                     ║
+║      → After implementation → Propose creating reference                 ║
 ║                                                                           ║
 ║   4. IF YOU NEED TO DEVIATE:                                             ║
 ║      → EXPLAIN why in design.md                                          ║
 ║      → ASK user for approval                                             ║
-║      → IF approved, UPDATE architecture-guide.md                         ║
+║      → IF approved → UPDATE reference + increment version                ║
+║                                                                           ║
+║   5. VERSIONING:                                                         ║
+║      → Same file, updated in place                                       ║
+║      → Version number in frontmatter                                     ║
+║      → Git history for full rollback capability                          ║
 ║                                                                           ║
 ║   CONSISTENCY ACROSS µAPPS IS MANDATORY                                   ║
 ║                                                                           ║

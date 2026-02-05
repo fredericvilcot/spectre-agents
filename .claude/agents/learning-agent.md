@@ -305,20 +305,157 @@ elif [ "$RATIO" -eq 0 ]; then
 fi
 ```
 
+### Check 5: Architecture Reference File Detection
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏛️ DETECT ARCHITECTURE REFERENCE — SMART DETECTION                     ║
+║                                                                           ║
+║   THE reference file is identified by a YAML FRONTMATTER marker:         ║
+║                                                                           ║
+║   ---                                                                     ║
+║   clean-claude: architecture-reference    ← THIS IS THE FLAG             ║
+║   version: 1                                                              ║
+║   created: 2024-01-15                                                     ║
+║   updated: 2024-01-20                                                     ║
+║   ---                                                                     ║
+║                                                                           ║
+║   DETECTION LOGIC:                                                        ║
+║   1. Search ALL markdown files for the frontmatter flag                  ║
+║   2. IF exactly 1 file has flag → That's THE reference                   ║
+║   3. IF multiple files have flag → ERROR, ask user to fix                ║
+║   4. IF no file has flag → No reference (Architect designs freely)       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Architecture Reference Frontmatter Format
+
+```yaml
+---
+clean-claude: architecture-reference
+version: 1
+created: 2024-01-15
+updated: 2024-01-20
+approved-by: user
+stack: typescript, react, fp-ts
+---
+
+# Architecture Guide
+
+[content...]
+```
+
+**Required fields:**
+- `clean-claude: architecture-reference` — THE flag that identifies this file
+- `version` — Integer, incremented on each approved update
+
+**Optional fields:**
+- `created`, `updated` — Dates
+- `approved-by` — Who approved this version
+- `stack` — Stack this architecture applies to
+
+### Detection Script
+
+```bash
+# Find ALL files with the architecture-reference flag
+ARCH_FILES=$(grep -rl "clean-claude: architecture-reference" --include="*.md" . 2>/dev/null)
+ARCH_COUNT=$(echo "$ARCH_FILES" | grep -c "." 2>/dev/null || echo 0)
+
+if [ "$ARCH_COUNT" -eq 0 ]; then
+  echo "ℹ️ No architecture reference found (no file with clean-claude: architecture-reference)"
+  ARCH_REF=""
+  ARCH_VERSION=""
+
+elif [ "$ARCH_COUNT" -eq 1 ]; then
+  ARCH_REF="$ARCH_FILES"
+  ARCH_VERSION=$(grep "^version:" "$ARCH_REF" | head -1 | cut -d: -f2 | tr -d ' ')
+  echo "✅ Architecture reference found: $ARCH_REF (v$ARCH_VERSION)"
+
+else
+  echo "❌ ERROR: Multiple architecture references found!"
+  echo "$ARCH_FILES"
+  echo ""
+  echo "Only ONE file should have 'clean-claude: architecture-reference' frontmatter."
+  echo "Please remove the flag from all but one file."
+  # Set error state
+  ARCH_REF="ERROR:MULTIPLE"
+fi
+```
+
+### Error Handling: Multiple References
+
+```
+IF ARCH_REF == "ERROR:MULTIPLE":
+  → STOP the workflow
+  → Show user the conflicting files
+  → Ask user to pick ONE as the reference
+  → OR remove flags from duplicates
+
+  AskUserQuestion:
+  {
+    "question": "Multiple architecture references found. Which is THE reference?",
+    "header": "Conflict",
+    "options": [
+      { "label": "[file1]", "description": "Keep this as reference" },
+      { "label": "[file2]", "description": "Keep this as reference" },
+      { "label": "None", "description": "Remove all, Architect designs fresh" }
+    ]
+  }
+```
+
+### Versioning Strategy
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   📚 VERSIONING = FRONTMATTER + GIT                                      ║
+║                                                                           ║
+║   - Version number in frontmatter (human-readable)                       ║
+║   - Git history for full diff/rollback                                   ║
+║   - Same file path, updated in place                                     ║
+║   - NO separate v1, v2, v3 files (that's what git is for)               ║
+║                                                                           ║
+║   UPDATE WORKFLOW:                                                        ║
+║   1. Architect proposes changes in design.md                             ║
+║   2. User approves                                                        ║
+║   3. Architect updates architecture reference file                       ║
+║   4. Increment version in frontmatter                                    ║
+║   5. Commit with message: "arch: Update architecture reference v2"       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**CRITICAL: If `architectureRef` is set in context.json, Architect MUST read it.**
+
 ### Validation Result
 
 ```
-CRAFT_COMPLIANT = true/false
+AFTER running all checks, set context.json craftValidation fields:
 
-IF true:
+hasAnyTypes = (ANY_COUNT > 0)
+usesResultPattern = (RESULT_COUNT > 0 || THROW_COUNT == 0)
+hasHexagonalStructure = (domain/ or core/ or layers exist)
+testCoverage =
+  - "none" if RATIO < 10
+  - "partial" if RATIO 10-50
+  - "good" if RATIO > 50
+
+CRAFT_COMPLIANT = !hasAnyTypes && usesResultPattern && hasHexagonalStructure && testCoverage != "none"
+
+IF CRAFT_COMPLIANT:
   → Extract patterns
   → Spawn Architect for guide
 
-IF false:
-  → Report violations
-  → Suggest /craft "Refactor"
+IF NOT CRAFT_COMPLIANT:
+  → Report violations (with specific fields for /craft to use)
+  → Suggest /craft "Refactor" with CONTEXTUAL options
   → DO NOT extract patterns
 ```
+
+**IMPORTANT: Always output context.json with all fields, even if not compliant.**
+The `/craft` command uses these fields to show RELEVANT refactor options only.
 
 ---
 
@@ -391,18 +528,53 @@ date-fns, lodash, ramda
       "playwright"
     ]
   },
+  "architectureRef": {
+    "path": ".clean-claude/architecture-guide.md",
+    "version": 2,
+    "hasFlag": true
+  },
   "craftValidation": {
     "compliant": true,
-    "checks": {
-      "noAny": true,
-      "resultPattern": true,
-      "layeredArchitecture": true,
-      "testCoverage": 65
+    "hasAnyTypes": false,
+    "usesResultPattern": true,
+    "hasHexagonalStructure": true,
+    "testCoverage": "good",
+    "details": {
+      "anyCount": 0,
+      "throwCount": 2,
+      "resultCount": 15,
+      "testRatio": 65
     }
   },
   "detectedAt": "2024-01-15T10:30:00Z"
 }
 ```
+
+**CRITICAL FIELD: `architectureRef`**
+
+| Value | Meaning |
+|-------|---------|
+| `".clean-claude/architecture-guide.md"` | Standard location |
+| `"ARCHITECTURE.md"` | Root level file |
+| `"docs/ARCHITECTURE.md"` | Docs folder |
+| `"README.md#architecture"` | Section in README |
+| `null` | No reference found → Architect designs freely |
+
+**When `architectureRef` is NOT null → Architect MUST read and follow it.**
+
+**Field Definitions (for /craft contextual options):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hasAnyTypes` | boolean | `true` if `any` types found → offer "Remove any types" |
+| `usesResultPattern` | boolean | `true` if Result/Either used → DON'T offer Result refactor |
+| `hasHexagonalStructure` | boolean | `true` if domain/layers found → DON'T offer Hexagonal |
+| `testCoverage` | `"none"` \| `"partial"` \| `"good"` | If not "good" → offer "Add tests" |
+
+**Test Coverage Thresholds:**
+- `testRatio < 10%` → `"none"`
+- `testRatio 10-50%` → `"partial"`
+- `testRatio > 50%` → `"good"`
 
 ---
 

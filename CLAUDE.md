@@ -64,10 +64,24 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║                                                                           ║
 ║   ═══════════════════════════════════════════════════════════════════    ║
 ║                                                                           ║
+║   0. LIBRARY NAME = "CLEAN CLAUDE"                                        ║
+║      → ALWAYS use "Clean Claude" as the project/library name             ║
+║      → NEVER use "Spectre" (that's the repo folder, not the name)        ║
+║      → Folder: .clean-claude/                                            ║
+║      → Banner: CLEAN CLAUDE                                              ║
+║                                                                           ║
 ║   1. ARCHITECT = DESIGN ONLY                                              ║
-║      → Architect writes .clean-claude/specs/design/*.md                       ║
+║      → Architect writes .clean-claude/specs/design/*.md                  ║
 ║      → Architect NEVER writes implementation or test files               ║
 ║      → After design → Notify Dev to implement                            ║
+║                                                                           ║
+║   1b. ARCHITECTURE REFERENCE = BLOCKING                                   ║
+║      → ONE file with frontmatter: `clean-claude: architecture-reference` ║
+║      → learning-agent detects it (any location) → context.json           ║
+║      → IF found → Architect MUST read & follow it                        ║
+║      → Architect MUST confirm: "Architecture Reference: [path] (vN) ✅"  ║
+║      → NO CONFIRMATION = DESIGN REJECTED                                 ║
+║      → After implementation → Architect proposes updates (versioned)     ║
 ║                                                                           ║
 ║   2. DEV ROUTING = ANALYZE WHAT THE CODE DOES                             ║
 ║      → UI, rendering, user interaction? → frontend-engineer              ║

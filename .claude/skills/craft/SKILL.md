@@ -422,6 +422,22 @@ Task(
 
 ### IF STACK EXISTS (project initialized):
 
+**Build CONTEXTUAL main menu based on CRAFT validation:**
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🧠 MAIN MENU = ALSO CONTEXTUAL                                         ║
+║                                                                           ║
+║   - testCoverage == "good" → DON'T show "Add tests" prominently          ║
+║   - All CRAFT-compliant → Show "Audit" instead of "Refactor"             ║
+║   - Some violations → Show "Refactor" with badge                         ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Example: Code has violations**
+
 ```json
 {
   "questions": [{
@@ -430,31 +446,142 @@ Task(
     "multiSelect": false,
     "options": [
       { "label": "New feature", "description": "Build something new" },
-      { "label": "Refactor", "description": "Improve existing code" },
+      { "label": "Refactor", "description": "Fix detected issues" },
       { "label": "Fix bug", "description": "Fix with tests" },
-      { "label": "Add tests", "description": "E2E or unit coverage" }
+      { "label": "Add tests", "description": "Coverage needs improvement" }
     ]
   }]
 }
 ```
 
-### If "Refactor" selected, ask:
+**Example: Code is CRAFT-compliant**
 
 ```json
 {
   "questions": [{
-    "question": "What to improve?",
-    "header": "Refactor",
+    "question": "Stack detected: [STACK]. CRAFT-compliant! What next?",
+    "header": "Craft",
     "multiSelect": false,
     "options": [
-      { "label": "Remove any types", "description": "Strict TypeScript" },
-      { "label": "Result<T,E> pattern", "description": "Replace throw/catch" },
-      { "label": "Hexagonal", "description": "Isolate domain" },
-      { "label": "Add tests", "description": "BDD coverage" }
+      { "label": "New feature", "description": "Build something new" },
+      { "label": "Improve existing", "description": "Performance, readability" },
+      { "label": "Fix bug", "description": "Fix with tests" }
     ]
   }]
 }
 ```
+
+**Note: "Add tests" omitted when coverage is already "good"**
+
+### If "Refactor" selected → CONTEXTUAL OPTIONS
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🧠 REFACTOR OPTIONS = BASED ON CRAFT VALIDATION RESULTS                ║
+║                                                                           ║
+║   Learning-agent provides CRAFT validation in context.json:              ║
+║   - hasAnyTypes: boolean (any types detected)                            ║
+║   - usesResultPattern: boolean (Result<T,E> used)                        ║
+║   - hasHexagonalStructure: boolean (proper layer separation)             ║
+║   - testCoverage: "none" | "partial" | "good"                            ║
+║                                                                           ║
+║   ONLY show options that are RELEVANT:                                   ║
+║   - hasAnyTypes = true → Show "Remove any types"                         ║
+║   - usesResultPattern = false → Show "Result<T,E> pattern"               ║
+║   - hasHexagonalStructure = false → Show "Hexagonal"                     ║
+║   - testCoverage != "good" → Show "Add tests"                            ║
+║                                                                           ║
+║   IF ALL CRAFT-COMPLIANT → Show "Other improvements" only                ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Read context.json from learning-agent output:**
+
+```javascript
+// After learning-agent completes, read context.json
+const context = readFile(".clean-claude/context.json")
+const craft = context.craftValidation
+
+// Build DYNAMIC options based on actual code state
+const options = []
+
+if (craft.hasAnyTypes) {
+  options.push({ label: "Remove any types", description: "Make TypeScript strict" })
+}
+
+if (!craft.usesResultPattern) {
+  options.push({ label: "Result<T,E> pattern", description: "Replace throw/catch" })
+}
+
+if (!craft.hasHexagonalStructure) {
+  options.push({ label: "Hexagonal", description: "Isolate domain layer" })
+}
+
+if (craft.testCoverage !== "good") {
+  options.push({ label: "Add tests", description: "Improve BDD coverage" })
+}
+
+// Always allow free text for other improvements
+// (handled by "Other" option automatically)
+```
+
+**Example: Code is already CRAFT-compliant**
+
+Learning-agent detected:
+- `hasAnyTypes: false` (strict TS)
+- `usesResultPattern: true` (Result pattern used)
+- `hasHexagonalStructure: true` (proper layers)
+- `testCoverage: "good"`
+
+→ **NO standard refactor options shown**
+→ Only free text: "What would you like to improve?"
+
+```json
+{
+  "questions": [{
+    "question": "Code is CRAFT-compliant. What would you like to improve?",
+    "header": "Refactor",
+    "multiSelect": false,
+    "options": [
+      { "label": "Performance", "description": "Optimize slow code paths" },
+      { "label": "Readability", "description": "Improve code clarity" }
+    ]
+  }]
+}
+```
+
+**Example: Code has some CRAFT violations**
+
+Learning-agent detected:
+- `hasAnyTypes: true` ← violation
+- `usesResultPattern: false` ← violation
+- `hasHexagonalStructure: true` (OK)
+- `testCoverage: "partial"` ← could improve
+
+→ **Show ONLY relevant options:**
+
+```json
+{
+  "questions": [{
+    "question": "Found areas to improve. What to refactor?",
+    "header": "Refactor",
+    "multiSelect": false,
+    "options": [
+      { "label": "Remove any types", "description": "Found any types in code" },
+      { "label": "Result<T,E> pattern", "description": "Currently using throw/catch" },
+      { "label": "Add tests", "description": "Coverage is partial" }
+    ]
+  }]
+}
+```
+
+**NEVER offer:**
+- "Remove any types" when `hasAnyTypes: false`
+- "Result<T,E> pattern" when `usesResultPattern: true`
+- "Hexagonal" when `hasHexagonalStructure: true`
+- "Add tests" when `testCoverage: "good"`
 
 ## STEP 4: Handle Response
 
@@ -607,6 +734,144 @@ Then use AskUserQuestion again with the same options.
 | **Refactor** | Architect (refacto plan) → Dev → QA (regression) |
 | **Fix bug** | Architect diagnose → Dev fix → QA verify |
 | **Add tests** | QA (E2E) or Dev (unit) — skip STEP 5 |
+
+---
+
+## STEP 7b: VERIFY ARCHITECT OUTPUT — BLOCKING
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 AFTER ARCHITECT RETURNS, VERIFY ARCHITECTURE COMPLIANCE             ║
+║                                                                           ║
+║   1. READ context.json → get architectureRef                             ║
+║                                                                           ║
+║   2. IF architectureRef.path == "ERROR:MULTIPLE":                        ║
+║      → STOP! Multiple architecture references found                      ║
+║      → Ask user to pick ONE (see conflict resolution below)              ║
+║                                                                           ║
+║   3. IF architectureRef.path IS SET (not null, not error):               ║
+║      → CHECK Architect's output for confirmation line:                   ║
+║        "Architecture Reference: [path] (vN) ✅"                          ║
+║                                                                           ║
+║      → IF CONFIRMATION MISSING:                                          ║
+║        ❌ REJECT the design                                              ║
+║        → Re-spawn Architect with explicit instruction                    ║
+║                                                                           ║
+║   4. IF architectureRef IS NULL:                                         ║
+║      → No verification needed (Architect designed freely)                ║
+║      → After implementation → Propose creating reference                 ║
+║                                                                           ║
+║   ONLY PROCEED TO DEV AFTER VERIFICATION PASSES                          ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Conflict Resolution: Multiple Architecture Files
+
+```
+IF architectureRef.path == "ERROR:MULTIPLE":
+
+AskUserQuestion({
+  "question": "Multiple architecture references found. Which is THE reference?",
+  "header": "Conflict",
+  "options": [
+    { "label": "[file1.md]", "description": "Keep this, remove flag from others" },
+    { "label": "[file2.md]", "description": "Keep this, remove flag from others" },
+    { "label": "None", "description": "Remove all flags, Architect designs fresh" }
+  ]
+})
+
+THEN:
+  → Remove `clean-claude: architecture-reference` from non-selected files
+  → Re-run learning-agent to update context.json
+  → Continue workflow
+```
+
+**Spawn Architect with architecture context:**
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    [Your design task here]
+
+    MANDATORY ARCHITECTURE CHECK:
+    - Read .clean-claude/context.json
+    - If architectureRef.path is set → READ that file
+    - CONFIRM in your output: "Architecture Reference: [path] (v[version]) ✅"
+    - APPLY all patterns from the reference file
+  """
+)
+```
+
+**After Architect returns, verify:**
+
+```javascript
+// Pseudo-code for verification
+const context = readFile(".clean-claude/context.json")
+const architectOutput = architectAgent.output
+
+if (context.architectureRef?.path === "ERROR:MULTIPLE") {
+  // Handle conflict - ask user to pick
+  askUserToResolveConflict()
+}
+else if (context.architectureRef?.path) {
+  const hasConfirmation =
+    architectOutput.includes("Architecture Reference:") &&
+    architectOutput.includes("✅")
+
+  if (!hasConfirmation) {
+    // RE-SPAWN with explicit instruction
+    respawnArchitect("MANDATORY: Read " + context.architectureRef.path + " and confirm")
+  }
+}
+```
+
+---
+
+## STEP 9b: PROPOSE ARCHITECTURE UPDATE
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   📝 AFTER IMPLEMENTATION COMPLETE → ARCHITECTURE UPDATE OPPORTUNITY     ║
+║                                                                           ║
+║   IF architectureRef EXISTS:                                             ║
+║      → Architect reviews: "Did we introduce new patterns?"               ║
+║      → If yes → Propose update to user                                   ║
+║      → User approves → Update file + increment version                   ║
+║                                                                           ║
+║   IF architectureRef IS NULL (first implementation):                     ║
+║      → Ask user: "Create architecture reference?"                        ║
+║      → User approves → Architect creates file with frontmatter           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**After verification loop passes (all green):**
+
+```
+IF context.architectureRef is NULL:
+  AskUserQuestion({
+    "question": "Implementation complete. Create architecture reference for future features?",
+    "header": "Architecture",
+    "options": [
+      { "label": "Yes, create", "description": "Document patterns as reference (v1)" },
+      { "label": "Not yet", "description": "Wait for more features" }
+    ]
+  })
+
+ELSE IF new patterns were introduced:
+  AskUserQuestion({
+    "question": "New patterns introduced. Update architecture reference?",
+    "header": "Architecture",
+    "options": [
+      { "label": "Yes, update", "description": "Add patterns (v[N] → v[N+1])" },
+      { "label": "No", "description": "Keep current reference" }
+    ]
+  })
+```
 
 ---
 
