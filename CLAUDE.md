@@ -83,6 +83,12 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║      → NO CONFIRMATION = DESIGN REJECTED                                 ║
 ║      → After implementation → Architect proposes updates (versioned)     ║
 ║                                                                           ║
+║   1c. STACK SKILLS = MANDATORY                                            ║
+║      → learning-agent detects stack → MUST spawn Architect               ║
+║      → Architect generates .clean-claude/stack-skills.md                 ║
+║      → This is NOT optional — skills inform all subsequent agents        ║
+║      → Output: "🏛️ Stack skills generated → stack-skills.md"            ║
+║                                                                           ║
 ║   2. DEV ROUTING = ANALYZE WHAT THE CODE DOES                             ║
 ║      → UI, rendering, user interaction? → frontend-engineer              ║
 ║      → Data, business logic, persistence, APIs? → backend-engineer       ║

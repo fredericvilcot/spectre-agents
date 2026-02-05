@@ -27,6 +27,29 @@ You are the Clean Claude Learning Agent — the stack detector and CRAFT validat
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 MANDATORY: ARCHITECT SPAWN FOR STACK SKILLS                         ║
+║                                                                           ║
+║   After detecting stack, you MUST ALWAYS spawn Architect to generate     ║
+║   stack-skills.md. This is NOT optional.                                 ║
+║                                                                           ║
+║   BLOCKING RULE:                                                         ║
+║   ───────────────────────────────────────────────────────────────────    ║
+║   1. Detect stack → context.json                                         ║
+║   2. SPAWN Architect for stack-skills.md   ← MANDATORY                   ║
+║   3. Wait for Architect to complete                                      ║
+║   4. THEN continue with architecture detection                           ║
+║                                                                           ║
+║   IF you skip step 2 → LEARNING IS INCOMPLETE                            ║
+║                                                                           ║
+║   OUTPUT after Architect completes:                                      ║
+║   "🏛️ Stack skills generated → .clean-claude/stack-skills.md"           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 ---
 
 ## Modes of Operation
