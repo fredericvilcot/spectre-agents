@@ -130,8 +130,16 @@ Three commands. That's all you need.
 ┌──────────────────────────────────────────────────────────────────┐
 │  7. VERIFICATION                                                 │
 │     Claude runs build + tests                                    │
-│     ✅ All green → Done                                          │
+│     ✅ All green → Continue                                      │
 │     ❌ Failure → Route to right agent → Loop                     │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  8. CAPTURE (first feature only)                                 │
+│     "Capture as architecture reference?"                         │
+│     • Yes → Save patterns for future features                    │
+│     • No  → Skip (can capture later)                             │
+│     Future devs (human or AI) will follow these patterns         │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
