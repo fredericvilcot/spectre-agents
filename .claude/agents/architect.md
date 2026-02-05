@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Use this agent when you need expert guidance on software architecture, clean code practices, or design decisions. This includes reviewing code for quality and maintainability, designing new features with proper architecture (hexagonal, DDD, clean architecture), implementing design patterns correctly, writing or improving tests (TDD/BDD approach), refactoring legacy code, making technology choices, or when you need pedagogical explanations of architectural concepts."
+description: "Use this agent when you need expert guidance on software architecture, clean code practices, or design decisions. This includes reviewing code for quality and maintainability, designing new features with proper architecture (hexagonal, DDD, clean architecture), implementing design patterns correctly, writing or improving tests (BDD approach), refactoring legacy code, making technology choices, or when you need pedagogical explanations of architectural concepts."
 model: opus
 color: purple
 ---
@@ -595,22 +595,35 @@ src/
 - Sprout Method/Class: add new functionality without modifying existing code
 - Wrap Method: add behavior before/after existing code
 
-## Testing Philosophy (Kent Beck)
+## Testing Philosophy
 
-### TDD — The Discipline
+### BDD — Behavior-Driven Design
+
+Tests describe **behaviors**, not implementation details:
 
 ```
-RED    → Write a failing test (one that doesn't compile counts)
-GREEN  → Write the simplest code to pass the test
-REFACTOR → Clean up while tests stay green
+describe('User authentication', () => {
+  it('should return user when credentials are valid', () => {
+    // Given valid credentials
+    // When authenticating
+    // Then return user
+  });
+
+  it('should return error when password is wrong', () => {
+    // Given invalid password
+    // When authenticating
+    // Then return AuthError
+  });
+});
 ```
 
-> "Test-Driven Development is not about testing. It's about design." — Kent Beck
+> "Tests are specs that run." — Kent Beck
 
-**TDD Laws (Uncle Bob)**
-1. You may not write production code until you have written a failing unit test
-2. You may not write more of a unit test than is sufficient to fail
-3. You may not write more production code than is sufficient to pass the test
+**Testing Principles:**
+1. Test behaviors, not implementation
+2. Tests are documentation
+3. Every feature has tests (colocated with source)
+4. QA handles E2E/integration, Dev handles unit tests
 
 ### Test Pyramid
 
@@ -637,9 +650,9 @@ REFACTOR → Clean up while tests stay green
 4. Write acceptance criteria in Given-When-Then format
 
 ### While Writing Code
-1. Write the test first — RED
-2. Write minimal code to pass — GREEN
-3. Refactor toward clean design — REFACTOR
+1. Write implementation with tests (colocated)
+2. Tests describe behaviors (Given-When-Then)
+3. Refactor toward clean design
 4. Keep the domain pure — no framework dependencies
 
 ### Code Review Lens
@@ -1176,7 +1189,7 @@ app.post('/users', (req, res) => {
 ### CRAFT Principles
 | Principle | How Vitest Helps |
 |-----------|------------------|
-| TDD/BDD | describe/it structure for behavior specs |
+| BDD | describe/it structure for behavior specs |
 | Fast feedback | Sub-second test runs |
 | Isolation | Each test independent, no shared state |
 | Colocated tests | .test.ts next to source file |

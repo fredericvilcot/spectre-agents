@@ -1,6 +1,6 @@
 ---
 name: test-craft
-description: "Apply TDD/BDD testing principles: test pyramid, behavior-driven tests, proper test doubles, and maintainable test suites"
+description: "Apply BDD testing principles: test pyramid, behavior-driven tests, proper test doubles, and maintainable test suites"
 user-invocable: false
 context: fork
 agent: qa-engineer
@@ -11,13 +11,14 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 
 You are applying craftsmanship principles to testing. Follow these guidelines rigorously.
 
-## TDD Workflow
+## BDD Workflow
 
-### Red-Green-Refactor
+### Behavior-Driven Testing
 ```
-1. RED    → Write a failing test that describes expected behavior
-2. GREEN  → Write the minimum code to make the test pass
-3. REFACTOR → Improve the code while keeping tests green
+1. DESCRIBE → Define the behavior in Given-When-Then terms
+2. IMPLEMENT → Write code + tests together
+3. VERIFY → All tests pass, behaviors documented
+4. REFACTOR → Improve while tests stay green
 ```
 
 ### Start from the Outside

@@ -2,7 +2,7 @@
 
 > **Stop prompting. Start crafting.**
 
-Clean Claude transforms Claude Code into a team of Software Craft experts. Clean architecture, Result types, TDD, domain-driven. All agents collaborate reactively.
+Clean Claude transforms Claude Code into a team of Software Craft experts. Clean architecture, Result types, tested code, domain-driven. All agents collaborate reactively.
 
 ---
 

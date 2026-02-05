@@ -24,7 +24,7 @@ allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 │  • Explicit Error Handling — Result<T, E>, no throw             │
 │  • Type Safety — Strict mode, no any                            │
 │  • Immutability — Const by default                              │
-│  • TDD — Tests first, design emerges                            │
+│  • Tested — Code always has tests (BDD style)                      │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -133,7 +133,7 @@ All these skills have been validated against the craft philosophy:
 
 | Skill | Description | Craft Alignment |
 |-------|-------------|-----------------|
-| `TDD-Advanced` | Outside-in, mocking strategies | ✅ Extension of core TDD |
+| `Testing-Advanced` | Mocking strategies, test doubles | ✅ Extension of core testing |
 | `BDD` | Gherkin, behavior specs | ✅ Domain language, explicit |
 | `Contract-Testing` | Pact, consumer-driven | ✅ Explicit contracts |
 | `Property-Testing` | QuickCheck-style, fuzzing | ✅ Exhaustive, type-driven |
@@ -195,7 +195,7 @@ All these skills have been validated against the craft philosophy:
 │      • Explicit Errors                                           │
 │      • Type Safety                                               │
 │      • Immutability                                              │
-│      • TDD                                                       │
+│      • Tested                                                       │
 │                                                                  │
 │  ➕  ADDED SKILLS                                                 │
 │      • architect: DDD (added 2024-01-15)                         │
@@ -232,7 +232,7 @@ All these skills have been validated against the craft philosophy:
     "Explicit-Errors",
     "Type-Safety",
     "Immutability",
-    "TDD"
+    "Tested"
   ],
   "addedSkills": [
     {
@@ -271,7 +271,7 @@ When agents are spawned, they receive:
 │  │   SOLID     │  │  React      │  │  Your       │  │  DDD    │ │
 │  │   Clean     │  │  Query      │  │  naming     │  │  CQRS   │ │
 │  │   Hexa      │  │  patterns   │  │  patterns   │  │  etc.   │ │
-│  │   TDD       │  │             │  │             │  │         │ │
+│  │   Tested       │  │             │  │             │  │         │ │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────┘ │
 │   Foundation       Stack Defaults   Learned         Added       │
 │   (Always)         (Generated)      (If clean)      (Manual)    │
@@ -312,7 +312,7 @@ Task(
     4. Does it align with Explicit Errors?
     5. Does it align with Type Safety?
     6. Does it align with Immutability?
-    7. Does it align with TDD?
+    7. Does it include tests?
 
     If ANY conflict → REJECT with explanation
     If aligned → APPROVE with alignment notes
@@ -354,7 +354,7 @@ Same reactive flow as before — analyze codebase, propose plan, loop.
 
 🏛️ CRAFT FOUNDATION (Always Active)
    • SOLID • Clean Architecture • Hexagonal
-   • Explicit Errors • Type Safety • Immutability • TDD
+   • Explicit Errors • Type Safety • Immutability • Tested
 
 ➕ ADDED SKILLS
    (none)
@@ -400,7 +400,7 @@ Same reactive flow as before — analyze codebase, propose plan, loop.
 
 🏛️ CRAFT FOUNDATION (Always Active)
    • SOLID • Clean Architecture • Hexagonal
-   • Explicit Errors • Type Safety • Immutability • TDD
+   • Explicit Errors • Type Safety • Immutability • Tested
 
 ➕ ADDED SKILLS
    • architect: DDD

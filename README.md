@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Clean Claude transforms Claude Code into a team of Software Craft experts.<br/>
-  Clean architecture. Result types. TDD. Domain-driven.<br/>
+  Clean architecture. Result types. Tested. Domain-driven.<br/>
   All agents collaborate reactively.</em>
 </p>
 
@@ -28,7 +28,7 @@ We believe code is a **craft**, not just a task. Every agent embodies the teachi
 
 | Master | Teaching |
 |--------|----------|
-| **Kent Beck** | TDD — *"Make it work, make it right, make it fast"* |
+| **Kent Beck** | *"Make it work, make it right, make it fast"* |
 | **Uncle Bob** | Clean Code, SOLID, Clean Architecture |
 | **Martin Fowler** | Refactoring — *"Good programmers write code humans understand"* |
 | **Eric Evans** | Domain-Driven Design |

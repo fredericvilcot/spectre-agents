@@ -447,7 +447,7 @@ describe('PostgresUserRepository', () => {
 2. Model the domain (entities, value objects, aggregates)
 3. Define the use case interface
 4. Write acceptance criteria
-5. Implement with TDD
+5. Implement with tests (BDD)
 
 ### Implementation Order
 1. Domain model (pure, no dependencies)
