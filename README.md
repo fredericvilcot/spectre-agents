@@ -77,18 +77,72 @@ Three commands. That's all you need.
 /craft
 ```
 
-Your AI dev team activates:
+**The Flow:**
 
 ```
-You: "Build user authentication"
-
-    Product Owner  →  Writes the spec
-    Architect      →  Designs the solution
-    Developer      →  Implements it
-    QA Engineer    →  Tests it
-
-    Bug found? → Dev fixes → QA re-tests → Loop until green.
+┌──────────────────────────────────────────────────────────────────┐
+│  1. LEARN                                                        │
+│     Detect your stack → Generate library skills                  │
+│     "TypeScript + React + fp-ts detected"                        │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  2. CHOOSE                                                       │
+│     • New feature                                                │
+│     • Fix a bug                                                  │
+│     • Improve existing (refactor, add tests, migrate patterns)   │
+│     • Or describe what you need...                               │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  3. QA CONFIG                                                    │
+│     "Do you want QA tests?"                                      │
+│     • Yes → E2E (Playwright) or Integration?                     │
+│     • No  → Dev handles unit tests only                          │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  4. PRODUCT OWNER                                                │
+│     Writes functional spec with acceptance criteria              │
+│     → .clean-claude/specs/functional/spec-v1.md                  │
+│     ⏸️  USER APPROVAL REQUIRED                                    │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  5. ARCHITECT                                                    │
+│     Reads spec → Designs technical solution                      │
+│     → .clean-claude/specs/design/design-v1.md                    │
+│     (If architecture-reference exists → MUST follow it)          │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  6. IMPLEMENTATION (parallel)                                    │
+│                                                                  │
+│     ┌─────────────┐              ┌─────────────┐                 │
+│     │     DEV     │    notify    │     QA      │                 │
+│     │  code +     │◄────────────►│  E2E tests  │                 │
+│     │  unit tests │              │             │                 │
+│     └─────────────┘              └─────────────┘                 │
+│                                                                  │
+│     Bug found? → Dev fixes → QA re-tests → Loop until green      │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────┐
+│  7. VERIFICATION                                                 │
+│     Claude runs build + tests                                    │
+│     ✅ All green → Done                                          │
+│     ❌ Failure → Route to right agent → Loop                     │
+└──────────────────────────────────────────────────────────────────┘
 ```
+
+**Free text works too:**
+
+| You say | Clean Claude does |
+|---------|-------------------|
+| "Add dark mode" | Full flow: PO → Arch → Dev → QA |
+| "Fix the login bug" | Skip PO, route to Dev |
+| "Migrate to Result types" | Architect refactoring plan |
+| "Add E2E tests" | QA only |
 
 ### `/heal` — Fix something
 
