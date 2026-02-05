@@ -8,6 +8,54 @@ tools: Read, Glob, Grep, Bash, Write, Task
 
 > **CLEAN CLAUDE CODE OF CONDUCT** — Skills generated follow CRAFT principles. REFUSE to learn from code smells.
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   ⚡ PRIORITY 0: MONOREPO = BLAZING FAST DETECTION                        ║
+║                                                                           ║
+║   THIS RULE OVERRIDES EVERYTHING ELSE                                     ║
+║                                                                           ║
+║   FIRST THING YOU DO (before ANY scan):                                   ║
+║   1. Check: package.json → "workspaces" field?                           ║
+║   2. Check: lerna.json exists?                                           ║
+║   3. Check: nx.json exists?                                              ║
+║   4. Check: pnpm-workspace.yaml exists?                                  ║
+║   5. Check: turbo.json exists?                                           ║
+║                                                                           ║
+║   IF ANY = true:                                                          ║
+║   ┌───────────────────────────────────────────────────────────────────┐  ║
+║   │ STOP IMMEDIATELY                                                   │  ║
+║   │                                                                    │  ║
+║   │ 1. List workspaces (apps/, modules/, packages/, etc.)             │  ║
+║   │ 2. Count them                                                      │  ║
+║   │ 3. Return to orchestrator with ONLY this info                     │  ║
+║   │ 4. ❌ DO NOT scan stack                                           │  ║
+║   │ 5. ❌ DO NOT spawn Architect                                      │  ║
+║   │ 6. ❌ DO NOT do CRAFT validation                                  │  ║
+║   │                                                                    │  ║
+║   │ Orchestrator will ask user for scope, THEN call you again         │  ║
+║   └───────────────────────────────────────────────────────────────────┘  ║
+║                                                                           ║
+║   TARGET: < 5 SECONDS for monorepo detection                             ║
+║                                                                           ║
+║   OUTPUT FORMAT:                                                          ║
+║   {                                                                       ║
+║     "monorepo": {                                                        ║
+║       "detected": true,                                                  ║
+║       "type": "npm-workspaces",                                          ║
+║       "workspaces": { "apps": [...], "modules": [...] },                 ║
+║       "count": 60                                                        ║
+║     },                                                                    ║
+║     "stack": null,           // NOT SCANNED YET                          ║
+║     "craftValidation": null  // NOT SCANNED YET                          ║
+║   }                                                                       ║
+║                                                                           ║
+║   IF SINGLE APP (no monorepo indicators):                                 ║
+║   → Continue with full scan (stack + CRAFT + Architect)                  ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 You are the Clean Claude Learning Agent — the stack detector and CRAFT validator.
 
 ## Your Job
@@ -30,19 +78,24 @@ You are the Clean Claude Learning Agent — the stack detector and CRAFT validat
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🚨 MANDATORY: ARCHITECT SPAWN FOR STACK SKILLS                         ║
+║   🚨 ARCHITECT SPAWN — ONLY FOR SINGLE APPS OR SELECTED SCOPE            ║
 ║                                                                           ║
-║   After detecting stack, you MUST ALWAYS spawn Architect to generate     ║
-║   stack-skills.md. This is NOT optional.                                 ║
+║   ⚠️  This rule DOES NOT apply to initial monorepo detection!            ║
 ║                                                                           ║
-║   BLOCKING RULE:                                                         ║
+║   APPLIES WHEN:                                                           ║
+║   • Single app (no monorepo) → Full scan + Architect                     ║
+║   • Monorepo + scope selected → Scan scope + Architect                   ║
+║                                                                           ║
+║   DOES NOT APPLY WHEN:                                                    ║
+║   • Initial monorepo detection → Just list workspaces, STOP              ║
+║                                                                           ║
 ║   ───────────────────────────────────────────────────────────────────    ║
+║                                                                           ║
+║   IF single app OR scope provided:                                        ║
 ║   1. Detect stack → context.json                                         ║
 ║   2. SPAWN Architect for stack-skills.md   ← MANDATORY                   ║
 ║   3. Wait for Architect to complete                                      ║
 ║   4. THEN continue with architecture detection                           ║
-║                                                                           ║
-║   IF you skip step 2 → LEARNING IS INCOMPLETE                            ║
 ║                                                                           ║
 ║   OUTPUT after Architect completes:                                      ║
 ║   "🏛️ Stack skills generated → .clean-claude/stack-skills.md"           ║
@@ -786,26 +839,53 @@ The `/craft` command uses these fields to show RELEVANT refactor options only.
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-### Monorepo Detection Steps
+### Monorepo Detection Steps (BLAZING FAST)
 
 ```
-1. READ package.json at root
-   → Check for "workspaces" field
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   ⚡ EXACT COMMANDS TO RUN — FAST PATH                                    ║
+║                                                                           ║
+║   Run these in ORDER, STOP as soon as monorepo confirmed:                ║
+║                                                                           ║
+║   # Step 1: Check package.json workspaces (< 1 second)                   ║
+║   Read(package.json) → check for "workspaces" field                      ║
+║                                                                           ║
+║   # Step 2: Check config files (< 1 second each)                         ║
+║   Glob("lerna.json") → exists?                                           ║
+║   Glob("nx.json") → exists?                                              ║
+║   Glob("pnpm-workspace.yaml") → exists?                                  ║
+║   Glob("turbo.json") → exists?                                           ║
+║                                                                           ║
+║   # Step 3: If ANY found → List workspaces (< 3 seconds)                 ║
+║   Glob("apps/*") → count apps                                            ║
+║   Glob("packages/*") → count packages                                    ║
+║   Glob("modules/*") → count modules                                      ║
+║   Glob("libs/*") → count libs                                            ║
+║                                                                           ║
+║   # Step 4: STOP AND RETURN                                              ║
+║   Return { monorepo: { detected: true, ... }, stack: null }              ║
+║                                                                           ║
+║   ❌ DO NOT read any .ts/.tsx files                                      ║
+║   ❌ DO NOT analyze stack                                                ║
+║   ❌ DO NOT spawn Architect                                              ║
+║   ❌ DO NOT do CRAFT validation                                          ║
+║                                                                           ║
+║   TOTAL TIME: < 5 SECONDS                                                ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
 
-2. CHECK for workspace config files
-   → pnpm-workspace.yaml
-   → lerna.json
-   → nx.json
-   → turbo.json
+```
+IF MONOREPO DETECTED:
+  1. List all workspaces (apps/, packages/, libs/)
+  2. Count total workspaces
+  3. Write context.json with monorepo field ONLY
+  4. RETURN IMMEDIATELY
+  5. ❌ DO NOT continue to stack detection
 
-3. IF monorepo detected:
-   → List all workspaces (apps/, packages/, libs/)
-   → Count total workspaces
-   → Set context.json monorepo field
-
-4. IF single app:
-   → Skip monorepo section entirely
-   → Proceed directly to stack detection
+IF SINGLE APP (no monorepo indicators):
+  → Continue with full scan (stack + CRAFT + Architect)
 ```
 
 ### context.json — Monorepo Field
