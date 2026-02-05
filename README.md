@@ -348,14 +348,25 @@ If you accept, it creates an **architecture-reference** file that:
 
 ---
 
-## Monorepo Support
+## Monorepo & Full-Stack Support
 
-Clean Claude detects monorepos automatically and adapts:
+Clean Claude detects your project structure and adapts:
 
 ```
 Single app?  → Direct stack detection, no extra questions
 Monorepo?    → Ask which workspace to work on first
+Full-stack?  → Routes to the right engineer (frontend or backend)
 ```
+
+**Stack-agnostic routing:**
+
+| Code responsibility | Routed to |
+|---------------------|-----------|
+| UI, components, user interaction | Frontend Engineer |
+| API, business logic, data persistence | Backend Engineer |
+| Shared types, utilities | Either (based on usage) |
+
+Works with **any stack**: React, Vue, Svelte, Node, Go, Rust, Python...
 
 **Smart detection:**
 - `package.json` workspaces
