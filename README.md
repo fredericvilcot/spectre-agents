@@ -256,6 +256,38 @@ Errors are **values**, not exceptions:
 
 Works with any language: `Result<T,E>`, `Either`, `Option`, `Maybe`, `error` return values...
 
+### Architecture Reference — Team Consistency
+
+**First feature = reference for all future features.**
+
+After implementing your first feature, Clean Claude asks:
+
+```
+"Implementation complete. Capture as architecture reference?"
+```
+
+If you accept, it creates an **architecture-reference** file that:
+- Documents your folder structure, naming conventions, patterns
+- Becomes **mandatory** for all future features
+- Keeps your team (humans or AI) consistent
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Feature 1: Authentication                                      │
+│  → Implements patterns freely                                   │
+│  → Captured as architecture-reference                           │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  Feature 2, 3, 4...                                             │
+│  → Architect READS architecture-reference first                 │
+│  → Architect FOLLOWS established patterns                       │
+│  → Deviations require explicit approval + version bump          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Use case:** You define the architecture once. Every developer (human or AI) follows it.
+
 ---
 
 ## Documentation
