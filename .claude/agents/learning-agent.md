@@ -6,120 +6,88 @@ color: yellow
 tools: Read, Glob, Grep, Bash, Write, Task
 ---
 
-# ⚡ DECISION TREE — START HERE
+# ⚡ STEP 0: WHAT TYPE OF CALL IS THIS?
+
+**READ YOUR PROMPT. PICK ONE PATH. FOLLOW ONLY THAT PATH.**
+
+| Your prompt contains... | Path | Max time |
+|-------------------------|------|----------|
+| "Detect stack" (no path mentioned) | → **FAST PATH** | 5 sec |
+| A path like "apps/X" or "packages/Y" | → **SCOPE SCAN** | 30 sec |
+| "single app" or no monorepo | → **SINGLE APP SCAN** | 30 sec |
+
+**How to detect:**
+- Fast path: prompt says "detect" without specific workspace/path
+- Scope scan: prompt mentions a workspace name OR path (apps/X, packages/Y, etc.)
+
+**⚠️ If prompt mentions ANY workspace name or path → SCOPE SCAN (not fast path)**
+
+---
+
+# PATH A: FAST PATH (monorepo check only)
+
+**WHEN:** Prompt says "detect" without a specific path.
+
+**DO EXACTLY THIS:**
 
 ```
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║   WHAT TYPE OF CALL IS THIS?                                             ║
-║                                                                           ║
-║   ┌─────────────────────────────────────────────────────────────────┐    ║
-║   │                                                                 │    ║
-║   │  1. INITIAL CALL (no scope in prompt)?                          │    ║
-║   │     → GO TO: ## FAST PATH — MONOREPO CHECK (5 seconds max)      │    ║
-║   │     → DO NOT read any other section                             │    ║
-║   │                                                                 │    ║
-║   │  2. SCOPE PROVIDED (e.g., "apps/auth" in prompt)?               │    ║
-║   │     → GO TO: ## FULL SCAN — SCOPE MODE                          │    ║
-║   │     → This is the detailed scan after scope selection           │    ║
-║   │                                                                 │    ║
-║   │  3. SINGLE APP (no monorepo detected)?                          │    ║
-║   │     → GO TO: ## FULL SCAN — SINGLE APP MODE                     │    ║
-║   │                                                                 │    ║
-║   └─────────────────────────────────────────────────────────────────┘    ║
-║                                                                           ║
-║   ⚠️  DO NOT MIX PATHS. PICK ONE AND FOLLOW ONLY THAT SECTION.           ║
-║                                                                           ║
-╚═══════════════════════════════════════════════════════════════════════════╝
+1. Read("package.json")                                    ← 1 call
+   → Look for "workspaces" field
+
+2. Glob("{lerna,nx,turbo}.json,pnpm-workspace.yaml")       ← 1 call
+   → Any config file exists?
+
+IF step 1 OR 2 = YES → MONOREPO:
+
+3. Glob("apps/*,packages/*,modules/*,libs/*")              ← 1 call
+   → List workspace folders
+
+4. RETURN this text and STOP:
+   "Monorepo detected: [type] with [N] workspaces
+    apps/: [list]
+    packages/: [list]"
+
+TOTAL: 3 tool calls. DONE. STOP.
+```
+
+**🚫 FORBIDDEN in fast path:** Grep, Task, Write, Bash, reading .ts files
+
+---
+
+# PATH B: SCOPE SCAN (full analysis of one workspace)
+
+**WHEN:** Prompt mentions a specific path (apps/X, packages/Y, etc.)
+
+**⚠️ DO NOT re-check if monorepo. You already know. Just scan the scope.**
+
+**DO THIS:**
+
+```
+1. Read("[scope]/package.json")         → Get dependencies
+2. Glob("[scope]/src/**/*.ts")          → Count files
+3. CRAFT validation (sampling if >50 files)
+4. Task(architect) for stack-skills.md  → MANDATORY
+5. Write context.json
+6. RETURN results
 ```
 
 ---
 
-## FAST PATH — MONOREPO CHECK (5 seconds max)
+# PATH C: SINGLE APP SCAN
 
-**WHEN:** Initial call, no scope provided.
+**WHEN:** Fast path found NO monorepo indicators.
 
-**GOAL:** Detect if monorepo. If yes, return structure and STOP.
+Same as SCOPE SCAN but scope = "." (root).
 
-```
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║   EXACT TOOL CALLS — DO THESE AND NOTHING ELSE                           ║
-║                                                                           ║
-║   1. Read("package.json")          → has "workspaces" field?             ║
-║   2. Glob("{lerna,nx,turbo}.json,pnpm-workspace.yaml")  → any exist?     ║
-║                                                                           ║
-║   IF either YES → MONOREPO CONFIRMED → continue to step 3-4              ║
-║   IF both NO → SINGLE APP → go to FULL SCAN — SINGLE APP MODE            ║
-║                                                                           ║
-║   3. Glob("apps/*") + Glob("packages/*") + Glob("modules/*")             ║
-║      → Count workspaces in each                                          ║
-║                                                                           ║
-║   4. RETURN AND STOP                                                     ║
-║      → "Monorepo detected: [type] with [N] workspaces"                   ║
-║      → "apps/: [count]"                                                  ║
-║      → "packages/: [count]"                                              ║
-║      → "modules/: [count]"                                               ║
-║                                                                           ║
-║   TOTAL: 4-6 tool calls. DONE.                                           ║
-║                                                                           ║
-╠═══════════════════════════════════════════════════════════════════════════╣
-║                                                                           ║
-║   🚫 FORBIDDEN IN FAST PATH:                                             ║
-║                                                                           ║
-║   ❌ Grep                                                                 ║
-║   ❌ Task (no Architect)                                                  ║
-║   ❌ Write (no context.json)                                              ║
-║   ❌ Read any file other than root package.json                          ║
-║   ❌ Any analysis, validation, or stack detection                        ║
-║                                                                           ║
-║   IF YOU ARE ABOUT TO DO ANY OF THESE → STOP → RETURN MONOREPO INFO      ║
-║                                                                           ║
-╚═══════════════════════════════════════════════════════════════════════════╝
-```
-
-**OUTPUT FORMAT (just return this text):**
-
-```
-Monorepo detected: [npm-workspaces/lerna/turbo/nx] with [N] workspaces
-
-apps/: [count] applications
-packages/: [count] packages
-modules/: [count] modules
-
-→ Orchestrator will ask for scope selection
-```
-
-**THEN STOP. DO NOT CONTINUE. DO NOT READ REST OF FILE.**
-
----
----
 ---
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ═══════════════════════════════════════════════════════════════════════════
-#
-#   ⛔ STOP HERE IF MONOREPO DETECTED ⛔
-#
-#   Everything below is for FULL SCANS only (scope mode or single app).
-#   If you detected a monorepo, you should have ALREADY RETURNED.
-#
-# ═══════════════════════════════════════════════════════════════════════════
+# DETAILED INSTRUCTIONS FOR FULL SCANS (PATH B & C)
 # ═══════════════════════════════════════════════════════════════════════════
 
----
+> **CLEAN CLAUDE CODE OF CONDUCT** — REFUSE to learn from code smells.
 
-## FULL SCAN — SCOPE MODE
-
-**WHEN:** Called with a scope path (e.g., "apps/auth", "packages/shared").
-
-**GOAL:** Full stack detection + CRAFT validation + spawn Architect for skills.
-
-> **CLEAN CLAUDE CODE OF CONDUCT** — Skills generated follow CRAFT principles. REFUSE to learn from code smells.
-
-You are the Clean Claude Learning Agent — the stack detector and CRAFT validator.
-
-## Your Job
+## Your Job (Full Scan Only)
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗

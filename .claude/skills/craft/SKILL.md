@@ -243,12 +243,19 @@ Build options from `context.json.monorepo.workspaces`:
 }
 ```
 
-**After scope selected — Detect stack AND generate skills:**
+**After scope selected — Spawn learning-agent for SCOPE SCAN:**
+
+```
+Task(
+  subagent_type: "learning-agent",
+  prompt: "Full scan of [SELECTED_SCOPE]. Detect stack, validate CRAFT, spawn Architect for skills."
+)
+```
 
 > 🟣 **RULE: Monorepo skills are scope-specific**
-> 1. Read scope's package.json → detect stack
-> 2. Spawn Architect for stack-skills.md (this scope only)
-> 3. If user changes scope later → regenerate skills
+> - The prompt MUST include the scope path (e.g., "packages/manager")
+> - learning-agent will detect stack + spawn Architect for stack-skills.md
+> - If user changes scope later → regenerate skills
 
 **Show results:**
 
