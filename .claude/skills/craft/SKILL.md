@@ -43,6 +43,46 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 
 ---
 
+# PROGRESS DISPLAY — MANDATORY AT EVERY STEP
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   CLAUDE MUST SHOW PROGRESS AFTER EVERY STEP COMPLETION                  ║
+║                                                                           ║
+║   Format:                                                                ║
+║   🟢 Step N ─ Name                              ✓ Complete               ║
+║      Key info · Key info · Key info                                      ║
+║                                                                           ║
+║   Before launching an agent:                                             ║
+║   ⏳ Step N ─ Name                              ⟳ In Progress            ║
+║      Launching [agent-type]...                                           ║
+║                                                                           ║
+║   After agent completes:                                                 ║
+║   🟢 Step N ─ Name                              ✓ Complete               ║
+║      Deliverable: [file path]                                            ║
+║      Summary: [1-2 lines from agent output]                              ║
+║                                                                           ║
+║   SHOW FULL PROGRESS RECAP after Steps 4 and 7:                         ║
+║   ┌──────────────────────────────────────────────────────────────┐       ║
+║   │ 🟢 Step 1 ─ Detect          ✓  Project: monorepo · TS      │       ║
+║   │ 🟢 Step 2 ─ Scope           ✓  Scope: pci-vps              │       ║
+║   │ 🟢 Step 3 ─ Choose          ✓  New feature                  │       ║
+║   │ 🟢 Step 4 ─ QA Config       ✓  Unit + Integration           │       ║
+║   │ ⬜ Step 5a ─ PO                 Pending                      │       ║
+║   │ ⬜ Step 5b ─ Architect          Pending                      │       ║
+║   │ ⬜ Step 5c ─ Dev + QA           Pending                      │       ║
+║   │ ⬜ Step 6 ─ Verify              Pending                      │       ║
+║   │ ⬜ Step 7 ─ Capture             Pending                      │       ║
+║   └──────────────────────────────────────────────────────────────┘       ║
+║                                                                           ║
+║   WITHOUT THIS → User has no idea what's happening                       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 # FLOW OVERVIEW
 
 ```
@@ -98,11 +138,16 @@ Step 7: CAPTURE      Architecture reference (if none existed)
 AskUserQuestion: "Which workspace?"
 → User selects
 → Update context.json with scope
-→ Show: "🟢 Scope: [SELECTED]"
 → GO TO STEP 3 IMMEDIATELY
 ```
 
 **DO NOT re-analyze. DO NOT read scope's package.json. Just save scope and continue.**
+
+**Show:**
+```
+🟢 Step 2 ─ Scope                               ✓ Complete
+   Workspace: [SELECTED]
+```
 
 ---
 
@@ -139,6 +184,7 @@ Update context.json:
 {
   "project": { ... },
   "inputs": {
+    "type": "[new feature | refactor | fix bug | add tests]",
     "specPath": "[path if provided]",
     "legacyPath": "[path if provided]",
     "description": "[user description if typed]"
@@ -152,6 +198,12 @@ Update context.json:
 
 **DO NOT start exploring code on your own. Ask the user first.**
 
+**Show:**
+```
+🟢 Step 3 ─ Choose                              ✓ Complete
+   Type: [TYPE] · Input: [spec/legacy/description/from scratch]
+```
+
 ---
 
 # STEP 4: QA CONFIG
@@ -164,6 +216,26 @@ AskUserQuestion:
   - Integration tests
   - Unit + Integration (Dev writes them)
   - No QA (unit tests only)
+```
+
+**Show after answer + FULL RECAP:**
+```
+🟢 Step 4 ─ QA Config                           ✓ Complete
+   Testing: [SELECTED]
+
+┌──────────────────────────────────────────────────────────────┐
+│ 🟢 Step 1 ─ Detect          ✓  [TYPE] · [LANG] · [MONO]    │
+│ 🟢 Step 2 ─ Scope           ✓  [SCOPE or "N/A"]            │
+│ 🟢 Step 3 ─ Choose          ✓  [TYPE] · [INPUT]            │
+│ 🟢 Step 4 ─ QA Config       ✓  [TESTING]                   │
+│ ⬜ Step 5a ─ PO                 Pending                      │
+│ ⬜ Step 5b ─ Architect          Pending                      │
+│ ⬜ Step 5c ─ Dev + QA           Pending                      │
+│ ⬜ Step 6 ─ Verify              Pending                      │
+│ ⬜ Step 7 ─ Capture             Pending                      │
+└──────────────────────────────────────────────────────────────┘
+
+Launching Step 5...
 ```
 
 ---
@@ -196,6 +268,12 @@ AskUserQuestion:
 ║   4. Endpoints/API = ARCHITECT'S JOB, never PO's                        ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show BEFORE launching:**
+```
+⏳ Step 5a ─ PO                                  ⟳ In Progress
+   Launching product-owner...
 ```
 
 **IF user provided an existing spec:**
@@ -239,6 +317,13 @@ Task(
 
 **PO asks user approval. Wait for approval.**
 
+**Show AFTER PO completes + approval:**
+```
+🟢 Step 5a ─ PO                                  ✓ Complete
+   Spec: .clean-claude/specs/functional/spec-v[N].md
+   Stories: [X] user stories · [Y] acceptance criteria
+```
+
 ---
 
 ## 5b. ARCHITECT
@@ -256,6 +341,12 @@ Task(
 ║   WITHOUT THIS → Architect produces generic "Claude classic" design      ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show BEFORE launching:**
+```
+⏳ Step 5b ─ Architect                            ⟳ In Progress
+   Launching architect...
 ```
 
 ```
@@ -318,11 +409,26 @@ Task(
 
 > Endpoints come from INPUTS (legacy code, spec, API docs) — Architect extracts and documents them.
 
+**Show AFTER Architect completes + approval:**
+```
+🟢 Step 5b ─ Architect                            ✓ Complete
+   Skills: .clean-claude/stack-skills.md
+   Design: .clean-claude/specs/design/design-v1.md
+   Architecture: Hexagonal · Result<T,E> · [X] files · [Y] waves
+```
+
 ---
 
 ## 5c. DEV + QA (parallel)
 
 **Spawn in SAME message for parallel execution:**
+
+**Show BEFORE launching:**
+```
+⏳ Step 5c ─ Dev + QA                             ⟳ In Progress
+   Launching [frontend|backend]-engineer (Wave [N])...
+   Launching qa-engineer (if QA enabled)...
+```
 
 ```
 Task(
@@ -373,9 +479,22 @@ Task(
 )
 ```
 
+**Show AFTER Dev + QA complete:**
+```
+🟢 Step 5c ─ Dev + QA                             ✓ Complete
+   Dev: [X] files created · [Y] tests passing
+   QA: [Z] test files · [W] spec items covered
+```
+
 ---
 
 # STEP 6: VERIFY
+
+**Show BEFORE starting:**
+```
+⏳ Step 6 ─ Verify                                ⟳ In Progress
+   Checking design coverage...
+```
 
 ```
 1. Check DESIGN COVERAGE (100% of Implementation Checklist)
@@ -400,13 +519,19 @@ IF failures → ROUTE to appropriate agent
 ║   3. Calculate: created / total = X%                                     ║
 ║                                                                           ║
 ║   IF < 100%:                                                              ║
-║      → Show: "⚠️ Implementation Incomplete: X/Y files (Z%)"             ║
+║      → Show: "⚠️ Coverage: X/Y files (Z%) — INCOMPLETE"                 ║
 ║      → Spawn dev agents for missing files                                ║
 ║      → Loop until 100%                                                   ║
 ║                                                                           ║
 ║   ONLY AT 100% → Proceed to test verification                            ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show coverage result:**
+```
+   Coverage: [X]/[Y] files ([Z]%)
+   Tests: [PASS/FAIL] · Build: [PASS/FAIL]
 ```
 
 ## Fix Loop Routing
@@ -418,7 +543,20 @@ IF failures → ROUTE to appropriate agent
 | Type error | Architect (design issue) |
 | Spec unclear | PO |
 
+**Show during fix loop:**
+```
+   🔴 [X] failures detected → routing to [AGENT]...
+   ⟳ Fix attempt [N]...
+```
+
 **Loop until all green.**
+
+**Show AFTER all green:**
+```
+🟢 Step 6 ─ Verify                                ✓ Complete
+   Coverage: [X]/[X] files (100%)
+   Tests: ✓ All passing · Build: ✓ OK
+```
 
 ---
 
@@ -435,6 +573,32 @@ AskUserQuestion:
 ```
 
 **If YES → Architect captures patterns into ARCHITECTURE.md**
+
+**Show FINAL RECAP:**
+```
+╭──────────────────────────────────────────────────────────────╮
+│                                                              │
+│   🟣 CRAFT COMPLETE                                          │
+│                                                              │
+│   🟢 Step 1 ─ Detect          ✓  [TYPE] · [LANG]           │
+│   🟢 Step 2 ─ Scope           ✓  [SCOPE]                   │
+│   🟢 Step 3 ─ Choose          ✓  [TYPE]                     │
+│   🟢 Step 4 ─ QA Config       ✓  [TESTING]                  │
+│   🟢 Step 5a ─ PO             ✓  spec-v[N].md              │
+│   🟢 Step 5b ─ Architect      ✓  design-v1.md              │
+│   🟢 Step 5c ─ Dev + QA       ✓  [X] files · [Y] tests    │
+│   🟢 Step 6 ─ Verify          ✓  100% · Tests ✓ · Build ✓ │
+│   🟢 Step 7 ─ Capture         ✓  [captured/skipped]        │
+│                                                              │
+│   Deliverables:                                              │
+│   ├── .clean-claude/specs/functional/spec-v[N].md           │
+│   ├── .clean-claude/specs/design/design-v1.md               │
+│   ├── .clean-claude/stack-skills.md                          │
+│   ├── src/ ([X] files + [Y] tests)                          │
+│   └── [e2e/ or tests/] ([Z] test files)                     │
+│                                                              │
+╰──────────────────────────────────────────────────────────────╯
+```
 
 ---
 
@@ -489,22 +653,31 @@ Task(frontend-engineer, "Wave 1: hooks/")
 /craft
   │
   ├─ Step 1: Claude detects project (Read/Glob only) → context.json
+  │          Show: 🟢 Detect ✓
   │
   ├─ Step 2: Scope (if monorepo) → save and continue
+  │          Show: 🟢 Scope ✓
   │
   ├─ Step 3: Choose + Describe (spec? legacy? from scratch?)
+  │          Show: 🟢 Choose ✓
   │
   ├─ Step 4: QA Config
+  │          Show: 🟢 QA Config ✓ + FULL RECAP
   │
-  ├─ Step 5a: PO enriches/writes spec (ENGLISH, no tech) → User approves
+  ├─ Step 5a: PO enriches/writes spec → User approves
+  │           Show: ⏳ before → 🟢 after with deliverables
   │
-  ├─ Step 5b: Architect: skills + design + endpoints → User approves
+  ├─ Step 5b: Architect: skills + design → User approves
+  │           Show: ⏳ before → 🟢 after with deliverables
   │
   ├─ Step 5c: Dev + QA implement (parallel)
+  │           Show: ⏳ before → 🟢 after with file counts
   │
   ├─ Step 6: Coverage 100% + Tests green + Build OK → Fix loop
+  │          Show: coverage %, test/build status, fix loop progress
   │
   └─ Step 7: Capture as arch ref (if none existed)
+             Show: 🟢 FINAL RECAP with all deliverables
 ```
 
 **No learning-agent. No Explore agent. Claude orchestrates. Agents execute.**
