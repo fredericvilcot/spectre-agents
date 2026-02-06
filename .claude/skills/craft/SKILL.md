@@ -632,7 +632,73 @@ IF failures → ROUTE to appropriate agent
    ⟳ Fix attempt [N]...
 ```
 
-**Loop until all green.**
+### HOW to route — Notification prompts
+
+**Claude MUST use the 🔔 NOTIFICATION format when routing errors:**
+
+```
+// Test failure in src/ → Dev fixes
+Task(
+  subagent_type: "frontend-engineer",  // or backend-engineer
+  prompt: """
+    🔔 NOTIFICATION FROM QA / VERIFY STEP
+
+    ## Test Failed
+    File: [test-file:line]
+    Test: "[test name]"
+
+    ## Error
+    [error message / expected vs received]
+
+    ## Likely Source
+    File: [src-file suspected]
+
+    ## Action Required
+    Fix the bug. Run tests to confirm. Report what you changed.
+
+    ## CRAFT RULES STILL APPLY
+    - NO `any`, NO `throw`, Result<T,E> only
+    - Read .clean-claude/stack-skills.md for patterns
+  """
+)
+```
+
+```
+// Type error → Architect fixes design
+Task(
+  subagent_type: "architect",
+  prompt: """
+    🔔 NOTIFICATION FROM VERIFY STEP
+
+    ## Type Error in Implementation
+    File: [file:line]
+    Error: [TypeScript error message]
+
+    ## Action Required
+    Review your design. Update type definitions in design-v[N+1].md.
+    Notify Dev when design is updated.
+  """
+)
+```
+
+```
+// Spec unclear → PO clarifies
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    🔔 NOTIFICATION FROM VERIFY STEP
+
+    ## Spec Unclear
+    Context: [what's ambiguous]
+    Found during: [test/implementation of what feature]
+
+    ## Action Required
+    Clarify in spec-v[N+1].md. Ask user if needed.
+  """
+)
+```
+
+**After agent fixes → Claude re-runs tests → Loop until all green.**
 
 **Show AFTER all green:**
 ```
@@ -687,15 +753,34 @@ AskUserQuestion:
 
 # REACTIVE NOTIFICATIONS
 
-| From | To | When |
-|------|-----|------|
-| QA | Dev | "🔴 Test failed: [file:line]" |
-| Dev | QA | "✅ Fixed, please re-test" |
-| Dev | Architect | "❓ Design unclear: [question]" |
-| Architect | Dev | "📐 Design updated: [change]" |
-| Any | PO | "❓ Spec unclear: [question]" |
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   CLAUDE = THE NOTIFICATION BUS                                          ║
+║                                                                           ║
+║   Agents can't talk to each other directly.                              ║
+║   Claude reads agent output → detects issues → spawns next agent         ║
+║   with 🔔 NOTIFICATION format.                                           ║
+║                                                                           ║
+║   Agent returns "❓ Design unclear" in output                            ║
+║      → Claude spawns Architect with notification prompt                  ║
+║      → Architect fixes → Claude spawns Dev with update                   ║
+║                                                                           ║
+║   This is NOT automatic. Claude MUST read agent output carefully         ║
+║   and route notifications manually.                                      ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
 
-**You wrote it? You fix it.**
+| From | To | Trigger in output | Claude's action |
+|------|-----|-------------------|-----------------|
+| QA | Dev | "🔴 Test failed: [file:line]" | Spawn Dev with `🔔 NOTIFICATION FROM QA` |
+| Dev | QA | "✅ Fixed [file]" | Spawn QA with `🔔 NOTIFICATION FROM DEV` |
+| Dev | Architect | "❓ Design unclear: [question]" | Spawn Architect with `🔔 NOTIFICATION FROM DEV` |
+| Architect | Dev | "📐 Design updated: [change]" | Spawn Dev with `🔔 NOTIFICATION FROM ARCHITECT` |
+| Any | PO | "❓ Spec unclear: [question]" | Spawn PO with `🔔 NOTIFICATION FROM [AGENT]` |
+
+**You wrote it? You fix it. Claude routes.**
 
 ---
 
