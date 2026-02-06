@@ -24,6 +24,8 @@ color: green
 ║      - Decide where files should go                                      ║
 ║      - Add folders/layers not in the design                              ║
 ║      - Over-engineer beyond what's asked                                 ║
+║      - Use Bash(find/ls) to explore files (use Read/Glob/Grep)          ║
+║      - Bash is ONLY for: npm test, npm run build                        ║
 ║                                                                           ║
 ║   IF NO DESIGN EXISTS:                                                    ║
 ║      → Ask for Architect to create one first                             ║

@@ -43,6 +43,36 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 
 ---
 
+# PATH RESOLUTION — ALL .clean-claude/ PATHS
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚨 ALL .clean-claude/ PATHS ARE RELATIVE TO {SCOPE}                   ║
+║                                                                           ║
+║   {SCOPE} = project.scope from context.json                              ║
+║                                                                           ║
+║   IF monorepo with scope "packages/manager/apps/pci-vps":               ║
+║      .clean-claude/ → packages/manager/apps/pci-vps/.clean-claude/      ║
+║                                                                           ║
+║   IF standalone app (no scope):                                          ║
+║      .clean-claude/ → .clean-claude/ (root)                              ║
+║                                                                           ║
+║   EVERY prompt to an agent MUST use RESOLVED ABSOLUTE PATHS.             ║
+║   Replace ".clean-claude/" with "{SCOPE}/.clean-claude/" everywhere.     ║
+║                                                                           ║
+║   Example:                                                                ║
+║   ❌ "Read .clean-claude/specs/design/design-v1.md"                     ║
+║   ✅ "Read packages/manager/apps/pci-vps/.clean-claude/specs/design/    ║
+║       design-v1.md"                                                      ║
+║                                                                           ║
+║   WRONG PATH = AGENT LOSES THE DESIGN = DISASTER                        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 # PROGRESS DISPLAY — MANDATORY AT EVERY STEP
 
 ```
@@ -490,6 +520,24 @@ Task(
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
+║   🚫 BETWEEN WAVES — CLAUDE DOES NOT EXPLORE                            ║
+║                                                                           ║
+║   After a wave completes:                                                ║
+║   1. Re-read the design ({SCOPE}/.clean-claude/specs/design/design-v1.md)║
+║   2. Identify next wave's files from Implementation Checklist            ║
+║   3. Launch next wave agents immediately                                 ║
+║                                                                           ║
+║   ❌ DO NOT use Bash(find ...) to explore src/                          ║
+║   ❌ DO NOT "reconstruct the wave plan from the codebase"               ║
+║   ❌ DO NOT read existing files to "understand context"                  ║
+║   The design IS the context. Trust the design.                           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
 ║   QA AGENT LAUNCH RULE:                                                  ║
 ║                                                                           ║
 ║   Step 4 answer = "Yes, E2E" or "Yes, Integration"                      ║
@@ -531,6 +579,8 @@ Task(
     - Domain layer = PURE (zero framework imports)
     - Every file gets a colocated *.test.ts (BDD style)
     - Follow the design EXACTLY — don't invent structure
+    - Use Read/Glob/Grep for file exploration — NEVER Bash(find/ls)
+    - Bash ONLY for: running tests (npm test) and build (npm run build)
 
     ## OUTPUT
     - ALL files in Wave [N] implemented + tested
@@ -553,6 +603,8 @@ Task(
     - Cover 100% of acceptance criteria (Given/When/Then)
     - E2E or Integration tests (NOT unit tests — that's Dev's job)
     - Test from user's perspective, not implementation details
+    - Use Read/Glob/Grep for file exploration — NEVER Bash(find/ls)
+    - Bash ONLY for: running tests
 
     ## OUTPUT
     - Test files created
