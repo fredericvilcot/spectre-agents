@@ -357,9 +357,53 @@ Task(
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+### 5b-1. BEFORE ARCHITECT: Show context + Ask design approach
+
+**Show the user what the Architect will receive:**
+```
+⏳ Step 5b ─ Architect                            ⟳ Preparing...
+
+   Inputs for Architect:
+   ├── Functional spec: .clean-claude/specs/functional/spec-v[N].md
+   ├── API endpoints: .clean-claude/specs/functional/api-endpoints.md [if exists]
+   ├── Legacy code: [LEGACY_PATH] [if exists]
+   └── Architecture ref: [PATH if found in Step 1] or "None detected"
+```
+
+**Then ask design approach:**
+```
+AskUserQuestion:
+  "How should the Architect design this?"
+  Options:
+  - Follow architecture reference (only if architectureRef found in context.json)
+  - Follow an existing app as reference (give me the path)
+  - Design from scratch (CRAFT principles: hexagonal, Result<T,E>)
+```
+
+**IF user provides a reference app path → save it in context.json inputs:**
+```
+Update context.json:
+{
+  "inputs": {
+    ...,
+    "architectureRefApp": "[path to reference app]"
+  }
+}
+```
+
+**Add to Architect prompt if reference app provided:**
+```
+- Reference app to follow: [ARCHITECTURE_REF_APP_PATH]
+  → Read its structure, patterns, conventions
+  → Replicate the same architecture for the new feature
+```
+
+### 5b-2. Launch Architect
+
 **Show BEFORE launching:**
 ```
 ⏳ Step 5b ─ Architect                            ⟳ In Progress
+   Mode: [Follow reference / Follow app / Design from scratch]
    Launching architect...
 ```
 
@@ -373,9 +417,15 @@ Task(
     - Functional spec: .clean-claude/specs/functional/spec-v[N].md
     - API endpoints spec: .clean-claude/specs/functional/api-endpoints.md (if exists)
     - Legacy code: [LEGACY_PATH from context.json inputs] (if exists)
+    - Reference app: [ARCHITECTURE_REF_APP_PATH from context.json inputs] (if exists)
     - context.json: .clean-claude/context.json
 
-    ## CRAFT PRINCIPLES — MANDATORY
+    ## DESIGN MODE (from user choice in Step 5b-1)
+    - IF "Follow architecture reference": Read architectureRef from context.json, FOLLOW exactly
+    - IF "Follow an existing app": Read [ARCHITECTURE_REF_APP_PATH], replicate its patterns
+    - IF "Design from scratch": Apply CRAFT principles below freely
+
+    ## CRAFT PRINCIPLES — MANDATORY (all modes)
     - Architecture: HEXAGONAL (domain → application → infrastructure)
     - Error handling: Result<T, E> — NO throw, NO try/catch for business errors
     - Types: STRICT TypeScript — NO `any`, NO `unknown` casts
@@ -384,9 +434,11 @@ Task(
     - Patterns: Use your FEATURE Design section (hexagonal), NOT bootstrap
 
     ## YOUR TASKS (IN ORDER)
-    1. Check context.json for architectureRef
-       → IF exists: Read it and FOLLOW its patterns exactly
-       → Confirm: "Architecture Reference: [path] (v[N]) ✅"
+    1. Check DESIGN MODE:
+       → IF "Follow reference": Read architectureRef, FOLLOW its patterns
+       → IF "Follow app": Read reference app structure, replicate patterns
+       → IF "Design from scratch": Skip to step 2
+       → Confirm: "Design mode: [MODE] ✅" (+ path if following reference)
 
     2. IF legacy code exists:
        → Read it to extract API endpoints, data models, routes
