@@ -194,13 +194,15 @@ Type anything, get routed to the right CRAFT flow:
 ### QA Config (Upfront)
 
 ```
-Want QA tests?
-├─ ✅ Yes → E2E or Integration?
-│           └─ Where? (e2e/ | custom path | different repo)
-└─ ⏭️ No → Dev only (unit tests)
+Dev ALWAYS writes unit tests (colocated *.test.ts) — not a choice.
+
+In addition, want QA tests?
+├─ ✅ Yes, E2E (Playwright) → QA agent in parallel with Dev
+├─ ✅ Yes, Integration      → QA agent in parallel with Dev
+└─ ⏭️ No, unit tests enough → Dev only
 ```
 
-If QA enabled: **Dev + QA run in parallel.**
+If QA enabled: **Dev + QA run in parallel (same Task() message).**
 
 ---
 

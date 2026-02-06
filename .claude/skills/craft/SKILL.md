@@ -209,13 +209,27 @@ Update context.json:
 # STEP 4: QA CONFIG
 
 ```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   Unit tests (*.test.ts colocated) = ALWAYS written by Dev.              ║
+║   This is NOT a choice — it's mandatory CRAFT.                           ║
+║                                                                           ║
+║   QA question = "IN ADDITION to Dev's unit tests, do you want            ║
+║   a QA agent to write E2E or Integration tests in parallel?"             ║
+║                                                                           ║
+║   IF user says Yes → QA agent runs IN PARALLEL with Dev                  ║
+║   IF user says No  → Dev only (unit tests colocated)                     ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+```
 AskUserQuestion:
-  "Do you want QA tests?"
+  "Dev will write unit tests (BDD, colocated). Want QA tests on top?"
   Options:
-  - E2E tests (Playwright)
-  - Integration tests
-  - Unit + Integration (Dev writes them)
-  - No QA (unit tests only)
+  - Yes, E2E tests (Playwright) → QA agent in parallel
+  - Yes, Integration tests → QA agent in parallel
+  - No, unit tests are enough → Dev only
 ```
 
 **Show after answer + FULL RECAP:**
@@ -421,13 +435,30 @@ Task(
 
 ## 5c. DEV + QA (parallel)
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   QA AGENT LAUNCH RULE:                                                  ║
+║                                                                           ║
+║   Step 4 answer = "Yes, E2E" or "Yes, Integration"                      ║
+║      → QA agent IN PARALLEL with Dev (same Task() message)              ║
+║                                                                           ║
+║   Step 4 answer = "No, unit tests are enough"                            ║
+║      → Dev only (writes unit tests colocated *.test.ts)                  ║
+║      → NO QA agent                                                       ║
+║                                                                           ║
+║   Dev ALWAYS writes unit tests. QA is ADDITIONAL.                        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 **Spawn in SAME message for parallel execution:**
 
 **Show BEFORE launching:**
 ```
 ⏳ Step 5c ─ Dev + QA                             ⟳ In Progress
    Launching [frontend|backend]-engineer (Wave [N])...
-   Launching qa-engineer (if QA enabled)...
+   Launching qa-engineer ([E2E|Integration])...    ← ONLY if Step 4 = Yes
 ```
 
 ```
