@@ -132,8 +132,23 @@ AskUserQuestion:
   - Let the PO write the spec from scratch
 ```
 
-**IF user provides a spec path → READ IT. Pass it to PO as input.**
-**IF user provides a legacy app → READ IT. Pass it to PO as context.**
+**Save ALL inputs in context.json for the entire chain (PO + Architect):**
+
+```
+Update context.json:
+{
+  "project": { ... },
+  "inputs": {
+    "specPath": "[path if provided]",
+    "legacyPath": "[path if provided]",
+    "description": "[user description if typed]"
+  }
+}
+```
+
+**These inputs are passed to BOTH PO AND Architect:**
+- PO uses them for functional spec (features, user stories)
+- Architect uses them for technical design (endpoints, data models, API contracts)
 
 **DO NOT start exploring code on your own. Ask the user first.**
 
@@ -234,28 +249,37 @@ Task(
   prompt: """
     Design implementation for: [REQUEST]
 
-    Spec: .clean-claude/specs/functional/spec-v[N].md
+    ## YOUR INPUTS
+    - Functional spec: .clean-claude/specs/functional/spec-v[N].md
+    - Legacy code: [LEGACY_PATH from context.json inputs] (if exists)
+    - context.json: .clean-claude/context.json
 
+    ## YOUR TASKS
     1. Check context.json for architectureRef
        → IF exists: Read it and FOLLOW its patterns
        → Confirm: "Architecture Reference: [path] (v[N]) ✅"
 
-    2. Read [SCOPE]/package.json for stack
-    3. Write .clean-claude/stack-skills.md (library skills for devs)
-    4. Write .clean-claude/specs/design/design-v1.md with:
+    2. IF legacy code exists:
+       → Read it to extract API endpoints, data models, routes
+       → These become the technical contract for the new app
+
+    3. Read [SCOPE]/package.json for stack
+    4. Write .clean-claude/stack-skills.md (library skills for devs)
+    5. Write .clean-claude/specs/design/design-v1.md with:
        - Architecture decisions
        - File structure
-       - API endpoints / routes (if applicable)
+       - API endpoints / routes (extracted from legacy or spec)
+       - Data models / types
        - Implementation Checklist (MANDATORY — every file to create/modify)
        - Execution Plan (waves for parallelization)
-    5. Ask user approval
+    6. Ask user approval
   """
 )
 ```
 
 **Architect asks user approval. Wait for approval.**
 
-> Note: API endpoints, routes, tech specs = Architect's job, NOT PO's.
+> Endpoints come from INPUTS (legacy code, spec, API docs) — Architect extracts and documents them.
 
 ---
 
