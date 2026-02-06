@@ -175,33 +175,20 @@ Step 8: ITERATE      CRAFT session stays active — bugs/changes routed to agent
 ## 1a. CHECK FOR EXISTING SESSION
 
 ```
-Glob("**/.clean-claude/state.json")
+Read(".clean-claude/state.json")
 ```
 
-**This finds state.json at ANY level:**
-- `.clean-claude/state.json` → standalone app at root
-- `apps/my-app/.clean-claude/state.json` → monorepo scope
-- `packages/foo/apps/bar/.clean-claude/state.json` → nested monorepo scope
+**state.json is ALWAYS at root** (`.clean-claude/state.json`).
+The scope is stored INSIDE state.json, not in the path.
 
-**IF one or more state.json found with `status: "iteration"` or `status: "in_progress"`:**
+**IF state.json EXISTS and has `status: "iteration"` or `status: "in_progress"`:**
 
-**IF multiple sessions found → ask which one:**
-```
-AskUserQuestion:
-  "Found multiple CRAFT sessions:"
-  Options:
-  - [path1] — [description] (step [N])
-  - [path2] — [description] (step [N])
-  - Start fresh
-```
-
-**IF single session found → show it:**
 ```
 ╭──────────────────────────────────────────────────────────────╮
 │                                                              │
 │   🟣 CRAFT SESSION FOUND                                     │
 │                                                              │
-│   Location: [path to .clean-claude/]                         │
+│   Scope: [scope from state.json, or "root"]                  │
 │   Last step: [STEP]                                          │
 │   Task: [description from state]                             │
 │   Status: [iteration / in_progress at step X]                │
@@ -217,13 +204,12 @@ AskUserQuestion:
 ```
 
 **IF "Resume":**
-- Resolve {SCOPE} from the state.json path (parent of `.clean-claude/`)
-- Read context.json, state.json, design, spec from that scope
+- Read context.json, design, spec from {SCOPE} stored in state
 - IF `status: "iteration"` → GO DIRECTLY TO STEP 8 (iteration mode)
 - IF `status: "in_progress"` → GO TO the step saved in state.json
 
 **IF "Start fresh (same scope)":**
-- Keep scope from found session, reset state → GO TO STEP 3
+- Keep scope, reset state → GO TO STEP 3
 
 **IF "Start fresh (different scope / project)":**
 - Reset everything → Continue to Step 1b below
@@ -251,13 +237,13 @@ AskUserQuestion:
 }
 ```
 
-**state.json — UPDATE AT EVERY STEP TRANSITION:**
+**state.json — ALWAYS AT ROOT: `.clean-claude/state.json`**
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
 ║   🚨 WRITE state.json AT EVERY STEP COMPLETION                          ║
 ║                                                                           ║
-║   Path: {SCOPE}/.clean-claude/state.json                                 ║
+║   Path: .clean-claude/state.json (ALWAYS root, never inside scope)       ║
 ║   This enables /craft resume across sessions.                            ║
 ║                                                                           ║
 ║   Update "currentStep" after each step.                                  ║
@@ -268,8 +254,9 @@ AskUserQuestion:
 ```
 ```json
 {
-  "status": "in_progress | iteration",
+  "status": "in_progress | iteration | completed",
   "currentStep": 1,
+  "scope": null,
   "description": null,
   "qaConfig": null,
   "specPath": null,
