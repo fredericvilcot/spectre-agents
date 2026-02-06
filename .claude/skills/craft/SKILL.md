@@ -52,19 +52,17 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ║                                                                           ║
 ║   {SCOPE} = project.scope from context.json                              ║
 ║                                                                           ║
-║   IF monorepo with scope "packages/manager/apps/pci-vps":               ║
-║      .clean-claude/ → packages/manager/apps/pci-vps/.clean-claude/      ║
+║   IF monorepo with scope set:                                            ║
+║      .clean-claude/ → {SCOPE}/.clean-claude/                             ║
 ║                                                                           ║
 ║   IF standalone app (no scope):                                          ║
 ║      .clean-claude/ → .clean-claude/ (root)                              ║
 ║                                                                           ║
-║   EVERY prompt to an agent MUST use RESOLVED ABSOLUTE PATHS.             ║
+║   EVERY prompt to an agent MUST use RESOLVED PATHS.                      ║
 ║   Replace ".clean-claude/" with "{SCOPE}/.clean-claude/" everywhere.     ║
 ║                                                                           ║
-║   Example:                                                                ║
-║   ❌ "Read .clean-claude/specs/design/design-v1.md"                     ║
-║   ✅ "Read packages/manager/apps/pci-vps/.clean-claude/specs/design/    ║
-║       design-v1.md"                                                      ║
+║   ❌ Hardcoded ".clean-claude/specs/design/design-v1.md"                ║
+║   ✅ Resolved "{SCOPE}/.clean-claude/specs/design/design-v1.md"         ║
 ║                                                                           ║
 ║   WRONG PATH = AGENT LOSES THE DESIGN = DISASTER                        ║
 ║                                                                           ║
@@ -96,7 +94,7 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ║   SHOW FULL PROGRESS RECAP after Steps 4 and 7:                         ║
 ║   ┌──────────────────────────────────────────────────────────────┐       ║
 ║   │ 🟢 Step 1 ─ Detect          ✓  Project: monorepo · TS      │       ║
-║   │ 🟢 Step 2 ─ Scope           ✓  Scope: pci-vps              │       ║
+║   │ 🟢 Step 2 ─ Scope           ✓  Scope: [SCOPE]              │       ║
 ║   │ 🟢 Step 3 ─ Choose          ✓  New feature                  │       ║
 ║   │ 🟢 Step 4 ─ QA Config       ✓  Unit + Integration           │       ║
 ║   │ ⬜ Step 5a ─ PO                 Pending                      │       ║
