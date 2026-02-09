@@ -1407,8 +1407,8 @@ Task(
 ```
 
 4. After agent returns → Claude runs tests ONCE (Step 6 verify)
-5. If green → report to user
-6. If failures → route full output to owning agent (fix loop)
+5. If failures → route full output to owning agent (fix loop)
+6. If green → report to user → THEN ask doc sync (MANDATORY, see below)
 
 **Multiple bugs? → Multiple agents in PARALLEL (same message):**
 ```
@@ -1423,12 +1423,16 @@ Task(backend-engineer,  "Fix NaN data mapping")
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   DOC SYNC = BACKGROUND — NEVER BLOCKS THE NEXT ITERATION               ║
+║   🚨 MANDATORY — AFTER EVERY GREEN ITERATION, ASK DOC SYNC             ║
 ║                                                                           ║
-║   After tests green, ask the user about doc update.                      ║
-║   IF yes → spawn PO/Architect in BACKGROUND (run_in_background: true)   ║
-║   User can immediately start their next request.                         ║
-║   Doc agents work in parallel without blocking anything.                 ║
+║   This is NOT optional. Claude MUST ask every time tests pass.           ║
+║   DO NOT skip this. DO NOT just say "What's next?".                      ║
+║                                                                           ║
+║   Flow: Agent fixes → tests green → ASK doc sync → THEN "What's next?" ║
+║                                                                           ║
+║   IF user says yes → spawn in BACKGROUND (run_in_background: true)      ║
+║   User can immediately start next request.                               ║
+║   Doc agents work in parallel without blocking.                          ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
