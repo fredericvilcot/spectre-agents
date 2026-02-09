@@ -71,7 +71,7 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║      → Banner: CLEAN CLAUDE                                              ║
 ║                                                                           ║
 ║   1. ARCHITECT = DESIGN ONLY                                              ║
-║      → Architect writes .clean-claude/specs/design/*.md                  ║
+║      → Architect writes specs/design/*.md                  ║
 ║      → Architect NEVER writes implementation or test files               ║
 ║      → After design → Notify Dev to implement                            ║
 ║                                                                           ║
@@ -87,7 +87,7 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║      → Architect generates stack-skills.md WITH the design               ║
 ║      → No separate learning-agent needed                                 ║
 ║      → Skills inform devs how to use libraries the CRAFT way             ║
-║      → Output: .clean-claude/stack-skills.md                             ║
+║      → Output: specs/stack/stack-skills.md                             ║
 ║                                                                           ║
 ║   2. DEV ROUTING = ANALYZE WHAT THE CODE DOES                             ║
 ║      → UI, rendering, user interaction? → frontend-engineer              ║
@@ -219,7 +219,7 @@ If QA enabled: **Dev + QA run in parallel (same Task() message).**
 
 | Mode | What | Output |
 |------|------|--------|
-| **stack** | Installed libraries | `.clean-claude/stack-skills.md` |
+| **stack** | Installed libraries | `specs/stack/stack-skills.md` |
 | **architecture** | Project patterns (CRAFT-validated) | `.clean-claude/architecture-guide.md` |
 | **external** | External repo/folder analysis | `.clean-claude/external-analysis.md` |
 
@@ -310,8 +310,8 @@ Generates a report:
 
 | Agent | Role | Output |
 |-------|------|--------|
-| **architect** | Stack skills + Technical design | `.clean-claude/stack-skills.md`, `design.md` |
-| **product-owner** | Functional specs, user stories | `.clean-claude/specs/functional/` |
+| **architect** | Stack skills + Technical design | `specs/stack/stack-skills.md`, `design.md` |
+| **product-owner** | Functional specs, user stories | `specs/functional/` |
 | **frontend-engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
 | **backend-engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **qa-engineer** | E2E or Integration tests | `e2e/` or custom path |
@@ -387,27 +387,29 @@ Non-negotiable rules for ALL agents:
 
 ---
 
-## .clean-claude/ Directory
+## Directory Structure
 
 ```
-.clean-claude/
-├── context.json                # Detected libraries (gitignored)
-├── stack-skills.md             # Library documentation (gitignored)
-├── external-analysis.md        # External source reports (gitignored)
-├── state.json                  # Workflow state (gitignored)
-│
-├── architecture-guide.md       # Project patterns — COMMITTED ✅
-│
-└── specs/                      # All specs — COMMITTED ✅
-    ├── functional/             # PO specs
-    │   └── spec-v1.md
-    └── design/                 # Architect designs
-        └── design-v1.md
+.clean-claude/                         # GITIGNORED — operational only
+├── context.json                       # Project detection cache
+└── state.json                         # Session state (resume)
+
+specs/                                 # COMMITTED ✅ — shared documentation
+├── functional/                        # PO specs
+│   └── spec-v1.md
+├── design/                            # Architect designs
+│   └── design-v1.md
+└── stack/                             # Stack skills
+    └── stack-skills.md
 ```
 
-**Committed files = shared documentation:**
-- `architecture-guide.md` — Reference architecture for all µApps
-- `specs/` — Versioned functional and technical specs
+**In monorepo:** `specs/` lives inside `{SCOPE}/specs/`
+**Standalone:** `specs/` at project root
+
+**Committed = shared with the team:**
+- `specs/functional/` — Versioned functional specs
+- `specs/design/` — Versioned technical designs
+- `specs/stack/` — Stack skills for library patterns
 
 ---
 

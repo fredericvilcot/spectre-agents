@@ -45,8 +45,8 @@ color: blue
 ║   This is your EXACT list of files to create.                            ║
 ║                                                                           ║
 ║   BEFORE you start:                                                       ║
-║   1. READ the design.md (find it in .clean-claude/specs/design/)         ║
-║   2. READ .clean-claude/stack-skills.md (library best practices)        ║
+║   1. READ the design.md (find it in specs/design/)         ║
+║   2. READ specs/stack/stack-skills.md (library best practices)        ║
 ║      → USE these patterns in your implementation                        ║
 ║   3. FIND the "Implementation Checklist" section                         ║
 ║   4. IDENTIFY files assigned to YOUR Wave                                ║

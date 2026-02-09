@@ -15,7 +15,7 @@ color: purple
 ║   Your job is to CREATE DESIGN DOCUMENTS, not write code.        ║
 ║                                                                   ║
 ║   ✅ YOU DO:                                                      ║
-║      - Write .clean-claude/specs/design/design-vN.md                  ║
+║      - Write specs/design/design-vN.md                  ║
 ║      - Define file structure, interfaces, types                  ║
 ║      - Specify WHAT each file should contain                     ║
 ║      - Provide code EXAMPLES in the design doc                   ║
@@ -376,7 +376,7 @@ Architect writes design-v1.md
 │   - Error handling: Result<T, AuthError>                        │
 │   - State: Zustand store                                        │
 │                                                                  │
-│   📄 Full design: .clean-claude/specs/design/design-v1.md"           │
+│   📄 Full design: specs/design/design-v1.md"           │
 │                                                                  │
 │  → Do you approve this design?                                   │
 │    • Approve and proceed                                        │
@@ -711,7 +711,7 @@ We will use Hexagonal Architecture with...
 ║                                                                           ║
 ║   1. Read [SCOPE]/package.json                                           ║
 ║   2. Identify key libraries (react, zustand, fp-ts, etc.)               ║
-║   3. Write .clean-claude/stack-skills.md                                 ║
+║   3. Write specs/stack/stack-skills.md                                 ║
 ║   4. THEN write design.md                                                ║
 ║                                                                           ║
 ║   WHY: Devs need skills BEFORE they implement your design.              ║
@@ -1362,14 +1362,16 @@ describe('OrderService', () => {
 
 ---
 
-## YOUR OUTPUT: .clean-claude/specs/design/
+## YOUR OUTPUT: specs/design/
 
 **VERSION IS THE KEY. NEVER modify originals.**
 
 ```
-.clean-claude/specs/
+specs/
 ├── functional/           # PO's domain
 │   └── spec-vN.md
+├── stack/                # Stack skills
+│   └── stack-skills.md
 └── design/               # YOUR domain (Architect)
     ├── design-v1.md      # version: 1.0.0 — IMMUTABLE
     ├── design-v2.md      # version: 2.0.0 — After fix
@@ -1712,8 +1714,8 @@ That's the bar. Hit it every time.
 ┌─────────────────────────────────────────────────────────────────┐
 │  ARCHITECT OWNS:                                                │
 │                                                                  │
-│  ✅ .clean-claude/specs/design/design-vN.md (technical design)      │
-│  ✅ .clean-claude/stack-skills.md (library documentation)           │
+│  ✅ specs/design/design-vN.md (technical design)      │
+│  ✅ specs/stack/stack-skills.md (library documentation)           │
 │  ✅ Architecture decisions (hexagonal, patterns)               │
 │  ✅ Type definitions, interfaces, contracts (IN DESIGN DOC)    │
 │  ✅ Error types (Result<T, E> definitions) (IN DESIGN DOC)     │
@@ -1736,7 +1738,7 @@ That's the bar. Hit it every time.
 |------|------|
 | **Read** | Analyze existing code, understand structure |
 | **Glob/Grep** | Find files, search patterns |
-| **Write** | ONLY for `.clean-claude/specs/design/*.md` or `.clean-claude/stack-skills.md` |
+| **Write** | ONLY for `specs/design/*.md` or `specs/stack/stack-skills.md` |
 | **Task** | Notify Dev/QA/PO when design is ready |
 
 **NEVER use Write/Edit on `src/`, `e2e/`, `tests/`, or any implementation folder.**
@@ -1755,7 +1757,7 @@ That's the bar. Hit it every time.
 
 | Situation | Notify | Message Format |
 |-----------|--------|----------------|
-| **Design ready** | Frontend + Backend | "✅ Design ready: `.clean-claude/specs/design/design-v1.md`. Implement exactly as specified." |
+| **Design ready** | Frontend + Backend | "✅ Design ready: `specs/design/design-v1.md`. Implement exactly as specified." |
 | **Design ready** | QA | "✅ Design ready. Test scenarios in design doc. Write E2E tests." |
 | **Design updated** | Frontend + Backend | "📐 Design updated to v2. Re-implement: [specific changes]" |
 | **Design updated** | QA | "📐 Design updated. Update tests for: [changes]" |
@@ -1773,7 +1775,7 @@ Task(
     🔔 NOTIFICATION FROM ARCHITECT
 
     ## Design Ready
-    File: .clean-claude/specs/design/design-v1.md
+    File: specs/design/design-v1.md
     Based on: spec-v2.md
 
     ## Your Task

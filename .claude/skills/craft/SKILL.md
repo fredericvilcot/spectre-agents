@@ -120,26 +120,33 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 
 ---
 
-# PATH RESOLUTION — ALL .clean-claude/ PATHS
+# PATH RESOLUTION
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🚨 ALL .clean-claude/ PATHS ARE RELATIVE TO {SCOPE}                   ║
+║   🚨 TWO DIRECTORIES — DIFFERENT RULES                                  ║
 ║                                                                           ║
 ║   {SCOPE} = project.scope from context.json                              ║
 ║                                                                           ║
-║   IF monorepo with scope set:                                            ║
-║      .clean-claude/ → {SCOPE}/.clean-claude/                             ║
+║   specs/ → COMMITTED (all documentation the team shares)                 ║
+║   ├── functional/   PO specs (spec-v1.md, spec-v2.md...)                ║
+║   ├── design/       Architect designs (design-v1.md, design-v2.md...)   ║
+║   └── stack/        Stack skills (stack-skills.md)                       ║
 ║                                                                           ║
-║   IF standalone app (no scope):                                          ║
-║      .clean-claude/ → .clean-claude/ (root)                              ║
+║      IF monorepo: {SCOPE}/specs/                                         ║
+║      IF standalone: specs/ (root)                                        ║
+║                                                                           ║
+║   .clean-claude/ → GITIGNORED (operational files only)                   ║
+║   ├── context.json  Project detection cache                              ║
+║   └── state.json    Session state (resume)                               ║
+║                                                                           ║
+║      ALWAYS at root: .clean-claude/ (never inside scope)                 ║
 ║                                                                           ║
 ║   EVERY prompt to an agent MUST use RESOLVED PATHS.                      ║
-║   Replace ".clean-claude/" with "{SCOPE}/.clean-claude/" everywhere.     ║
 ║                                                                           ║
-║   ❌ Hardcoded ".clean-claude/specs/design/design-v1.md"                ║
-║   ✅ Resolved "{SCOPE}/.clean-claude/specs/design/design-v1.md"         ║
+║   ❌ Hardcoded "specs/design/design-v1.md"                               ║
+║   ✅ Resolved "{SCOPE}/specs/design/design-v1.md"                        ║
 ║                                                                           ║
 ║   WRONG PATH = AGENT LOSES THE DESIGN = DISASTER                        ║
 ║                                                                           ║
@@ -590,7 +597,7 @@ Task(
     - Write in ENGLISH
     - PURELY FUNCTIONAL — no API endpoints, no code, no tech details
     - User stories with Given/When/Then acceptance criteria
-    - Output: .clean-claude/specs/functional/spec-v[N].md
+    - Output: specs/functional/spec-v[N].md
     - Ask user approval before finalizing
   """
 )
@@ -607,7 +614,7 @@ Task(
     - Write in ENGLISH
     - PURELY FUNCTIONAL — no API endpoints, no code, no tech details
     - User stories with Given/When/Then acceptance criteria
-    - Output: .clean-claude/specs/functional/spec-v1.md
+    - Output: specs/functional/spec-v1.md
     - Ask user approval before finalizing
   """
 )
@@ -618,7 +625,7 @@ Task(
 **Show AFTER PO completes + approval:**
 ```
 🟢 Step 5a ─ PO                                  ✓ Complete
-   Spec: .clean-claude/specs/functional/spec-v[N].md
+   Spec: specs/functional/spec-v[N].md
    Stories: [X] user stories · [Y] acceptance criteria
 ```
 
@@ -648,8 +655,8 @@ Task(
 ⏳ Step 5b ─ Architect                            ⟳ Preparing...
 
    Inputs for Architect:
-   ├── Functional spec: .clean-claude/specs/functional/spec-v[N].md
-   ├── API endpoints: .clean-claude/specs/functional/api-endpoints.md [if exists]
+   ├── Functional spec: specs/functional/spec-v[N].md
+   ├── API endpoints: specs/functional/api-endpoints.md [if exists]
    ├── Legacy code: [LEGACY_PATH] [if exists]
    └── Architecture ref: [PATH if found in Step 1] or "None detected"
 ```
@@ -698,8 +705,8 @@ Task(
     Design CRAFT implementation for: [REQUEST]
 
     ## YOUR INPUTS
-    - Functional spec: .clean-claude/specs/functional/spec-v[N].md
-    - API endpoints spec: .clean-claude/specs/functional/api-endpoints.md (if exists)
+    - Functional spec: specs/functional/spec-v[N].md
+    - API endpoints spec: specs/functional/api-endpoints.md (if exists)
     - Legacy code: [LEGACY_PATH from context.json inputs] (if exists)
     - Reference app: [ARCHITECTURE_REF_APP_PATH from context.json inputs] (if exists)
     - context.json: .clean-claude/context.json
@@ -730,11 +737,11 @@ Task(
 
     3. Read [SCOPE]/package.json for stack detection
 
-    4. Write .clean-claude/stack-skills.md
+    4. Write specs/stack/stack-skills.md
        → Follow your "MANDATORY: GENERATE STACK SKILLS" section
        → CRAFT patterns for EACH library (do's, don'ts, code examples)
 
-    5. Write .clean-claude/specs/design/design-v1.md with FULL design:
+    5. Write specs/design/design-v1.md with FULL design:
        → Architecture Decision (ADR style — why hexagonal, why these patterns)
        → CRAFT Principles Applied (checklist: no any, Result<T,E>, etc.)
        → File Structure (hexagonal: domain/ → application/ → infrastructure/)
@@ -762,8 +769,8 @@ Task(
 **Show AFTER Architect completes + approval:**
 ```
 🟢 Step 5b ─ Architect                            ✓ Complete
-   Skills: .clean-claude/stack-skills.md
-   Design: .clean-claude/specs/design/design-v1.md
+   Skills: specs/stack/stack-skills.md
+   Design: specs/design/design-v1.md
    Architecture: Hexagonal · Result<T,E> · [X] files · [Y] waves
 ```
 
@@ -777,7 +784,7 @@ Task(
 ║   🚫 BETWEEN WAVES — CLAUDE DOES NOT EXPLORE                            ║
 ║                                                                           ║
 ║   After a wave completes:                                                ║
-║   1. Re-read the design ({SCOPE}/.clean-claude/specs/design/design-v1.md)║
+║   1. Re-read the design ({SCOPE}/specs/design/design-v1.md)║
 ║   2. Identify next wave's files from Implementation Checklist            ║
 ║   3. Spawn dev agents via Task() for next wave                           ║
 ║                                                                           ║
@@ -852,11 +859,11 @@ Task(
   subagent_type: "frontend-engineer",  // or backend-engineer based on code responsibility
   run_in_background: true,
   prompt: """
-    Implement Wave [N] from design: .clean-claude/specs/design/design-v1.md
+    Implement Wave [N] from design: specs/design/design-v1.md
 
     ## BEFORE YOU START
-    1. Read .clean-claude/specs/design/design-v1.md
-    2. Read .clean-claude/stack-skills.md — USE these patterns
+    1. Read specs/design/design-v1.md
+    2. Read specs/stack/stack-skills.md — USE these patterns
     3. Find the Implementation Checklist section
     4. Identify ALL files in Wave [N]
 
@@ -880,12 +887,12 @@ Task(
   subagent_type: "qa-engineer",  // only if QA enabled
   run_in_background: true,
   prompt: """
-    Write tests from spec: .clean-claude/specs/functional/spec-v[N].md
+    Write tests from spec: specs/functional/spec-v[N].md
 
     ## BEFORE YOU START
-    1. Read .clean-claude/stack-skills.md — know the testing stack
-    2. Read .clean-claude/specs/functional/spec-v[N].md — ALL acceptance criteria
-    3. Read .clean-claude/specs/design/design-v1.md — understand the architecture
+    1. Read specs/stack/stack-skills.md — know the testing stack
+    2. Read specs/functional/spec-v[N].md — ALL acceptance criteria
+    3. Read specs/design/design-v1.md — understand the architecture
 
     ## YOUR JOB
     - Cover 100% of acceptance criteria (Given/When/Then)
@@ -1074,7 +1081,7 @@ Task(
 
     ## CRAFT RULES STILL APPLY
     - NO `any`, NO `throw`, Result<T,E> only
-    - Read .clean-claude/stack-skills.md for patterns
+    - Read specs/stack/stack-skills.md for patterns
   """
 )
 ```
@@ -1094,8 +1101,8 @@ Task(
     [error message / expected vs received]
 
     ## Context
-    - Design: {SCOPE}/.clean-claude/specs/design/design-v1.md
-    - Stack skills: {SCOPE}/.clean-claude/stack-skills.md
+    - Design: {SCOPE}/specs/design/design-v1.md
+    - Stack skills: {SCOPE}/specs/stack/stack-skills.md
 
     ## Action Required
     Fix YOUR test code. The implementation is correct (tests in src/ pass).
@@ -1124,7 +1131,7 @@ Task(
 
     ## CRAFT RULES STILL APPLY
     - NO `any`, NO `throw`, Result<T,E> only
-    - Read .clean-claude/stack-skills.md for patterns
+    - Read specs/stack/stack-skills.md for patterns
   """
 )
 ```
@@ -1167,7 +1174,7 @@ Task(
 
     ## CRAFT RULES STILL APPLY
     - NO `any`, NO `throw`, Result<T,E> only
-    - Read .clean-claude/stack-skills.md for patterns
+    - Read specs/stack/stack-skills.md for patterns
   """
 )
 ```
@@ -1240,7 +1247,7 @@ Task(
     an architecture reference document.
 
     ## YOUR TASK
-    1. Read the design: {SCOPE}/.clean-claude/specs/design/design-v1.md
+    1. Read the design: {SCOPE}/specs/design/design-v1.md
     2. Read key implemented files to confirm patterns
     3. Write {SCOPE}/ARCHITECTURE.md with:
        - Architecture pattern (hexagonal, layers)
@@ -1273,9 +1280,9 @@ Task(
 │   🟢 Step 7 ─ Capture         ✓  [captured/skipped]        │
 │                                                              │
 │   Deliverables:                                              │
-│   ├── .clean-claude/specs/functional/spec-v[N].md           │
-│   ├── .clean-claude/specs/design/design-v1.md               │
-│   ├── .clean-claude/stack-skills.md                          │
+│   ├── specs/functional/spec-v[N].md           │
+│   ├── specs/design/design-v1.md               │
+│   ├── specs/stack/stack-skills.md                          │
 │   ├── src/ ([X] files + [Y] tests)                          │
 │   └── [e2e/ or tests/] ([Z] test files)                     │
 │                                                              │
@@ -1384,8 +1391,8 @@ Task(
     [PASTE user's EXACT words — do not rephrase or analyze]
 
     ## Context
-    - Design: {SCOPE}/.clean-claude/specs/design/design-v1.md
-    - Stack skills: {SCOPE}/.clean-claude/stack-skills.md
+    - Design: {SCOPE}/specs/design/design-v1.md
+    - Stack skills: {SCOPE}/specs/stack/stack-skills.md
 
     ## Action Required
     YOU investigate, diagnose, and fix. Read the relevant files.
@@ -1411,9 +1418,22 @@ Task(backend-engineer,  "Fix NaN data mapping")
 // Both in parallel — SAME message
 ```
 
-## Post-Fix: Sync Spec + Architecture
+## Post-Fix: Sync Spec + Architecture (NON-BLOCKING)
 
-**After each iteration (tests green), ask the user:**
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   DOC SYNC = BACKGROUND — NEVER BLOCKS THE NEXT ITERATION               ║
+║                                                                           ║
+║   After tests green, ask the user about doc update.                      ║
+║   IF yes → spawn PO/Architect in BACKGROUND (run_in_background: true)   ║
+║   User can immediately start their next request.                         ║
+║   Doc agents work in parallel without blocking anything.                 ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**After each iteration (tests green), ask:**
 
 ```
 AskUserQuestion:
@@ -1422,13 +1442,16 @@ AskUserQuestion:
   - Update spec + architecture reference
   - Update spec only
   - Update architecture only
-  - No, skip documentation update
+  - No, skip
 ```
 
-**IF user wants spec update → spawn PO:**
+**IF user says yes → spawn in BACKGROUND, then immediately ready for next input:**
+
 ```
+// Spawn doc sync agents in background — don't wait
 Task(
   subagent_type: "product-owner",
+  run_in_background: true,
   prompt: """
     🔔 SPEC SYNC (Iteration Mode)
 
@@ -1436,7 +1459,7 @@ Task(
     [summary of what was fixed/changed in this iteration]
 
     ## Current spec
-    {SCOPE}/.clean-claude/specs/functional/spec-v[N].md
+    {SCOPE}/specs/functional/spec-v[N].md
 
     ## Action Required
     Read the current spec. Update it to reflect the changes:
@@ -1446,12 +1469,10 @@ Task(
     Write spec-v[N+1].md (increment version, don't overwrite).
   """
 )
-```
 
-**IF user wants architecture update → spawn Architect:**
-```
 Task(
   subagent_type: "architect",
+  run_in_background: true,
   prompt: """
     🔔 ARCHITECTURE SYNC (Iteration Mode)
 
@@ -1459,13 +1480,10 @@ Task(
     [summary of what was fixed/changed in this iteration]
 
     ## Current design
-    {SCOPE}/.clean-claude/specs/design/design-v1.md
-
-    ## Current architecture reference (if exists)
-    [path from context.json architectureRef]
+    {SCOPE}/specs/design/design-v[N].md
 
     ## Action Required
-    Read the current design and architecture reference.
+    Read the current design.
     Update to reflect the changes:
     - New patterns introduced
     - Routing/structure changes
@@ -1473,6 +1491,13 @@ Task(
     Increment version (design-v[N+1].md).
   """
 )
+
+// Show to user:
+⏳ Doc sync in background:
+   ├── product-owner  ⟳ Updating spec-v[N+1].md
+   └── architect      ⟳ Updating design-v[N+1].md
+
+🔄 CRAFT session active. What's next? (doc sync continues in background)
 ```
 
 ## New Feature in Iteration Mode
@@ -1550,9 +1575,9 @@ Update state.json → status: "completed"
 | tests/integration/** | QA |
 | test infrastructure (MSW, fixtures, utils) | QA |
 | test config (playwright.config, vitest.setup) | QA |
-| {SCOPE}/.clean-claude/specs/functional/ | PO |
-| {SCOPE}/.clean-claude/specs/design/ | Architect |
-| {SCOPE}/.clean-claude/stack-skills.md | Architect |
+| {SCOPE}/specs/functional/ | PO |
+| {SCOPE}/specs/design/ | Architect |
+| {SCOPE}/specs/stack/stack-skills.md | Architect |
 
 ---
 

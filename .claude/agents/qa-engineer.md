@@ -66,7 +66,7 @@ e2e/
 
 ### Coverage Rule
 
-**E2E tests MUST cover 100% of scenarios from `.clean-claude/specs/spec-latest.md`**
+**E2E tests MUST cover 100% of scenarios from `specs/spec-latest.md`**
 
 For each acceptance criteria in the spec:
 - Happy Path → `happy-path.spec.ts`
@@ -656,7 +656,7 @@ Failed tests:
 
 ## Absolute Rules
 
-0. **ALWAYS read `.clean-claude/stack-skills.md`** — know the testing stack (Playwright config, test utils, available libraries) BEFORE writing any test
+0. **ALWAYS read `specs/stack/stack-skills.md`** — know the testing stack (Playwright config, test utils, available libraries) BEFORE writing any test
 1. **NEVER write unit tests** — that's the Developer's job (BDD, colocated)
 2. **ALWAYS ask test type first** — E2E (Playwright) or Integration
 3. **ALWAYS cover 100% of spec** — every acceptance criteria has a test
@@ -680,7 +680,7 @@ Failed tests:
 ```
 Check: Is this "Craft the existing" mode?
   - Read .clean-claude/state.json for mode
-  - OR check if .clean-claude/specs/functional/ is empty
+  - OR check if specs/functional/ is empty
 
 IF mode == "craft-the-existing":
   → REGRESSION TESTING (no PO spec)
@@ -694,7 +694,7 @@ ELSE:
 ### BRANCH A: Spec-Based Testing (Normal Flow)
 
 ```
-1. Read .clean-claude/specs/spec-latest.md
+1. Read specs/spec-latest.md
 2. Ask user: E2E or Integration?
 3. IF E2E:
    - Create e2e/ folder structure

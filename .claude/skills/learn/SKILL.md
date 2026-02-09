@@ -39,7 +39,7 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
 ║   1. STACK LEARNING (libraries)                                          ║
 ║      → Detects installed libraries (package.json, go.mod, etc.)         ║
 ║      → Architect generates CRAFT-linked skills                          ║
-║      → Output: .clean-claude/stack-skills.md                            ║
+║      → Output: specs/stack/stack-skills.md                            ║
 ║                                                                           ║
 ║   2. ARCHITECTURE LEARNING (project patterns)                            ║
 ║      → Analyzes existing code structure                                  ║
@@ -73,7 +73,7 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
   ├─ 1. STACK DETECTION
   │     → Learning Agent reads package.json
   │     → Spawns Architect for library skills
-  │     → Output: .clean-claude/stack-skills.md
+  │     → Output: specs/stack/stack-skills.md
   │
   └─ 2. ARCHITECTURE DETECTION (if src/ exists)
         → Learning Agent analyzes code structure
@@ -103,7 +103,7 @@ Task(
        → Read package.json/go.mod/etc.
        → Write .clean-claude/context.json
        → Spawn Architect for library skills
-       → Output: .clean-claude/stack-skills.md
+       → Output: specs/stack/stack-skills.md
 
     2. ARCHITECTURE LEARNING (if src/ exists)
        → Analyze folder structure
@@ -129,7 +129,7 @@ Task(
   └─ STACK DETECTION
        → Learning Agent reads package.json
        → Spawns Architect for library skills
-       → Output: .clean-claude/stack-skills.md
+       → Output: specs/stack/stack-skills.md
 ```
 
 ### Execution
@@ -146,7 +146,7 @@ Task(
     2. Extract library list
     3. Write .clean-claude/context.json
     4. Spawn Architect for library skills
-    5. Output: .clean-claude/stack-skills.md
+    5. Output: specs/stack/stack-skills.md
 
     DO NOT analyze architecture.
     OUTPUT progress to user.
