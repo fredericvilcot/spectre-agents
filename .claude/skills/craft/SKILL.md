@@ -934,19 +934,46 @@ TaskOutput(task_id_2, block=true)
 
 # STEP 6: VERIFY
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚫 CLAUDE DOES NOT FIX — CLAUDE ROUTES                                ║
+║                                                                           ║
+║   Claude's ONLY job in Step 6:                                           ║
+║   1. Run tests (Bash: npm test)                                          ║
+║   2. Run build (Bash: npm run build)                                     ║
+║   3. Read the output ONCE                                                ║
+║   4. IMMEDIATELY route failures to the owning agent                      ║
+║                                                                           ║
+║   ❌ DO NOT run tests multiple times to "understand" failures            ║
+║   ❌ DO NOT grep/analyze test output to "diagnose"                       ║
+║   ❌ DO NOT read source files to "understand the bug"                    ║
+║   ❌ DO NOT attempt to fix anything yourself                             ║
+║   ❌ DO NOT "wander" trying different commands                           ║
+║                                                                           ║
+║   Test output shows failures? → Copy the FULL output → Task(agent)      ║
+║   Build fails? → Copy the FULL output → Task(agent)                     ║
+║                                                                           ║
+║   The AGENT reads the error, diagnoses, and fixes. NOT Claude.           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 **Show BEFORE starting:**
 ```
 ⏳ Step 6 ─ Verify                                ⟳ In Progress
-   Checking design coverage...
+   Running tests...
 ```
 
+**Claude's verify procedure (fast — no analysis):**
 ```
 1. Check DESIGN COVERAGE (100% of Implementation Checklist)
-2. Run: npm test (or project's test command)
-3. Run: npm run build (or project's build command)
+2. Run: npm test (or project's test command) — ONE TIME
+3. Run: npm run build (or project's build command) — ONE TIME
+4. Read output → count pass/fail
 
 IF all green → GO TO STEP 7
-IF failures → ROUTE to appropriate agent
+IF failures → IMMEDIATELY route full output to owning agent
 ```
 
 ## Design Coverage Check
