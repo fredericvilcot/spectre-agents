@@ -5,16 +5,19 @@
 <h1 align="center">Stop prompting. Start crafting.</h1>
 
 <p align="center">
-  <em>Clean Claude transforms Claude Code into a team of Software Craft experts.<br/>
-  Clean architecture. Result types. Tested. Domain-driven.<br/>
+  <em>Clean Claude transforms Claude Code into a team of Software Craft experts<br/>
+  for modern React frontends.<br/>
+  TypeScript + React + TanStack Query. Hexagonal. Result types. Tested.<br/>
   All agents collaborate reactively.</em>
 </p>
 
 <p align="center">
   <a href="#philosophy">Philosophy</a> •
+  <a href="#mandatory-stack">Mandatory Stack</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#commands">Commands</a> •
   <a href="#agents">Agents</a> •
+  <a href="#hooks">Hooks</a> •
   <a href="#documentation">Documentation</a>
 </p>
 
@@ -22,12 +25,14 @@
 
 ## Philosophy
 
-**Clean Claude isn't a tool. It's a philosophy.**
+**Clean Claude isn't a tool. It's a philosophy — applied to modern React frontends.**
 
-We believe code is a **craft**, not just a task. Every agent embodies the teachings of the masters:
+We believe frontend code is a **craft**, not just UI. Every agent embodies the teachings of the masters:
 
 | Master | Teaching |
 |--------|----------|
+| **Dan Abramov** | Thinking in React, composition over configuration |
+| **Kent C. Dodds** | Testing Library — *"Test like a user, not like a developer"* |
 | **Kent Beck** | *"Make it work, make it right, make it fast"* |
 | **Uncle Bob** | Clean Code, SOLID, Clean Architecture |
 | **Martin Fowler** | Refactoring — *"Good programmers write code humans understand"* |
@@ -37,13 +42,38 @@ We believe code is a **craft**, not just a task. Every agent embodies the teachi
 ### The Non-Negotiables
 
 ```
-Explicit types     → Types document intent
-Explicit errors    → Errors are values, not surprises
+Explicit types     → Types document intent (strict TypeScript, no `any`)
+Explicit errors    → Errors are values, not surprises (Result<T,E>, no `throw`)
 Single purpose     → Small, focused units
-Always tested      → Tests are specs that run
+Always tested      → Tests are specs that run (BDD, colocated)
 Spec first         → Think before you code
-Domain isolation   → Business logic stays pure
+Domain isolation   → Business logic stays pure (no framework imports)
 ```
+
+---
+
+## Mandatory Stack
+
+Clean Claude is built **exclusively** for modern frontend crafting:
+
+```
+TypeScript + React + TanStack Query
+```
+
+This is the only supported stack. No exceptions, no configuration.
+
+| Required | Why |
+|----------|-----|
+| **TypeScript** | Types are documentation. No `any`, no escape hatches. |
+| **React** | Component architecture, composition, hooks. |
+| **TanStack Query** | Server state done right. No `useEffect` + `fetch`. |
+
+**Enforced at 3 levels:**
+1. `guard-stack.sh` hook blocks all agents if dependencies are missing
+2. CRAFT Guardian blocks stack-change requests at prompt level
+3. `craft-lint.sh` hook catches anti-patterns on every file write
+
+> Don't have a project yet? Use `/init-frontend` to bootstrap one.
 
 ---
 
@@ -77,124 +107,19 @@ Three commands. That's all you need.
 /craft
 ```
 
-**The Flow (with live feedback):**
+**The Flow:**
 
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 1. LEARN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 📦 Stack: typescript, react, zustand, fp-ts, vitest
- 📐 Architecture: docs/arch.md (v2, id: f8a3...b2c1)
- ✅ CRAFT: compliant (no any, Result pattern, 65% coverage)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 2. CHOOSE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- What do you want to craft?
- • New feature
- • Fix a bug
- • Improve existing
- • Or describe...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 3. QA CONFIG
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- Do you want QA tests?
- • Yes → E2E (Playwright) or Integration?
- • No  → Unit tests only (colocated)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 4. PRODUCT OWNER (smart routing)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- IF new feature / user-facing bug:
-   📋 Writing spec...
-   → .clean-claude/specs/functional/spec-v1.md
-   ⏸️  APPROVAL REQUIRED
-
- IF refactor / migration / technical:
-   ⏭️  SKIPPED — no functional spec needed
-   → Proceeding directly to Architect
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 5. ARCHITECTURE REFERENCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 📐 Reference detected: docs/arch.md
-    Version: 2 | UUID: f8a3b2c1-4d5e-6789-abcd-ef0123456789
-
- Which reference to use?
- • Use docs/arch.md (recommended)
- • Choose another (local file, remote repo, code folder)
- • Design freely (no reference)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 6. ARCHITECT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 🏛️ Designing...
-    Reference: docs/arch.md (v2) ✅
-    Spec: spec-v1.md
-
- → .clean-claude/specs/design/design-v1.md
- → 8 implementation tasks identified
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 7. IMPLEMENTATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 🚀 Parallel execution:
-
- ┌─────────────────────────────────────────────────────────────┐
- │  DEV 1: src/domain/        ████████░░ 80%                   │
- │  DEV 2: src/application/   ██████████ done                  │
- │  DEV 3: src/ui/            ███████░░░ 70%                   │
- │  QA:    e2e/               ██████░░░░ 60%                   │
- └─────────────────────────────────────────────────────────────┘
-
- 📁 Files: 12 created, 3 modified
- 🧪 Tests: 8 written (6 passing, 2 pending)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 8. VERIFICATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- Running: npm run build && npm test
-
- ❌ 2 failures detected:
-    • Type error: src/domain/User.ts:45
-    • Test fail: e2e/login.spec.ts:23
-
- 🔄 Routing to agents...
-    → DEV 1: fixing type error
-    → QA: fixing e2e test
-
- ✅ Retry 1: All green
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 9. CAPTURE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- ✅ Implementation complete
-
- Capture as architecture reference?
- • Yes → Save patterns (UUID generated, committed)
- • No  → Skip for now
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- DONE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 📊 Summary:
-    Feature: User Authentication
-    Files: 15 created, 3 modified
-    Tests: 12 unit + 4 e2e (all passing)
-    Time: 4 agent cycles
-    Reference: docs/arch.md (v2) followed ✅
-
+Step 1  DETECT         Scan project, validate stack (TS + React + TanStack)
+Step 2  SCOPE          If monorepo → which workspace?
+Step 3  CHOOSE         What do you want? + describe it
+Step 4  QA CONFIG      E2E tests in addition to unit tests?
+Step 5a PRODUCT OWNER  Functional spec (if new feature / user-facing bug)
+Step 5b ARCHITECT      Stack skills + technical design (hexagonal)
+Step 5c DEV + QA       Implementation in parallel waves
+Step 6  VERIFY         Tests + build → fix loop until green
+Step 7  CAPTURE        Save as architecture reference (if first feature)
+Step 8  ITERATE        Session stays active — bugs/changes routed to agents
 ```
 
 **Smart routing — free text works:**
@@ -204,7 +129,6 @@ Three commands. That's all you need.
 | "Add dark mode" | PO → Arch → Dev | New feature needs spec |
 | "Login doesn't work" | PO → Arch → Dev | User-facing bug needs spec |
 | "Memory leak in cart" | Arch → Dev | Technical bug, no spec needed |
-| "Migrate to monorepo" | Arch → Dev | Transformation, no spec needed |
 | "Migrate to Result types" | Arch → Dev | Refactor, no spec needed |
 | "Add E2E tests" | QA directly | Tests only |
 
@@ -236,12 +160,13 @@ Routes each problem to the right expert:
 
 | Agent | Role | Output |
 |-------|------|--------|
-| **Learning Agent** | Detects stack, validates CRAFT compliance | `.clean-claude/context.json` |
-| **Product Owner** | Turns ideas into specs | `.clean-claude/specs/functional/` |
-| **Architect** | Designs clean solutions | `.clean-claude/specs/design/` |
-| **Frontend Engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
+| **Product Owner** | Turns ideas into specs | `specs/functional/` |
+| **Architect** | Stack skills + technical design | `specs/design/`, `specs/stack/` |
+| **Frontend Engineer** | UI + unit tests (BDD) | Code + `*.test.tsx` |
 | **Backend Engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **QA Engineer** | E2E / Integration tests | `e2e/` |
+
+> Claude orchestrates directly. No intermediary agent. Agents are spawned via `Task()`.
 
 ### Reactive Loop
 
@@ -265,37 +190,61 @@ Spec unclear       →  PO clarifies
      │
      ▼
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   LEARNING  │────▶│     PO      │────▶│  ARCHITECT  │
-│   (stack)   │     │   (spec)    │     │  (design)   │
+│     PO      │────▶│  ARCHITECT  │────▶│  DEV + QA   │
+│   (spec)    │     │  (design)   │     │ (parallel)  │
 └─────────────┘     └─────────────┘     └─────────────┘
                                                │
-                    ┌──────────────────────────┤
-                    │                          │
-                    ▼                          ▼
-             ┌─────────────┐           ┌─────────────┐
-             │     DEV     │           │     QA      │
-             │   (code)    │◀─────────▶│  (tests)    │
-             └─────────────┘  notify   └─────────────┘
-                    │                          │
-                    └──────────────────────────┘
-                                │
-                                ▼
-                         ✅ All green
+                                               ▼
+                                     ┌─────────────────┐
+                                     │     VERIFY      │
+                                     │  test + build   │
+                                     │   → fix loop    │
+                                     └─────────────────┘
+                                               │
+                                               ▼
+                                        ✅ All green
 ```
+
+---
+
+## Hooks
+
+Clean Claude enforces CRAFT principles through **4 hooks** that run automatically:
+
+| Hook | Trigger | What it does |
+|------|---------|--------------|
+| `guard-stack.sh` | `PreToolUse` on `Task` | Blocks all agents if project isn't React + TS + TanStack Query |
+| `craft-lint.sh` | `PostToolUse` on `Write\|Edit` | Catches anti-patterns on every file write (~15 rules) |
+| `inject-craft-rules.sh` | `SubagentStart` on all agents | Injects CRAFT rules into every agent's context |
+| `block-file-exploration.sh` | `PreToolUse` on `Bash` | Blocks `find`, `grep`, `cat`, etc. — forces `Read`/`Glob`/`Grep` |
+
+### craft-lint.sh rules
+
+**TypeScript:** no `any`, no `throw`, no `@ts-ignore`, no `as unknown as`
+
+**React:** no `dangerouslySetInnerHTML`, no direct DOM, no `console.log` in production
+
+**TanStack Query:** no `useEffect` + `fetch`, no `useState` + `useEffect` + `fetch`
+
+**Architecture:** no framework imports in `domain/`
+
+**Custom rules:** optional overlay via `.clean-claude/craft-rules.json`
+
+> Test files (`*.test.ts`, `*.spec.ts`) are excluded from production-only rules.
 
 ---
 
 ## Architecture
 
-Clean Claude enforces **Hexagonal Architecture**:
+Clean Claude enforces **Hexagonal Architecture** adapted to the frontend stack:
 
 ```
 ┌─────────────────────────────────────────────┐
 │              INFRASTRUCTURE                  │
-│   (HTTP, DB, External APIs — replaceable)   │
+│   (HTTP, APIs, storage — replaceable)       │
 │  ┌───────────────────────────────────────┐  │
 │  │            APPLICATION                 │  │
-│  │         (Use Cases, Ports)            │  │
+│  │    (TanStack hooks = use cases)       │  │
 │  │  ┌─────────────────────────────────┐  │  │
 │  │  │            DOMAIN               │  │  │
 │  │  │   (Entities, Value Objects)     │  │  │
@@ -305,6 +254,8 @@ Clean Claude enforces **Hexagonal Architecture**:
 └─────────────────────────────────────────────┘
          Dependencies point INWARD →
 ```
+
+> For frontend with TanStack Query: hooks **are** the application layer. No dead `use-cases/` folder.
 
 ### Error Handling
 
@@ -317,8 +268,6 @@ Errors are **values**, not exceptions:
 ✅ GOOD — Error is explicit in the return type
    getUser(id) → Result<User, NotFoundError>
 ```
-
-Works with any language: `Result<T,E>`, `Either`, `Option`, `Maybe`, `error` return values...
 
 ### Architecture Reference — Team Consistency
 
@@ -335,86 +284,23 @@ If you accept, it creates an **architecture-reference** file that:
 - Becomes **mandatory** for all future features
 - Keeps your team (humans or AI) consistent
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Feature 1: Authentication                                      │
-│  → Implements patterns freely                                   │
-│  → Captured as architecture-reference                           │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  Feature 2, 3, 4...                                             │
-│  → Architect READS architecture-reference first                 │
-│  → Architect FOLLOWS established patterns                       │
-│  → Deviations require explicit approval + version bump          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Use case:** You define the architecture once. Every developer (human or AI) follows it.
-
 ---
 
-## Monorepo & Full-Stack Support
+## Monorepo Support
 
 Clean Claude detects your project structure and adapts:
 
 ```
 Single app?  → Direct stack detection, no extra questions
 Monorepo?    → Ask which workspace to work on first
-Full-stack?  → Routes to the right engineer (frontend or backend)
 ```
-
-**Stack-agnostic routing:**
-
-| Code responsibility | Routed to |
-|---------------------|-----------|
-| UI, components, user interaction | Frontend Engineer |
-| API, business logic, data persistence | Backend Engineer |
-| Shared types, utilities | Either (based on usage) |
-
-Works with **any stack**: React, Vue, Svelte, Node, Go, Rust, Python...
 
 **Smart detection:**
 - `package.json` workspaces
 - `pnpm-workspace.yaml`
 - `lerna.json`, `nx.json`, `turbo.json`
 
-**Example flow (monorepo with 50 micro-frontends):**
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- STEP 1/9 — LEARN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
- 🔍 Monorepo detected (50 workspaces)
-
- ┌─ Workspaces ──────────────────────────────────────────────────────┐
- │  apps/     auth, dashboard, billing, settings, admin...          │
- │  packages/ shared, ui-kit, utils                                  │
- └───────────────────────────────────────────────────────────────────┘
-
- Which workspace do you want to work on?
- • apps/auth
- • apps/dashboard
- • packages/shared
- • Root level
-```
-
-**Architecture hierarchy:**
-
-```
-monorepo/
-├── docs/
-│   └── architecture.md          ← ROOT (shared patterns)
-│
-└── apps/
-    └── auth/
-        └── ARCHITECTURE.md      ← LOCAL (inherits root, can override)
-```
-
-- **Root architecture**: Patterns shared across ALL workspaces
-- **Local architecture**: Workspace-specific patterns (inherits from root)
-- Architect reads BOTH when designing
+> Each workspace must have React + TypeScript + TanStack Query in its dependencies.
 
 ---
 
@@ -425,17 +311,20 @@ monorepo/
 | [CLAUDE.md](./CLAUDE.md) | Full operational rules and workflow |
 | [Agents](./.claude/agents/) | Individual agent definitions |
 | [Skills](./.claude/skills/) | Command implementations |
+| [Hooks](./.claude/hooks/) | CRAFT enforcement hooks |
 
 ### Project Structure
 
 ```
-.clean-claude/                  # Clean Claude working directory
-├── context.json                # Detected stack + CRAFT validation
-├── stack-skills.md             # Library documentation
-├── architecture-guide.md       # Project patterns (if captured)
-└── specs/
-    ├── functional/             # PO specs
-    └── design/                 # Architect designs
+specs/                          # COMMITTED — shared with team
+├── functional/                 # PO specs (spec-v1.md, spec-v2.md...)
+├── design/                     # Architect designs (design-v1.md...)
+└── stack/                      # Stack skills (stack-skills.md)
+
+.clean-claude/                  # GITIGNORED — operational only
+├── context.json                # Detected stack + stackGuard cache
+├── state.json                  # Session state (resume)
+└── architecture-guide.md       # Project patterns (if captured)
 ```
 
 ---
@@ -445,11 +334,12 @@ monorepo/
 | Without | With Clean Claude |
 |---------|-------------------|
 | You prompt, you debug | Agents collaborate, QA verifies |
-| Generic code | Learns YOUR patterns |
-| `any` everywhere | Strict TypeScript |
-| `throw new Error` | `Result<T, E>` |
+| Generic code | Follows YOUR architecture reference |
+| `any` everywhere | Strict TypeScript, enforced by hooks |
+| `throw new Error` | `Result<T, E>` everywhere |
+| `useEffect` + `fetch` | TanStack Query, enforced by hooks |
 | No architecture | Hexagonal, DDD, Clean |
-| You are the QA | QA agent catches bugs |
+| You are the QA | QA agent catches bugs in parallel |
 
 ---
 
@@ -460,7 +350,7 @@ monorepo/
 </p>
 
 <p align="center">
-  <strong>Clean Claude learns. Clean Claude adapts. Clean Claude crafts.</strong>
+  <strong>Modern React frontends, crafted right.</strong>
 </p>
 
 <p align="center">
