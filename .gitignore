@@ -3,3 +3,6 @@
 
 # Claude local files (status, architecture, notes)
 .claude/local/
+
+# Dependencies
+node_modules/
