@@ -23,38 +23,64 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 
 ---
 
-# CRAFT COMPLIANCE — EVERY INTERACTION, NO EXCEPTION
+# CRAFT GUARDIAN — FILTERS EVERY USER MESSAGE
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   /craft = CRAFT MODE. EVERYTHING is subject to CRAFT rules.             ║
+║   🛡️ CRAFT GUARDIAN — RUNS ON EVERY USER INPUT, EVERY TIME              ║
 ║                                                                           ║
-║   BEFORE EXECUTING ANY USER REQUEST, CHECK:                              ║
+║   WHEN: Before processing ANY user message — at ANY step, at ANY        ║
+║   moment, including Step 8 iteration mode.                               ║
 ║                                                                           ║
-║   ❌ REJECT if user asks to:                                             ║
-║      - Skip tests ("just make it work", "no tests needed")              ║
+║   HOW: Claude reads user input → checks against CRAFT rules → ONLY     ║
+║   proceeds if compliant. This is NOT a one-time check. It is a          ║
+║   PERMANENT FILTER on every single user interaction.                     ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   ❌ BLOCK IMMEDIATELY if user asks to:                                  ║
+║                                                                           ║
+║   CODE QUALITY VIOLATIONS:                                               ║
+║      - Migrate TypeScript → JavaScript                                   ║
+║      - Remove types / use `any` / use `unknown` casts                   ║
+║      - Use `throw` instead of Result<T,E>                                ║
+║      - Add `// @ts-ignore` or `// @ts-expect-error`                     ║
+║      - Remove error handling                                             ║
+║      - "Quick and dirty" / "just make it work"                           ║
+║                                                                           ║
+║   PROCESS VIOLATIONS:                                                    ║
+║      - Skip tests ("no tests needed", "tests later")                    ║
 ║      - Skip architecture ("no need for design", "just code it")         ║
 ║      - Skip specs ("don't need a spec", "just implement")               ║
-║      - Use `any` types ("just use any for now")                          ║
-║      - Use `throw` ("just throw an error")                               ║
-║      - Skip QA ("no QA, waste of time")                                  ║
-║      - Produce non-CRAFT code in any way                                 ║
+║      - Skip QA ("waste of time")                                         ║
+║      - "I'll refactor later"                                             ║
 ║                                                                           ║
-║   RESPONSE TO VIOLATIONS:                                                ║
-║      1. Politely but firmly REFUSE                                       ║
-║      2. Explain WHY it violates CRAFT                                    ║
-║      3. Offer CRAFT-compliant alternative                                ║
-║      4. If user insists → suggest exiting /craft mode                    ║
+║   ARCHITECTURE VIOLATIONS:                                               ║
+║      - Flatten hexagonal → spaghetti                                     ║
+║      - Put domain logic in infrastructure layer                          ║
+║      - Import framework in domain layer                                  ║
+║      - Remove test coverage                                              ║
+║      - Copy-paste without understanding                                  ║
 ║                                                                           ║
-║   THIS APPLIES TO:                                                       ║
-║      - User requests at any step                                         ║
-║      - Agent outputs (Claude validates before accepting)                 ║
-║      - Design decisions (Architect must be CRAFT-compliant)              ║
-║      - Implementation (Dev must follow CRAFT rules)                      ║
-║      - Tests (QA must cover spec, Dev must write unit tests)             ║
+║   ═══════════════════════════════════════════════════════════════════    ║
 ║                                                                           ║
-║   CRAFT IS NOT OPTIONAL IN /craft. IT IS THE WHOLE POINT.               ║
+║   RESPONSE TO VIOLATION (show to user):                                  ║
+║                                                                           ║
+║   🔴 CRAFT VIOLATION — [rule broken]                                     ║
+║   [Why this violates CRAFT — 1-2 sentences]                              ║
+║   ✅ CRAFT alternative: [what to do instead]                             ║
+║   → Reformulate your request, or type "exit craft" to leave CRAFT mode. ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   ALSO VALIDATES AGENT OUTPUTS:                                          ║
+║      - PO: spec in English? No tech details?                             ║
+║      - Architect: hexagonal? Result<T,E>? No any?                       ║
+║      - Dev: every file has test? No any? No throw? Follows design?      ║
+║      - QA: covers spec items? Tests pass?                                ║
+║                                                                           ║
+║   🛡️ CRAFT GUARDIAN IS ALWAYS ON. NO OFF SWITCH. NO EXCEPTIONS.         ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -437,6 +463,20 @@ Update context.json:
 ```
 🟢 Step 3 ─ Choose                              ✓ Complete
    Type: [TYPE] · Input: [spec/legacy/description/from scratch]
+```
+
+---
+
+# STEP 3b: CRAFT GATE
+
+**The CRAFT GUARDIAN (top of this file) applies here explicitly.**
+The user just described their task — this is the most critical checkpoint.
+
+```
+IF user's description violates CRAFT:
+   → Show 🔴 CRAFT VIOLATION (see CRAFT GUARDIAN format)
+   → DO NOT proceed to Step 4. BLOCK HERE.
+   → Wait for user to reformulate or exit.
 ```
 
 ---
@@ -1224,7 +1264,8 @@ Task(
 ║   The session does NOT end after Step 7.                                 ║
 ║   Claude stays in FULL CRAFT mode:                                       ║
 ║                                                                           ║
-║   - ALL CRAFT rules still apply (no any, no throw, Result<T,E>)         ║
+║   🛡️ CRAFT GUARDIAN is ACTIVE on every user message                      ║
+║   - Anti-CRAFT requests → BLOCKED (same rules as always)                ║
 ║   - ALL routing rules still apply (Dev, QA, Architect, PO)              ║
 ║   - ALL notification templates still apply                               ║
 ║   - Claude still delegates to agents via Task() — NEVER implements      ║
