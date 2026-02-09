@@ -441,41 +441,113 @@ AskUserQuestion:
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-**No project detected → Bootstrap inline:**
+**No project detected → Smart onboarding:**
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   NO BOILERPLATE. ASK THE USER ABOUT THEIR PROJECT.                      ║
+║                                                                           ║
+║   1. Ask project name + description                                      ║
+║   2. Ask additional libraries (beyond mandatory stack)                    ║
+║   3. Bootstrap: package.json + deps + minimal config                     ║
+║   4. Save inputs in context.json → flow continues to Step 3              ║
+║                                                                           ║
+║   ❌ DO NOT create src/ structure (that's the Architect's job)           ║
+║   ❌ DO NOT use npm create vite (creates useless boilerplate)            ║
+║   ✅ Create package.json, tsconfig.json, vite.config.ts ONLY            ║
+║   ✅ Install deps and let the CRAFT flow design the rest                 ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 ```
 AskUserQuestion:
-  "No package.json found. Bootstrap a new React + TypeScript + TanStack Query project here?"
-  Options:
-  - Yes, bootstrap now
-  - No, I'll set it up myself
+  "No project detected. Tell me about what you want to build."
+  Questions:
+  1. "Project name?" → (user types name)
+  2. "Additional libraries? (React + TS + TanStack Query are mandatory)"
+     Options (multiSelect):
+     - React Router
+     - Zustand (client state)
+     - Tailwind CSS
+     - Zod (validation)
+     - None, just the mandatory stack
 ```
 
-**IF "Yes, bootstrap now":**
+**IF user answers → Bootstrap:**
 ```
-1. Bash: npm create vite@latest . -- --template react-ts
-2. Bash: npm install
-3. Bash: npm install @tanstack/react-query zod
-4. Bash: npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8
-5. Re-detect: Read("package.json") → write context.json with stackGuard: "pass"
-6. CONTINUE to Step 2 (or Step 3 if not monorepo)
+1. Write package.json with:
+   - name: [PROJECT_NAME]
+   - Mandatory deps: react, react-dom, @tanstack/react-query
+   - Mandatory devDeps: typescript, vite, @vitejs/plugin-react,
+     vitest, @testing-library/react, @testing-library/jest-dom,
+     @testing-library/user-event, jsdom, @vitest/coverage-v8, @types/node
+   - Additional deps: [user's choices from question 2]
+
+2. Write tsconfig.json (strict mode)
+3. Write vite.config.ts (with vitest config)
+4. Write src/main.tsx (minimal entry point)
+5. Bash: npm install
+
+6. Save in context.json:
+   {
+     "project": {
+       "type": "frontend",
+       "language": "typescript",
+       "stackGuard": "pass",
+       "additionalLibs": ["react-router-dom", "zustand", ...]
+     }
+   }
+
+7. CONTINUE to Step 3 (skip Step 2 — not a monorepo)
+   → The user's project description feeds directly into Step 3.
 ```
 
-**IF "No":**
+**IF user declines:**
 ```
-→ STOP. "Install React + TypeScript + TanStack Query, then retry /craft."
+→ STOP. "Set up your project with React + TypeScript + TanStack Query, then retry /craft."
 ```
 
-**Stack violation response (existing project with wrong stack):**
+**Existing project with wrong/incomplete stack → Smart migration:**
+
 ```
-🔴 STACK VIOLATION
-
-   Detected: [what was found — e.g. "Go project (go.mod)" or "Vue + TS"]
-   Missing: [TypeScript | React | @tanstack/react-query]
-
-   Clean Claude requires: TypeScript + React + TanStack Query.
-   This is the only supported stack — no exceptions.
-
-   → Install the missing dependencies, then retry /craft.
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   DON'T JUST BLOCK — PROPOSE A PATH FORWARD                             ║
+║                                                                           ║
+║   Analyze what's there → propose the right migration:                    ║
+║                                                                           ║
+║   CASE 1: React + TS, missing TanStack Query only                        ║
+║      → "Install @tanstack/react-query? I'll add it and continue."       ║
+║      → Bash: npm install @tanstack/react-query                           ║
+║      → Re-detect → continue flow normally                                ║
+║                                                                           ║
+║   CASE 2: React + JS (no TypeScript)                                     ║
+║      → "Migrate to TypeScript? I'll install TS and design the migration"║
+║      → Bash: npm install -D typescript @types/react @types/react-dom    ║
+║      → Flow becomes type: "Refactor" → Architect designs TS migration   ║
+║                                                                           ║
+║   CASE 3: Vue / Angular / Svelte / other framework                       ║
+║      → "This is a [Vue] project. Migration to React is a major effort." ║
+║      → AskUserQuestion: Migrate to React? or Start fresh alongside?     ║
+║      → IF migrate → type: "Refactor" → full migration flow              ║
+║      → IF fresh → bootstrap new project in a subfolder                   ║
+║                                                                           ║
+║   CASE 4: Plain JS (no framework)                                        ║
+║      → "No framework detected. Install React + TS + TanStack Query?"    ║
+║      → Bash: install all mandatory deps                                  ║
+║      → Re-detect → continue flow normally                                ║
+║                                                                           ║
+║   CASE 5: Non-JS project (Go, Rust, Python...)                           ║
+║      → "This is a [Go] project. Clean Claude is for React frontends."   ║
+║      → AskUserQuestion: Bootstrap a React frontend alongside?            ║
+║      → IF yes → bootstrap in a subfolder (e.g. frontend/)               ║
+║                                                                           ║
+║   KEY RULE: Always install missing deps via Bash BEFORE spawning agents  ║
+║   → guard-stack.sh checks package.json → deps present → agents pass     ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
 **Show:**
@@ -721,7 +793,9 @@ Task(
 ║   1. ALL inputs (spec, legacy, context.json)                             ║
 ║   2. CRAFT PRINCIPLES reminder (hexagonal, Result<T,E>, no any/throw)   ║
 ║   3. Request for FULL design (not just file list)                        ║
-║   4. Explicit ask for stack-skills.md BEFORE design                     ║
+║   4. Mandatory stack skills are HARDCODED (see .claude/templates/)       ║
+║      → Architect generates skills for ADDITIONAL libs only               ║
+║      → Final stack-skills.md = mandatory + project-specific              ║
 ║                                                                           ║
 ║   WITHOUT THIS → Architect produces generic "Claude classic" design      ║
 ║                                                                           ║
@@ -819,9 +893,12 @@ Task(
 
     3. Read [SCOPE]/package.json for stack detection
 
-    4. Write specs/stack/stack-skills.md
-       → Follow your "MANDATORY: GENERATE STACK SKILLS" section
-       → CRAFT patterns for EACH library (do's, don'ts, code examples)
+    4. Write specs/stack/stack-skills.md:
+       → Read .claude/templates/mandatory-stack-skills.md (HARDCODED — React + TS + TanStack)
+       → COPY its content as the FIRST section of stack-skills.md
+       → THEN generate CRAFT skills for ADDITIONAL project libraries only
+       → Concatenate: mandatory skills + project-specific skills = final file
+       → DO NOT regenerate React/TS/TanStack skills — they are already perfect
 
     5. CHOOSE hexagonal structure adapted to the STACK:
        → Analyze the stack (state management, data fetching, backend vs frontend)
