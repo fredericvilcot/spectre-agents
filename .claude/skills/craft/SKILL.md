@@ -1411,6 +1411,70 @@ Task(backend-engineer,  "Fix NaN data mapping")
 // Both in parallel — SAME message
 ```
 
+## Post-Fix: Sync Spec + Architecture
+
+**After each iteration (tests green), ask the user:**
+
+```
+AskUserQuestion:
+  "Changes applied and tests green. Update documentation?"
+  Options:
+  - Update spec + architecture reference
+  - Update spec only
+  - Update architecture only
+  - No, skip documentation update
+```
+
+**IF user wants spec update → spawn PO:**
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    🔔 SPEC SYNC (Iteration Mode)
+
+    ## What changed
+    [summary of what was fixed/changed in this iteration]
+
+    ## Current spec
+    {SCOPE}/.clean-claude/specs/functional/spec-v[N].md
+
+    ## Action Required
+    Read the current spec. Update it to reflect the changes:
+    - New behaviors discovered during bug fix
+    - Updated acceptance criteria
+    - New edge cases identified
+    Write spec-v[N+1].md (increment version, don't overwrite).
+  """
+)
+```
+
+**IF user wants architecture update → spawn Architect:**
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    🔔 ARCHITECTURE SYNC (Iteration Mode)
+
+    ## What changed
+    [summary of what was fixed/changed in this iteration]
+
+    ## Current design
+    {SCOPE}/.clean-claude/specs/design/design-v1.md
+
+    ## Current architecture reference (if exists)
+    [path from context.json architectureRef]
+
+    ## Action Required
+    Read the current design and architecture reference.
+    Update to reflect the changes:
+    - New patterns introduced
+    - Routing/structure changes
+    - Updated file list in Implementation Checklist
+    Increment version (design-v[N+1].md).
+  """
+)
+```
+
 ## New Feature in Iteration Mode
 
 **User asks for something big → back to Step 3:**
