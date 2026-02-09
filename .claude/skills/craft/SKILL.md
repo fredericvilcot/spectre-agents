@@ -118,37 +118,129 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CLAUDE MUST SHOW PROGRESS AFTER EVERY STEP COMPLETION                  ║
+║   CLAUDE MUST SHOW DETAILED PROGRESS — NOT JUST AGENT TYPES             ║
 ║                                                                           ║
-║   Format:                                                                ║
-║   🟢 Step N ─ Name                              ✓ Complete               ║
-║      Key info · Key info · Key info                                      ║
+║   ❌ BAD (too generic):                                                  ║
+║   ⏳ Launching frontend-engineer...                                      ║
+║   🟢 Dev complete.                                                       ║
 ║                                                                           ║
-║   Before launching an agent:                                             ║
-║   ⏳ Step N ─ Name                              ⟳ In Progress            ║
-║      Launching [agent-type]...                                           ║
+║   ✅ GOOD (describes WHAT the agent does):                               ║
+║   ⏳ frontend-engineer → Dashboard card component + state badge          ║
+║   ⏳ backend-engineer  → VPS API service + domain types                  ║
+║   ⏳ qa-engineer       → E2E: listing page + error scenarios             ║
+║   🟢 frontend-engineer ✓ 6 files: DashboardCard, StateBadge, hooks      ║
 ║                                                                           ║
-║   After agent completes:                                                 ║
-║   🟢 Step N ─ Name                              ✓ Complete               ║
-║      Deliverable: [file path]                                            ║
-║      Summary: [1-2 lines from agent output]                              ║
-║                                                                           ║
-║   SHOW FULL PROGRESS RECAP after Steps 4 and 7:                         ║
-║   ┌──────────────────────────────────────────────────────────────┐       ║
-║   │ 🟢 Step 1 ─ Detect          ✓  Project: monorepo · TS      │       ║
-║   │ 🟢 Step 2 ─ Scope           ✓  Scope: [SCOPE]              │       ║
-║   │ 🟢 Step 3 ─ Choose          ✓  New feature                  │       ║
-║   │ 🟢 Step 4 ─ QA Config       ✓  Unit + Integration           │       ║
-║   │ ⬜ Step 5a ─ PO                 Pending                      │       ║
-║   │ ⬜ Step 5b ─ Architect          Pending                      │       ║
-║   │ ⬜ Step 5c ─ Dev + QA           Pending                      │       ║
-║   │ ⬜ Step 6 ─ Verify              Pending                      │       ║
-║   │ ⬜ Step 7 ─ Capture             Pending                      │       ║
-║   └──────────────────────────────────────────────────────────────┘       ║
-║                                                                           ║
-║   WITHOUT THIS → User has no idea what's happening                       ║
+║   RULE: Every progress line MUST include the WHAT, not just WHO.         ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+## Progress Formats
+
+**Before launching an agent — describe the task:**
+```
+⏳ [agent-type] → [short description of what files/features they handle]
+```
+
+**After agent completes — summarize the work:**
+```
+🟢 [agent-type] ✓ [count] files: [key file/component names]
+```
+
+**During fix loop — describe what's being fixed:**
+```
+🔴 [agent-type] → fixing: [error summary in human terms]
+🟢 [agent-type] ✓ fixed: [what was wrong + what changed]
+```
+
+**During iteration mode — describe the change:**
+```
+⏳ [agent-type] → [user's request in short form]
+🟢 [agent-type] ✓ [what was done]
+```
+
+## Live Progress — Background Agents + Polling
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔄 REAL-TIME PROGRESS WITH BACKGROUND AGENTS                          ║
+║                                                                           ║
+║   When launching multiple agents in parallel (Step 5c waves):            ║
+║                                                                           ║
+║   1. Launch ALL agents with run_in_background: true                      ║
+║   2. Each returns an output_file path immediately                        ║
+║   3. Poll output files with TaskOutput(task_id, block=false)             ║
+║   4. Show live progress as each agent works                              ║
+║   5. Wait for all to complete with TaskOutput(task_id, block=true)       ║
+║                                                                           ║
+║   This lets Claude show progress WHILE agents work.                      ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**How to launch + poll:**
+```
+// 1. Launch in background (all in SAME message)
+Task(frontend-engineer, "Wave 1: ...", run_in_background: true)  → task_id_1
+Task(backend-engineer,  "Wave 1: ...", run_in_background: true)  → task_id_2
+Task(qa-engineer,       "E2E tests",  run_in_background: true)  → task_id_3
+
+// 2. Show initial state
+⏳ Wave 1
+   ├── frontend-engineer ⟳ Layout component + routing
+   ├── backend-engineer  ⟳ Domain types + API service
+   └── qa-engineer       ⟳ E2E: navigation + errors
+
+// 3. Poll with TaskOutput(task_id, block=false) to check progress
+//    Update display as agents complete:
+⏳ Wave 1
+   ├── frontend-engineer ⟳ Layout component + routing
+   ├── backend-engineer  ✓ 4 files: VpsType, ApiPort, VpsService
+   └── qa-engineer       ⟳ E2E: navigation + errors
+
+// 4. All done:
+🟢 Wave 1                                        ✓ Complete
+   ├── frontend-engineer ✓ 5 files: Layout, Sidebar, AppRouter
+   ├── backend-engineer  ✓ 4 files: VpsType, ApiPort, VpsService
+   └── qa-engineer       ✓ 2 files: navigation.e2e, errors.e2e
+```
+
+## Wave Progress (Step 5c)
+
+**Between waves — show cumulative progress:**
+```
+🟢 Wave 1  ✓  Layout + Domain types (9 files)
+🟢 Wave 2  ✓  List page + API adapters (12 files)
+⏳ Wave 3  ⟳  Dashboard cards + state badges
+   ├── frontend-engineer ✓ DashboardCard, StateBadge
+   └── backend-engineer  ⟳ VPS state mapping service
+⬜ Wave 4     Detail page + actions
+```
+
+## Step Completion
+
+**After each step:**
+```
+🟢 Step N ─ Name                              ✓ Complete
+   Key info · Key info · Key info
+```
+
+## Full Recap (after Steps 4 and 7)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ 🟢 Step 1 ─ Detect          ✓  monorepo · TypeScript        │
+│ 🟢 Step 2 ─ Scope           ✓  apps/my-app                  │
+│ 🟢 Step 3 ─ Choose          ✓  New feature: VPS dashboard   │
+│ 🟢 Step 4 ─ QA Config       ✓  Unit + E2E (Playwright)      │
+│ ⬜ Step 5a ─ PO                 Pending                      │
+│ ⬜ Step 5b ─ Architect          Pending                      │
+│ ⬜ Step 5c ─ Dev + QA           Pending                      │
+│ ⬜ Step 6 ─ Verify              Pending                      │
+│ ⬜ Step 7 ─ Capture             Pending                      │
+│ ⬜ Step 8 ─ Iterate             Pending                      │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -695,18 +787,21 @@ Task(
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-**Spawn in SAME message for parallel execution:**
+**Launch agents in BACKGROUND for live progress:**
 
-**Show BEFORE launching:**
+**Show BEFORE launching — describe WHAT each agent will do:**
 ```
-⏳ Step 5c ─ Dev + QA                             ⟳ In Progress
-   Launching [frontend|backend]-engineer (Wave [N])...
-   Launching qa-engineer ([E2E|Integration])...    ← ONLY if Step 4 = Yes
+⏳ Step 5c ─ Wave [N]                             ⟳ In Progress
+   ├── [agent-type] ⟳ [short description of files/features]
+   ├── [agent-type] ⟳ [short description of files/features]
+   └── qa-engineer  ⟳ [test type]: [what's being tested]    ← ONLY if Step 4 = Yes
 ```
 
 ```
+// Launch ALL agents in SAME message with run_in_background: true
 Task(
   subagent_type: "frontend-engineer",  // or backend-engineer based on code responsibility
+  run_in_background: true,
   prompt: """
     Implement Wave [N] from design: .clean-claude/specs/design/design-v1.md
 
@@ -734,6 +829,7 @@ Task(
 
 Task(
   subagent_type: "qa-engineer",  // only if QA enabled
+  run_in_background: true,
   prompt: """
     Write tests from spec: .clean-claude/specs/functional/spec-v[N].md
 
@@ -755,6 +851,18 @@ Task(
     - Coverage report: which spec items are covered
   """
 )
+
+// THEN poll for live progress:
+TaskOutput(task_id_1, block=false)  → check frontend-engineer
+TaskOutput(task_id_2, block=false)  → check qa-engineer
+// Update display after each poll:
+⏳ Wave [N]
+   ├── frontend-engineer ✓ 3/5 files done: Layout, Sidebar, ...
+   └── qa-engineer       ⟳ writing E2E for listing page
+
+// Wait for all to finish:
+TaskOutput(task_id_1, block=true)
+TaskOutput(task_id_2, block=true)
 ```
 
 **AFTER each agent completes — Claude VALIDATES CRAFT compliance:**
