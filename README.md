@@ -138,7 +138,7 @@ DevOps enforces **conventional commits** (`feat:`, `fix:`, `refactor:`, etc.) an
 
 ## Visual Context (Optional)
 
-> **Your PO can now see.** Point it at a live app or a Figma design — it writes the spec from what it *sees*, not just what you describe.
+> **Your PO can now see — and discover APIs.** Point it at a live app, a Figma design, or a Swagger spec — it writes the spec from what it *sees* and *discovers*, not just what you describe.
 
 ```
 Without Visual Context              With Visual Context
@@ -150,18 +150,20 @@ Spec misses half the UI             Spec covers every button, form, flow
 meant"
 ```
 
-### Two MCP Servers, One Superpower
+### Three MCP Servers, One Superpower
 
 | MCP | What it does | Example |
 |-----|-------------|---------|
 | **Playwright** | Browse live apps, capture structure, handle auth | *"Analyze https://app.example.com/dashboard"* |
 | **Figma** | Read designs, extract components, understand layout | *"Read the Figma for the new checkout flow"* |
+| **OpenAPI** | Discover API endpoints, models, capabilities | *"Build a frontend for https://api.example.com/openapi.json"* |
 
-### Setup (2 commands)
+### Setup (3 commands)
 
 ```bash
 claude mcp add playwright -- npx @playwright/mcp@latest
 claude mcp add --transport http figma https://mcp.figma.com/mcp
+claude mcp add openapi -- npx -y @ivotoby/openapi-mcp-server
 ```
 
 Or let the installer handle it — `install.sh` offers this as an optional step.
@@ -187,6 +189,16 @@ Or let the installer handle it — `install.sh` offers this as an optional step.
   → No Figma details leak into the spec — purely functional
 ```
 
+```
+/craft "Build a dashboard for our API"
+  → "I have an OpenAPI/Swagger spec"
+  → Paste https://api.example.com/openapi.json
+  → PO discovers: 12 endpoints, 5 data models, CRUD operations
+  → Maps API capabilities to user stories
+  → "GET /users" → "User can view a list of all users"
+  → No endpoints in the spec — purely functional
+```
+
 ### Authentication
 
 Playwright uses a **persistent browser profile** — log in once, stay logged in:
@@ -199,7 +211,7 @@ Enterprise:    --extension mode → connects to your existing browser (SSO, VPN)
 
 ### Without MCP? No Problem
 
-Visual Context is **optional**. Without Playwright/Figma, the PO works exactly as before — from your text description. No regression, no dependency.
+Visual Context is **optional**. Without Playwright/Figma/OpenAPI, the PO works exactly as before — from your text description. No regression, no dependency.
 
 ---
 

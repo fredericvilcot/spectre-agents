@@ -153,15 +153,16 @@ main() {
     echo ""
     echo -e "${PURPLE}┌─────────────────────────────────────────────────────────┐${NC}"
     echo -e "${PURPLE}│${NC}                                                         ${PURPLE}│${NC}"
-    echo -e "${PURPLE}│${NC}   ${WHITE}Optional: Visual Context${NC}                              ${PURPLE}│${NC}"
-    echo -e "${PURPLE}│${NC}   ${DIM}Enable Browser + Figma for smarter specs${NC}               ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}   ${WHITE}Optional: Visual Context + API Discovery${NC}               ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}   ${DIM}Enable MCP servers for smarter specs${NC}                   ${PURPLE}│${NC}"
     echo -e "${PURPLE}│${NC}                                                         ${PURPLE}│${NC}"
     echo -e "${PURPLE}│${NC}   ${DIM}Playwright MCP: browse live apps, handle auth${NC}          ${PURPLE}│${NC}"
     echo -e "${PURPLE}│${NC}   ${DIM}Figma MCP: read designs, extract components${NC}            ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}   ${DIM}OpenAPI MCP: discover API endpoints from specs${NC}         ${PURPLE}│${NC}"
     echo -e "${PURPLE}│${NC}                                                         ${PURPLE}│${NC}"
     echo -e "${PURPLE}└─────────────────────────────────────────────────────────┘${NC}"
     echo ""
-    read -p "  Enable visual context? (Playwright + Figma MCP) [y/N] " -n 1 -r
+    read -p "  Enable visual context + API discovery? [y/N] " -n 1 -r
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo ""
@@ -178,6 +179,7 @@ main() {
         echo ""
         claude mcp add playwright -- npx @playwright/mcp@latest --browser "$BROWSER" 2>/dev/null && done_step "Playwright MCP added ($BROWSER)"
         claude mcp add --transport http figma https://mcp.figma.com/mcp 2>/dev/null && done_step "Figma MCP added"
+        claude mcp add openapi -- npx -y @ivotoby/openapi-mcp-server 2>/dev/null && done_step "OpenAPI MCP added"
         echo ""
     fi
 

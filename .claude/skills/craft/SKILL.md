@@ -755,6 +755,7 @@ AskUserQuestion:
   - I have a legacy app to migrate (give me the path)
   - I have a reference URL (app/site to analyze)
   - I have a Figma design
+  - I have an OpenAPI/Swagger spec (API discovery)
   - I'll describe it now
   - Let the PO write the spec from scratch
 ```
@@ -780,6 +781,20 @@ AskUserQuestion:
   [free text — user types Figma URL]
 ```
 
+**IF "OpenAPI/Swagger spec" chosen:**
+```
+AskUserQuestion:
+  "Paste the OpenAPI spec URL or local path:"
+  [free text — user types URL like https://api.example.com/openapi.json or ./openapi.yaml]
+
+AskUserQuestion:
+  "What should we focus on?"
+  Options:
+  - Build a frontend for this entire API
+  - Build a feature using specific endpoints
+  - Discover what's available (explore first)
+```
+
 **Save ALL inputs in context.json for the entire chain (PO + Architect):**
 
 ```
@@ -793,7 +808,9 @@ Update context.json:
     "description": "[user description if typed]",
     "referenceUrl": "[URL if provided via 'reference URL' option]",
     "referenceIntent": "[reproduce | improve | inspiration]",
-    "figmaUrl": "[Figma URL if provided via 'Figma design' option]"
+    "figmaUrl": "[Figma URL if provided via 'Figma design' option]",
+    "openApiSpec": "[URL or path if provided via 'OpenAPI/Swagger spec' option]",
+    "openApiIntent": "[full api | specific endpoints | explore]"
   }
 }
 ```
@@ -1004,7 +1021,39 @@ Task(
 )
 ```
 
-**IF both referenceUrl AND figmaUrl provided:** combine both Visual Reference and Design Reference sections into a single PO prompt.
+**IF openApiSpec provided in context.json inputs:**
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    Write functional spec for: [USER_DESCRIPTION]
+
+    ## API Discovery
+    OpenAPI Spec: [OPENAPI_SPEC]
+    Intent: [full api | specific endpoints | explore]
+
+    IMPORTANT: Read this OpenAPI/Swagger spec using OpenAPI MCP tools.
+    Discover: available endpoints, operations, data models, capabilities.
+    Map each API operation to a USER-FACING feature.
+
+    Example translations:
+    - "GET /users/{id}" → "User can view their profile details"
+    - "POST /orders" → "User can place a new order"
+    - "GET /products?category=X" → "User can browse products by category"
+
+    RULES:
+    - Write in ENGLISH
+    - PURELY FUNCTIONAL — translate API capabilities into user stories
+    - DO NOT mention endpoints, HTTP methods, schemas, or technical API details
+    - That's the Architect's job — you extract the FUNCTIONAL intent
+    - User stories with Given/When/Then acceptance criteria
+    - Output: specs/functional/spec-v1.md
+    - Ask user approval before finalizing
+  """
+)
+```
+
+**IF multiple inputs provided (referenceUrl, figmaUrl, openApiSpec):** combine all relevant sections into a single PO prompt. Each source adds context — they complement each other.
 
 ### Auth Interruption Flow
 

@@ -200,10 +200,11 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
   ╚═══════════════════════════════════════════════════════════╝
   │
   ╔═══════════════════════════════════════════════════════════╗
-  ║  3b. VISUAL REFERENCE (optional)                          ║
+  ║  3b. VISUAL & API REFERENCE (optional)                    ║
   ║     → "I have a reference URL" → PO browses the app      ║
   ║     → "I have a Figma design" → PO reads the design      ║
-  ║     → Requires Playwright MCP and/or Figma MCP            ║
+  ║     → "I have an OpenAPI spec" → PO discovers API         ║
+  ║     → Requires Playwright / Figma / OpenAPI MCP           ║
   ║     → Optional: PO works without them (text-only)         ║
   ╚═══════════════════════════════════════════════════════════╝
   │
