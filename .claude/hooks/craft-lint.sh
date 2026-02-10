@@ -135,7 +135,7 @@ fi
 # ═══════════════════════════════════════════════════════════
 
 if [ -n "$VIOLATIONS" ]; then
-  ESCAPED=$(echo -e "$VIOLATIONS" | jq -Rs .)
+  ESCAPED=$(printf '%b' "$VIOLATIONS" | jq -Rs .)
   echo "{\"additionalContext\":$ESCAPED}"
 fi
 

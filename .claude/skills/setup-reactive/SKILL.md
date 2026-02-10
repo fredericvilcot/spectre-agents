@@ -64,7 +64,7 @@ Add to `.claude/settings.json`:
   "hooks": {
     "SubagentStop": [
       {
-        "matcher": "qa-engineer|frontend-engineer|architect|product-owner",
+        "matcher": "qa-engineer|frontend-engineer|architect|product-owner|devops-engineer",
         "hooks": [
           {
             "type": "command",

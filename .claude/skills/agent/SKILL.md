@@ -79,6 +79,7 @@ Architect designs → Frontend implements → QA verifies → errors route back
 | `frontend-engineer` | UI implementation | `qa-engineer`, `architect` |
 | `backend-engineer` | API implementation | `qa-engineer`, `architect` |
 | `qa-engineer` | Testing, verification | `frontend-engineer`, `backend-engineer` |
+| `devops-engineer` | CI/CD, ship, deploy, publish | `frontend-engineer`, `backend-engineer` |
 
 ## Reactive Links — Full Matrix
 
@@ -367,6 +368,7 @@ For convenience, also support:
 | `/agent arch` | `/agent architect` |
 | `/agent qa` | `/agent qa-engineer` |
 | `/agent po` | `/agent product-owner` |
+| `/agent devops` | `/agent devops-engineer` |
 
 ## Integration with Existing Workflow
 

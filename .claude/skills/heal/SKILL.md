@@ -151,6 +151,10 @@ cat .clean-claude/context.json
 | `contradiction`, `impossible` | Spec contradiction | `product-owner` | — |
 | `cannot implement`, `blocked` | Design block | `architect` | — |
 | `edge case`, `not covered` | Spec gap | `product-owner` | — |
+| CI/CD pipeline failure | CI/CD failure | `devops-engineer` | — |
+| Docker build error | Docker build | `devops-engineer` | — |
+| npm publish error | Publish error | `devops-engineer` | — |
+| Workflow config error | Pipeline config | `devops-engineer` | — |
 
 ### Smart Routing Logic
 
@@ -180,6 +184,9 @@ cat .clean-claude/context.json
 │  │  contradiction ───────────────────────────────▶ PO            │   │
 │  │  design_block ────────────────────────────────▶ Architect     │   │
 │  │  spec_gap ────────────────────────────────────▶ PO            │   │
+│  │  ci_cd_failure ───────────────────────────────▶ DevOps        │   │
+│  │  docker_build ────────────────────────────────▶ DevOps        │   │
+│  │  publish_error ───────────────────────────────▶ DevOps        │   │
 │  │                                                               │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │         │                                                            │
@@ -651,6 +658,9 @@ Task tool:
 | Design flaw | `architect` | "Redesign to fix:\n<issue description>" |
 | Spec gap | `product-owner` | "Complete spec for:\n<missing requirement>" |
 | Unclear criteria | `product-owner` | "Clarify:\n<ambiguous criterion>" |
+| CI/CD failure | `devops-engineer` | "Fix CI pipeline:\n<pipeline output>" |
+| Docker build | `devops-engineer` | "Fix Docker build:\n<build output>" |
+| Publish error | `devops-engineer` | "Fix publish:\n<error>" |
 
 ### Verification Flow
 

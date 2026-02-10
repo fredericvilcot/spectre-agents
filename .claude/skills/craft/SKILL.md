@@ -326,14 +326,34 @@ The scope is stored INSIDE state.json, not in the path.
 **IF state.json EXISTS and has `status: "iteration"` or `status: "in_progress"`:**
 
 ```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   BRANCH CHECK — Compare current git branch with saved session branch    ║
+║                                                                           ║
+║   Bash: git branch --show-current → CURRENT_BRANCH                      ║
+║   Read state.json → state.branch                                        ║
+║                                                                           ║
+║   IF CURRENT_BRANCH == state.branch → Same context, show resume         ║
+║   IF CURRENT_BRANCH != state.branch → Different context, warn user      ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show session banner (includes branch info):**
+```
 ╭──────────────────────────────────────────────────────────────╮
 │                                                              │
 │   🟣 CRAFT SESSION FOUND                                     │
 │                                                              │
+│   Branch: [branch from state.json]                           │
 │   Scope: [scope from state.json, or "root"]                  │
 │   Last step: [STEP]                                          │
 │   Task: [description from state]                             │
 │   Status: [iteration / in_progress at step X]                │
+│   Author: [author from state.json, or "unknown"]             │
+│                                                              │
+│   ⚠️ Current branch: [CURRENT_BRANCH]                        │
+│   [if different: "Session was on a different branch!"]       │
 │                                                              │
 ╰──────────────────────────────────────────────────────────────╯
 
@@ -401,6 +421,8 @@ AskUserQuestion:
   "status": "in_progress | iteration | completed",
   "currentStep": 1,
   "scope": null,
+  "branch": null,
+  "author": null,
   "description": null,
   "qaConfig": null,
   "specPath": null,
@@ -408,6 +430,14 @@ AskUserQuestion:
   "stackSkillsPath": null
 }
 ```
+
+**Capturing branch and author:**
+```
+branch: Bash("git branch --show-current") → store in state.json
+author: Bash("git config user.name") → store in state.json
+```
+These fields enable team collaboration — when another dev runs `/craft`,
+they see WHO was working on WHICH branch and can resume or start fresh.
 
 ## 1c. STACK VALIDATION (MANDATORY — BLOCKING)
 
@@ -564,7 +594,40 @@ AskUserQuestion:
 **Only if `project.monorepo.detected == true`**
 
 ```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏢 ENTERPRISE MONOLITH MANAGEMENT                                     ║
+║                                                                           ║
+║   Clean Claude manages modular monoliths at scale (40+ devs).           ║
+║   Step 2 is the entry point for ALL monorepo operations:                ║
+║                                                                           ║
+║   • Work on an EXISTING app or package                                  ║
+║   • CREATE a new app (micro-frontend in apps/)                          ║
+║   • CREATE a shared package (packages/)                                 ║
+║                                                                           ║
+║   Architecture reference applies to ALL workspaces.                     ║
+║   Same patterns, same conventions, same quality — at scale.             ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+## 2a. Ask workspace operation
+
+```
+AskUserQuestion:
+  "Monorepo detected. What do you want to do?"
+  Options:
+  - Work on existing workspace (select from list)
+  - Create a new app (in apps/)
+  - Create a shared package (in packages/)
+```
+
+## 2b. EXISTING workspace → select and continue
+
+```
 AskUserQuestion: "Which workspace?"
+  Options: [list from context.json monorepo.workspaces]
+
 → User selects
 → Update context.json with scope
 → GO TO STEP 3 IMMEDIATELY
@@ -572,10 +635,98 @@ AskUserQuestion: "Which workspace?"
 
 **DO NOT re-analyze. DO NOT read scope's package.json. Just save scope and continue.**
 
+## 2c. CREATE NEW APP → scaffold + continue
+
+```
+AskUserQuestion:
+  "Name for the new app? It will be created in apps/[name]."
+  + "Additional libraries? (React + TS + TanStack Query are mandatory)"
+    Options (multiSelect):
+    - React Router
+    - Zustand (client state)
+    - Tailwind CSS
+    - Zod (validation)
+    - None, just the mandatory stack
+
+→ User provides name + libs
+```
+
+**Scaffold the new app:**
+```
+1. Create apps/[name]/ directory
+2. Write apps/[name]/package.json with:
+   - name: "@[monorepo-name]/[app-name]"
+   - Mandatory deps: react, react-dom, @tanstack/react-query
+   - Mandatory devDeps: typescript, vite, @vitejs/plugin-react,
+     vitest, @testing-library/react, @testing-library/jest-dom,
+     @testing-library/user-event, jsdom, @vitest/coverage-v8
+   - Additional deps from user's choices
+   - Shared packages from monorepo (if any packages/* exist)
+
+3. Write apps/[name]/tsconfig.json (strict mode, extends root if exists)
+4. Write apps/[name]/vite.config.ts (with vitest config)
+5. Write apps/[name]/src/main.tsx (minimal entry point)
+
+6. Bash: npm install (or pnpm install, based on lockfile detected)
+
+7. Update context.json:
+   {
+     "project": {
+       "scope": "apps/[name]",
+       "monorepo": { "workspaces": [..., "apps/[name]"] },
+       "stackGuard": "pass"
+     }
+   }
+
+8. CONTINUE to Step 3
+   → The user's app description feeds directly into Step 3.
+```
+
+## 2d. CREATE SHARED PACKAGE → scaffold + continue
+
+```
+AskUserQuestion:
+  "What kind of shared package?"
+  Options:
+  - UI library (shared components: buttons, modals, forms)
+  - Domain library (shared types, business rules, Result<T,E>)
+  - Config library (shared tsconfig, eslint, tailwind presets)
+  - Utils library (shared helpers, formatters, validators)
+
++ "Name for the package? It will be created in packages/[name]."
+```
+
+**Scaffold the shared package:**
+```
+1. Create packages/[name]/ directory
+2. Write packages/[name]/package.json with:
+   - name: "@[monorepo-name]/[name]"
+   - main: "src/index.ts"
+   - types: "src/index.ts"
+   - devDeps: typescript, vitest
+   - Additional deps based on type:
+     → UI: react, react-dom (peerDeps)
+     → Domain: (no extra deps — pure)
+     → Config: relevant config packages
+     → Utils: (no extra deps — pure)
+
+3. Write packages/[name]/tsconfig.json (strict, extends root)
+4. Write packages/[name]/src/index.ts (empty barrel export)
+5. Write packages/[name]/src/index.test.ts (smoke test)
+
+6. Bash: npm install
+
+7. Update context.json with scope: "packages/[name]"
+
+8. CONTINUE to Step 3
+   → The user describes what the package should contain.
+```
+
 **Show:**
 ```
 🟢 Step 2 ─ Scope                               ✓ Complete
-   Workspace: [SELECTED]
+   Workspace: [SELECTED or CREATED]
+   Operation: [existing / new app / new package]
 ```
 
 ---
@@ -986,6 +1137,12 @@ Task(
 ║      → Integration tests (tests/integration/**)                          ║
 ║      → Test configuration (playwright.config, vitest.setup, etc.)        ║
 ║                                                                           ║
+║   devops-engineer:                                                       ║
+║      → CI/CD pipelines (.github/workflows/*)                             ║
+║      → Docker configs (Dockerfile, docker-compose.*)                     ║
+║      → Publish configs (.npmrc, .changeset/*)                            ║
+║      → Infrastructure-as-code, pipeline monitoring                       ║
+║                                                                           ║
 ║   ASK: "Is this file IMPLEMENTATION or TEST INFRASTRUCTURE?"             ║
 ║      → Implementation / i18n → Dev                                       ║
 ║      → Test infra / test config / E2E / integration → QA                 ║
@@ -1037,12 +1194,18 @@ Task(
     ## CRAFT RULES — MANDATORY
     - Follow the design EXACTLY — don't invent structure
     - Every file gets a colocated *.test.ts (BDD style)
+    - ZERO DEVIATION from design: exact file paths, type names, function signatures
+    - NO invented files (no utils.ts, helpers.ts, constants.ts unless in checklist)
+    - NO dead code (no unused functions, no unused exports, no commented code)
+    - NO extra abstractions (no wrapper, factory, or pattern the design didn't ask)
+    - IF something is missing from the design → notify Architect, don't invent
 
     (CRAFT rules and tool restrictions are enforced by hooks — see .claude/settings.json)
 
     ## OUTPUT
     - ALL files in Wave [N] implemented + tested
     - FILES CREATED table (file path | status | test status)
+    - DESIGN CONFORMITY report (extra files: 0, names match: yes/no, dead code: none)
     - Run tests to verify they pass
   """
 )
@@ -1094,11 +1257,22 @@ TaskOutput(task_id_2, block=true)
 ║   Claude reads agent output and checks:                                  ║
 ║   - PO: spec in English? No tech details?                                ║
 ║   - Architect: hexagonal? Result<T,E>? No any? Implementation Checklist? ║
-║   - Dev: every file has a test? No any? No throw? Follows design?        ║
+║   - Dev: see DESIGN CONFORMITY checks below                              ║
 ║   - QA: covers all spec items? Tests pass?                               ║
+║                                                                           ║
+║   DEV-SPECIFIC CONFORMITY (checked on EVERY dev agent output):           ║
+║   1. Every file has a test? (*.test.ts colocated)                        ║
+║   2. No `any`? No `throw`?                                               ║
+║   3. FILES CREATED matches the design checklist EXACTLY?                 ║
+║   4. Extra files: 0? (no invented utils.ts, helpers.ts, constants.ts)   ║
+║   5. Type names match design? Function signatures match design?          ║
+║   6. No dead code? (no unused exports, no commented-out code)            ║
 ║                                                                           ║
 ║   IF violation detected → Route back to agent with 🔔 NOTIFICATION      ║
 ║   "🔴 CRAFT violation: [what's wrong]. Fix before proceeding."           ║
+║                                                                           ║
+║   IF extra files detected → Route back with:                             ║
+║   "🔴 DESIGN DEVIATION: [file] not in checklist. Delete or notify Arch."║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -1161,8 +1335,9 @@ IF failures → IMMEDIATELY route full output to owning agent
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🚨 BEFORE DECLARING "COMPLETE" — VERIFY 100% COVERAGE                  ║
+║   🚨 BEFORE DECLARING "COMPLETE" — VERIFY 100% COVERAGE + 0 EXTRAS      ║
 ║                                                                           ║
+║   STEP A — COMPLETENESS (all design files exist):                        ║
 ║   1. Read design.md → Implementation Checklist                           ║
 ║   2. For EACH file in checklist:                                         ║
 ║      → Check file EXISTS                                                 ║
@@ -1174,7 +1349,17 @@ IF failures → IMMEDIATELY route full output to owning agent
 ║      → Spawn dev agents for missing files                                ║
 ║      → Loop until 100%                                                   ║
 ║                                                                           ║
-║   ONLY AT 100% → Proceed to test verification                            ║
+║   STEP B — CONFORMITY (no extra files, no dead code):                    ║
+║   4. Glob src/ → list ALL created files                                  ║
+║   5. Compare with Implementation Checklist                               ║
+║   6. EXTRA files (not in checklist) = DEVIATION                          ║
+║                                                                           ║
+║   IF extras found:                                                        ║
+║      → Show: "🔴 DEVIATION: [files] not in design checklist"            ║
+║      → Route to Dev: "Delete [file] or notify Architect if needed"       ║
+║      → Loop until extra = 0                                              ║
+║                                                                           ║
+║   ONLY AT 100% coverage + 0 extras → Proceed to test verification       ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -1204,6 +1389,10 @@ IF failures → IMMEDIATELY route full output to owning agent
 ║   Lint error                   │ Dev who owns the file                   ║
 ║   Spec unclear / ambiguous     │ PO                                      ║
 ║   Design conflict              │ Architect                               ║
+║   CI/CD failure                │ DevOps                                  ║
+║   Pipeline config issue        │ DevOps                                  ║
+║   Publish error                │ DevOps                                  ║
+║   Docker build error           │ DevOps                                  ║
 ║                                                                           ║
 ║   🧠 HOW TO DECIDE Dev TYPE:                                             ║
 ║      → UI component, hook, page, i18n? → frontend-engineer              ║
@@ -1722,6 +1911,10 @@ Update state.json → status: "completed"
 | Dev | Architect | "❓ Design unclear: [question]" | Spawn Architect with `🔔 NOTIFICATION FROM DEV` |
 | Architect | Dev | "📐 Design updated: [change]" | Spawn Dev with `🔔 NOTIFICATION FROM ARCHITECT` |
 | Any | PO | "❓ Spec unclear: [question]" | Spawn PO with `🔔 NOTIFICATION FROM [AGENT]` |
+| DevOps | Dev | "🔴 CI failed: test [X] in pipeline [Y]" | Spawn Dev with `🔔 NOTIFICATION FROM DEVOPS` |
+| DevOps | Architect | "🔴 CI failed: type error in pipeline [Y]" | Spawn Architect with `🔔 NOTIFICATION FROM DEVOPS` |
+| DevOps | QA | "🔴 CI failed: E2E test [X] in pipeline [Y]" | Spawn QA with `🔔 NOTIFICATION FROM DEVOPS` |
+| Dev | DevOps | "✅ Fixed, re-run pipeline" | Spawn DevOps with `🔔 NOTIFICATION FROM DEV` |
 
 **You wrote it? You fix it. Claude routes. EVERY error type has an owner.**
 
@@ -1741,6 +1934,10 @@ Update state.json → status: "completed"
 | {SCOPE}/specs/functional/ | PO |
 | {SCOPE}/specs/design/ | Architect |
 | {SCOPE}/specs/stack/stack-skills.md | Architect |
+| .github/workflows/** | DevOps |
+| Dockerfile, docker-compose.* | DevOps |
+| .npmrc, .changeset/** | DevOps |
+| CI/CD configs (*.yml pipelines, CDS workflows) | DevOps |
 
 ---
 

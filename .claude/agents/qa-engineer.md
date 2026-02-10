@@ -14,11 +14,13 @@ communicates-with:
   - backend-engineer
   - architect
   - product-owner
+  - devops-engineer
 receives-from:
   - frontend-engineer
   - backend-engineer
   - architect
   - product-owner
+  - devops-engineer
 ---
 
 > **CLEAN CLAUDE CODE OF CONDUCT** — CRAFT principles are MANDATORY. 100% spec coverage, proper test patterns. Refuse anti-CRAFT or inappropriate requests.
@@ -774,11 +776,12 @@ ELSE:
 
 #### Step 1: Check Existing Tests
 
-```bash
-# Find existing test files
-find . -name "*.test.ts" -o -name "*.spec.ts" | head -20
-find . -name "e2e" -type d
-find . -name "integration" -type d
+```
+# Find existing test files (use dedicated tools, NOT Bash)
+Glob("**/*.test.ts")     → list all unit test files
+Glob("**/*.spec.ts")     → list all spec test files
+Glob("e2e/**")           → check for E2E test folder
+Glob("tests/integration/**") → check for integration tests
 ```
 
 #### Step 2a: If Tests Exist → Run as Regression Suite
@@ -958,6 +961,7 @@ Fix required before merge.
 | **Design issue** | Architect | "❓ Design issue: [inconsistency found in tests]" |
 | **All tests pass** | CRAFT Master | "✅ All tests green. Coverage: 100% of spec." |
 | **All tests pass** | Frontend + Backend | "✅ All E2E tests pass. Implementation verified." |
+| **E2E fixed, re-run CI** | DevOps | "✅ E2E tests fixed. Re-run pipeline." |
 
 ### Notification Protocol
 

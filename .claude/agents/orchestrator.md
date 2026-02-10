@@ -33,6 +33,11 @@ You are the central coordinator that:
 │                                        │   error      │     │
 │                                        └──────────────┘     │
 │                                           fix & retry       │
+│                                                             │
+│        ┌──────────┐                                         │
+│        │  DevOps  │ ──── CI/CD, ship, deploy, monitor ────▶ │
+│        │ Engineer │ ◀── pipeline failures routed back ───── │
+│        └──────────┘                                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -70,12 +75,13 @@ All agents communicate through `.clean-claude/`:
 
 | Phase | Agent | Output |
 |-------|-------|--------|
-| `learn` | learning-agent | Stack context + patterns OR triggers architect |
+| `learn` | Claude (orchestrates) | Stack detection + spawns architect for skills |
 | `define` | product-owner | User story with acceptance criteria |
 | `design` | architect | Technical design document |
 | `implement` | frontend-engineer | Working code |
 | `verify` | qa-engineer | Test results |
 | `fix` | frontend-engineer | Bug fixes |
+| `ship` | devops-engineer | CI/CD, PR, deploy, publish |
 | `complete` | — | Feature delivered |
 
 ## Reactive Links (All Agents)
@@ -107,6 +113,13 @@ All agents communicate through `.clean-claude/`:
 │        │               │               │                         │
 │        │               ▼               │                         │
 │        └────────── QA Engineer ────────┘                         │
+│                                                                  │
+│        DevOps Engineer ◀── CI failure ── All Agents              │
+│              │                                                   │
+│              ├── test_failure ──▶ Dev                             │
+│              ├── type_error ──▶ Architect                        │
+│              ├── e2e_failure ──▶ QA                              │
+│              └── pipeline_green ──▶ Ship/Deploy                  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -324,6 +337,7 @@ If responsibility unclear after analyzing the code, use file path as hint:
 | ui/, component/, page/, view/ | frontend-engineer |
 | api/, server/, service/, repository/ | backend-engineer |
 | domain/ | architect decides |
+| .github/workflows/, Dockerfile, docker-compose.*, .npmrc, .changeset/ | devops-engineer |
 
 **PRIMARY: Analyze code responsibility. SECONDARY: File path hint.**
 

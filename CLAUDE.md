@@ -269,8 +269,11 @@ Generates a report:
 ```
 ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
 │   DEV   │◄──►│   QA    │◄──►│  ARCH   │◄──►│   PO    │
-└─────────┘    └─────────┘    └─────────┘    └─────────┘
-         NOTIFICATION BUS
+└────┬────┘    └─────────┘    └─────────┘    └─────────┘
+     │              NOTIFICATION BUS
+     │         ┌──────────┐
+     └────────►│  DEVOPS  │◄── CI/CD failures routed back
+               └──────────┘
 ```
 
 | From | To | Example |
@@ -280,6 +283,10 @@ Generates a report:
 | Dev | Architect | "❓ Type issue, need design clarification" |
 | Architect | Dev | "📐 Design updated, re-implement checkout()" |
 | QA | PO | "❓ Spec unclear: what happens on empty cart?" |
+| DevOps | Dev | "🔴 CI failed: test X in pipeline Y" |
+| DevOps | Architect | "🔴 CI failed: type error in pipeline Y" |
+| DevOps | QA | "🔴 CI failed: E2E test X in pipeline Y" |
+| Dev | DevOps | "✅ Fixed, re-run pipeline" |
 
 **RULE: You wrote it? You own it. You fix it.**
 
@@ -291,6 +298,10 @@ Generates a report:
 | `*.test.ts` (colocated) | Dev |
 | Design | Architect |
 | Spec | PO |
+| `.github/workflows/**` | DevOps |
+| `Dockerfile`, `docker-compose.*` | DevOps |
+| `.npmrc`, `.changeset/**` | DevOps |
+| CI/CD pipeline configs | DevOps |
 
 ---
 
@@ -323,6 +334,7 @@ Generates a report:
 | **frontend-engineer** | UI + unit tests (BDD) | Code + `*.test.ts` |
 | **backend-engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **qa-engineer** | E2E or Integration tests | `e2e/` or custom path |
+| **devops-engineer** | Ship, CI/CD, deploy, publish, monitor | Pipelines, Docker, npm |
 
 > **Note:** Claude orchestrates directly. No learning-agent. Project detection is done by Claude.
 

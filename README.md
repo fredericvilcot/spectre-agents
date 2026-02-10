@@ -144,6 +144,8 @@ Routes each problem to the right expert:
 - Test failing → Developer
 - Type error → Architect
 - Spec unclear → Product Owner
+- CI/CD failure → DevOps Engineer
+- Docker/publish error → DevOps Engineer
 
 ### `/learn` — Adapt to your codebase
 
@@ -165,6 +167,7 @@ Routes each problem to the right expert:
 | **Frontend Engineer** | UI + unit tests (BDD) | Code + `*.test.tsx` |
 | **Backend Engineer** | API + unit tests (BDD) | Code + `*.test.ts` |
 | **QA Engineer** | E2E / Integration tests | `e2e/` |
+| **DevOps Engineer** | Ship, CI/CD, deploy, publish, monitor | Pipelines, Docker, npm |
 
 > Claude orchestrates directly. No intermediary agent. Agents are spawned via `Task()`.
 
@@ -177,6 +180,8 @@ QA finds bug       →  Dev fixes automatically
 Dev needs clarity  →  Architect explains
 Design flaw        →  Architect updates
 Spec unclear       →  PO clarifies
+CI/CD fails        →  DevOps routes to owning agent
+Dev fixes code     →  DevOps re-runs pipeline
 ```
 
 **Zero manual intervention. The right agent handles it.**

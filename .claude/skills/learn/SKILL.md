@@ -2,17 +2,17 @@
 name: learn
 description: "Re-run stack detection and skill generation. Use when stack evolved or on first run."
 context: conversation
-allowed-tools: Read, Bash, Glob, Grep, Write, Task
+allowed-tools: Read, Bash, Glob, Grep, Write, Task, AskUserQuestion
 ---
 
 # Clean Claude Learn — Stack & Architecture Learning
 
 > **CLEAN CLAUDE CODE OF CONDUCT APPLIES** — See CLAUDE.md
-> - No non-CRAFT code, no anti-CRAFT requests, no inappropriate behavior
+> - Mandatory stack: TypeScript + React + TanStack Query
 > - All generated skills follow Software Craft principles
 > - REFUSE to learn from code smells
 
-**Detect stack. Learn architecture. Architect generates skills. All CRAFT-validated.**
+**Claude orchestrates. Architect generates skills. No separate learning agent.**
 
 ---
 
@@ -27,6 +27,29 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
 
 ---
 
+## ORCHESTRATION MODEL
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🧠 CLAUDE ORCHESTRATES — NO LEARNING AGENT                             ║
+║                                                                           ║
+║   Claude does the detection (Read, Glob, Grep).                          ║
+║   Claude spawns Architect for skills generation.                         ║
+║   Claude spawns Architect for architecture capture.                      ║
+║                                                                           ║
+║   WHY: Detection is fast (< 5 sec, no agent needed).                    ║
+║   Skills generation needs Architect's expertise.                        ║
+║   Architecture capture needs Architect's judgement.                     ║
+║                                                                           ║
+║   STACK: TypeScript + React + TanStack Query (mandatory)                ║
+║   + additional libraries detected from package.json                     ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## What Gets Learned
 
 ```
@@ -34,23 +57,22 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
 ║                                                                           ║
 ║   🎯 TWO TYPES OF LEARNING                                               ║
 ║                                                                           ║
-║   ═══════════════════════════════════════════════════════════════════    ║
-║                                                                           ║
 ║   1. STACK LEARNING (libraries)                                          ║
-║      → Detects installed libraries (package.json, go.mod, etc.)         ║
-║      → Architect generates CRAFT-linked skills                          ║
-║      → Output: specs/stack/stack-skills.md                            ║
+║      → Claude detects installed libraries (package.json)                 ║
+║      → Claude spawns Architect for CRAFT-linked skills                   ║
+║      → Output: specs/stack/stack-skills.md (COMMITTED)                   ║
 ║                                                                           ║
 ║   2. ARCHITECTURE LEARNING (project patterns)                            ║
-║      → Analyzes existing code structure                                  ║
-║      → Extracts CRAFT-compliant patterns ONLY                           ║
-║      → Output: .clean-claude/architecture-guide.md                       ║
+║      → Claude analyzes existing code structure (Glob/Grep)               ║
+║      → Claude validates CRAFT compliance                                ║
+║      → Claude spawns Architect for architecture guide                    ║
+║      → Output: ARCHITECTURE.md with frontmatter flag (COMMITTED)         ║
 ║                                                                           ║
 ║   ═══════════════════════════════════════════════════════════════════    ║
 ║                                                                           ║
 ║   🚫 NEVER LEARN FROM CODE SMELLS                                        ║
 ║                                                                           ║
-║   The learning process VALIDATES code before extracting patterns:       ║
+║   Claude VALIDATES code before spawning Architect:                      ║
 ║   • Checks for `any` types → REJECT                                     ║
 ║   • Checks for `throw` without Result → REJECT                          ║
 ║   • Checks for spaghetti architecture → REJECT                          ║
@@ -70,18 +92,18 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
 ```
 /learn
   │
-  ├─ 1. STACK DETECTION
-  │     → Learning Agent reads package.json
-  │     → Spawns Architect for library skills
+  ├─ 1. STACK DETECTION (Claude — Read/Glob)
+  │     → Read package.json (root + workspaces)
+  │     → Extract library list beyond mandatory stack
+  │     → Spawn Architect for library skills
   │     → Output: specs/stack/stack-skills.md
   │
-  └─ 2. ARCHITECTURE DETECTION (if src/ exists)
-        → Learning Agent analyzes code structure
-        → VALIDATES CRAFT compliance first
+  └─ 2. ARCHITECTURE DETECTION (Claude — Glob/Grep)
+        → Analyze code structure
+        → VALIDATE CRAFT compliance
         │
-        ├─ CRAFT-compliant → Extract patterns
-        │     → Spawns Architect for architecture guide
-        │     → Output: .clean-claude/architecture-guide.md
+        ├─ CRAFT-compliant → Spawn Architect for architecture guide
+        │     → Output: ARCHITECTURE.md
         │
         └─ NOT CRAFT-compliant → Report issues
               → List violations
@@ -89,30 +111,143 @@ allowed-tools: Read, Bash, Glob, Grep, Write, Task
               → DO NOT learn anti-patterns
 ```
 
-### Execution
+### Step 1: Stack Detection (Claude does this directly)
+
+```
+1. Read package.json (root)
+   → IF monorepo: also read apps/*/package.json, packages/*/package.json
+
+2. Extract ALL dependencies + devDependencies
+   → Mandatory (skip in skills — hardcoded in templates/):
+     react, react-dom, @tanstack/react-query, typescript
+
+   → Additional libs to learn (project-specific):
+     react-router-dom, zustand, zod, tailwindcss, @tanstack/react-table,
+     msw, playwright, i18next, date-fns, etc.
+
+3. Write to .clean-claude/context.json:
+   {
+     "project": {
+       "type": "frontend | monorepo",
+       "language": "typescript",
+       "stackGuard": "pass",
+       "additionalLibs": ["react-router-dom", "zustand", ...]
+     }
+   }
+
+4. IF additional libs found → Spawn Architect for skills:
+```
 
 ```
 Task(
-  subagent_type: "learning-agent",
+  subagent_type: "architect",
   prompt: """
-    LEARN EVERYTHING (stack + architecture)
+    🔔 STACK SKILLS GENERATION
 
-    MODE: full
+    ## YOUR TASK
+    Generate CRAFT-linked skills for the project's additional libraries.
 
-    1. STACK LEARNING
-       → Read package.json/go.mod/etc.
-       → Write .clean-claude/context.json
-       → Spawn Architect for library skills
-       → Output: specs/stack/stack-skills.md
+    ## MANDATORY STACK (ALREADY HANDLED — DO NOT REGENERATE)
+    React, TypeScript, TanStack Query skills are HARDCODED in
+    .claude/templates/mandatory-stack-skills.md
+    → Read it, COPY as-is into the FIRST section of stack-skills.md
 
-    2. ARCHITECTURE LEARNING (if src/ exists)
-       → Analyze folder structure
-       → VALIDATE CRAFT compliance FIRST
-       → If compliant: Spawn Architect for architecture guide
-       → If NOT compliant: Report violations, suggest fixes
-       → Output: .clean-claude/architecture-guide.md (if compliant)
+    ## ADDITIONAL LIBRARIES TO DOCUMENT
+    [LIST from context.json additionalLibs]
 
-    OUTPUT progress to user.
+    ## FOR EACH ADDITIONAL LIBRARY
+    Generate CRAFT-linked skills following the format in your agent file:
+    - CRAFT Principles Table
+    - Mandatory Patterns
+    - Best Practices (Official + Community)
+    - Anti-Patterns to AVOID
+    - Code Examples (✅ vs ❌)
+
+    ## OUTPUT
+    Write specs/stack/stack-skills.md:
+    1. FIRST section = mandatory-stack-skills.md (copied as-is)
+    2. THEN one section per additional library
+
+    (CRAFT rules and tool restrictions are enforced by hooks)
+  """
+)
+```
+
+### Step 2: Architecture Detection (Claude does this directly)
+
+```
+1. Check if src/ exists (Glob)
+   → No src/ → Skip architecture learning
+
+2. VALIDATE CRAFT compliance (Claude — Grep):
+
+   CHECK 1: TypeScript Strictness
+   Grep(":\s*any\b|as\s+any\b", glob="*.ts,*.tsx")
+   → 0 matches = ✅ | matches = ❌ "X files use any"
+
+   CHECK 2: Error Handling
+   Grep("throw\s+new\b", glob="*.ts,*.tsx")
+   + Grep("Result<|Either<", glob="*.ts,*.tsx")
+   → Has Result/Either = ✅ | Only throw = ❌
+
+   CHECK 3: Architecture Layering
+   Glob("src/domain/**") or Glob("src/core/**")
+   → Clear layers = ✅ | No separation = ⚠️
+
+   CHECK 4: Test Presence
+   Glob("**/*.test.ts") count vs Glob("src/**/*.ts") count
+   → > 50% = ✅ | < 50% = ⚠️ | 0 = ❌
+
+3. IF COMPLIANT (✅ or ⚠️ only):
+   → Spawn Architect for architecture capture
+   → Output: ARCHITECTURE.md
+
+4. IF NOT COMPLIANT (any ❌):
+   → Show violations to user
+   → Suggest /craft "Refactor" to fix
+   → DO NOT spawn Architect for architecture guide
+```
+
+```
+Task(
+  subagent_type: "architect",
+  prompt: """
+    🔔 ARCHITECTURE CAPTURE
+
+    ## YOUR TASK
+    Analyze the implemented code and document the architecture patterns.
+
+    ## WHAT TO ANALYZE (use Read/Glob/Grep — NEVER Bash)
+    - Folder structure conventions
+    - Naming patterns (entities, hooks, components, services)
+    - Layer boundaries (domain → application → infrastructure → UI)
+    - Error handling patterns (Result<T,E> usage)
+    - Test organization (colocated, integration, e2e)
+    - Key architectural decisions
+
+    ## OUTPUT
+    Write {SCOPE}/ARCHITECTURE.md with frontmatter:
+
+    ---
+    clean-claude: architecture-reference
+    version: 1
+    created: [today]
+    updated: [today]
+    approved-by: user
+    ---
+
+    Sections:
+    - Architecture pattern (hexagonal variant chosen)
+    - Folder structure convention
+    - Naming conventions table
+    - Error handling patterns (Result<T,E> examples from actual code)
+    - Testing patterns
+    - Layer dependencies diagram
+    - Key decisions (ADR style)
+
+    This becomes the REFERENCE for ALL future features.
+
+    (CRAFT rules and tool restrictions are enforced by hooks)
   """
 )
 ```
@@ -126,33 +261,11 @@ Task(
 ```
 /learn stack
   │
-  └─ STACK DETECTION
-       → Learning Agent reads package.json
-       → Spawns Architect for library skills
-       → Output: specs/stack/stack-skills.md
+  └─ Claude: Read package.json → extract libs → spawn Architect for skills
+     → Output: specs/stack/stack-skills.md
 ```
 
-### Execution
-
-```
-Task(
-  subagent_type: "learning-agent",
-  prompt: """
-    LEARN STACK ONLY
-
-    MODE: stack
-
-    1. Read package.json/go.mod/Cargo.toml/pyproject.toml
-    2. Extract library list
-    3. Write .clean-claude/context.json
-    4. Spawn Architect for library skills
-    5. Output: specs/stack/stack-skills.md
-
-    DO NOT analyze architecture.
-    OUTPUT progress to user.
-  """
-)
-```
+**Claude executes Step 1 only (see above). No architecture analysis.**
 
 ---
 
@@ -163,55 +276,11 @@ Task(
 ```
 /learn architecture
   │
-  └─ ARCHITECTURE DETECTION
-       │
-       ├─ VALIDATE CRAFT compliance
-       │
-       ├─ CRAFT-compliant?
-       │     → Extract patterns
-       │     → File organization
-       │     → Naming conventions
-       │     → Layer boundaries
-       │     → Result<T,E> usage
-       │     → Test structure
-       │
-       └─ Output: .clean-claude/architecture-guide.md
+  └─ Claude: Glob/Grep for CRAFT validation → spawn Architect if compliant
+     → Output: ARCHITECTURE.md
 ```
 
-### Execution
-
-```
-Task(
-  subagent_type: "learning-agent",
-  prompt: """
-    LEARN ARCHITECTURE ONLY
-
-    MODE: architecture
-
-    1. VALIDATE CRAFT compliance in src/
-       → Check for `any` types
-       → Check for `throw` without Result
-       → Check for proper layering
-       → Check for test presence
-
-    2. IF COMPLIANT:
-       → Analyze folder structure
-       → Extract naming conventions
-       → Extract layer patterns (domain, infra, ui)
-       → Extract Result<T,E> patterns
-       → Extract test organization
-       → Spawn Architect for architecture guide
-       → Output: .clean-claude/architecture-guide.md
-
-    3. IF NOT COMPLIANT:
-       → List all violations
-       → Suggest /craft "Refactor" with specific targets
-       → DO NOT generate architecture-guide.md
-
-    OUTPUT progress to user.
-  """
-)
-```
+**Claude executes Step 2 only (see above). No stack detection.**
 
 ---
 
@@ -224,9 +293,9 @@ Task(
   │
   └─ EXTERNAL ANALYSIS
        │
-       ├─ Clone repo to temp folder
+       ├─ Clone repo to temp folder (Bash: git clone --depth 1)
        │
-       ├─ VALIDATE CRAFT compliance
+       ├─ Claude validates CRAFT compliance (Grep)
        │     │
        │     ├─ CRAFT-compliant → Extract patterns
        │     │     → Generate analysis report
@@ -244,159 +313,45 @@ Task(
 ```
 IF args STARTS WITH "http" OR "https" OR "github.com":
   → External GitHub repo
-  → Clone to temp, analyze, cleanup
+  → Bash: git clone --depth 1 <url> /tmp/clean-claude-analysis
+  → Analyze with Glob/Grep in temp folder
+  → Cleanup: Bash: rm -rf /tmp/clean-claude-analysis
 
 IF args IS a path (starts with "/" or "./" or relative folder name):
   → Local folder analysis
-  → Analyze in place
+  → Analyze in place with Glob/Grep
+  → DO NOT modify the external folder
 ```
 
-### Execution (GitHub URL)
+### Execution (External)
 
 ```
-Task(
-  subagent_type: "learning-agent",
-  prompt: """
-    ANALYZE EXTERNAL SOURCE
+1. Clone/access the source
 
-    MODE: external
-    SOURCE: https://github.com/org/repo
+2. Claude validates CRAFT compliance (same checks as /learn architecture):
+   → Grep for `any`, `throw`, check layers, check tests
 
-    1. CLONE to temp folder
-       git clone --depth 1 <url> /tmp/clean-claude-analysis-<random>
+3. Write .clean-claude/external-analysis.md:
 
-    2. VALIDATE CRAFT compliance
-       → Check for `any` types
-       → Check for `throw` without Result
-       → Check for proper layering
-       → Check for test presence
+   IF CRAFT-COMPLIANT:
+   ---
+   # External Analysis: <repo name>
+   ## Summary: ✅ CRAFT-compliant
+   ## Patterns Worth Adopting
+   ## File Organization
+   ## Recommended for: [use cases]
+   ---
 
-    3. GENERATE REPORT (.clean-claude/external-analysis.md)
+   IF NOT CRAFT-COMPLIANT:
+   ---
+   # External Analysis: <repo name>
+   ## Summary: ⚠️ NOT CRAFT-compliant
+   ## Violations Found (X `any`, Y `throw`, Z missing tests)
+   ## What Can Be Learned (with caution)
+   ## Recommendation: Do NOT use as architecture reference.
+   ---
 
-       IF CRAFT-COMPLIANT:
-       ```
-       # External Analysis: <repo name>
-
-       ## Summary
-       ✅ CRAFT-compliant repository
-
-       ## Patterns Worth Adopting
-       - [pattern 1]
-       - [pattern 2]
-
-       ## File Organization
-       <structure>
-
-       ## Recommended for: [use cases]
-       ```
-
-       IF NOT CRAFT-COMPLIANT:
-       ```
-       # External Analysis: <repo name>
-
-       ## Summary
-       ⚠️ NOT CRAFT-compliant — NOT recommended as reference
-
-       ## Violations Found
-       - X files with `any` types
-       - Y functions using `throw`
-       - Z missing test coverage
-
-       ## What Can Be Learned (with caution)
-       - [non-anti-pattern elements]
-
-       ## Recommendation
-       Do NOT use as architecture reference.
-       Consider CRAFT-compliant alternatives.
-       ```
-
-    4. CLEANUP temp folder
-
-    OUTPUT progress to user.
-  """
-)
-```
-
-### Execution (Local Folder)
-
-```
-Task(
-  subagent_type: "learning-agent",
-  prompt: """
-    ANALYZE EXTERNAL SOURCE
-
-    MODE: external
-    SOURCE: /path/to/folder
-
-    1. VALIDATE folder exists and has code
-
-    2. VALIDATE CRAFT compliance
-       → Check for `any` types
-       → Check for `throw` without Result
-       → Check for proper layering
-       → Check for test presence
-
-    3. GENERATE REPORT (.clean-claude/external-analysis.md)
-       [Same format as GitHub analysis]
-
-    DO NOT modify the external folder.
-    OUTPUT progress to user.
-  """
-)
-```
-
----
-
-## CRAFT Validation — What Gets Checked
-
-```
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║   🔍 VALIDATION CHECKS (Learning Agent runs these)                       ║
-║                                                                           ║
-║   ════════════════════════════════════════════════════════════════════   ║
-║                                                                           ║
-║   CHECK 1: TypeScript Strictness                                         ║
-║   ──────────────────────────────                                         ║
-║   grep -r ": any" --include="*.ts" --include="*.tsx"                     ║
-║   grep -r "as any" --include="*.ts" --include="*.tsx"                    ║
-║   → 0 matches = ✅ PASS                                                  ║
-║   → Any matches = ❌ FAIL ("X files use `any` type")                     ║
-║                                                                           ║
-║   CHECK 2: Error Handling                                                 ║
-║   ───────────────────────                                                 ║
-║   grep -r "throw new" --include="*.ts" --include="*.tsx"                 ║
-║   + Check for Result<T,E> or Either usage                                ║
-║   → Has Result/Either = ✅ PASS                                          ║
-║   → Only throw = ❌ FAIL ("Uses throw instead of Result")                ║
-║                                                                           ║
-║   CHECK 3: Architecture Layering                                          ║
-║   ──────────────────────────────                                          ║
-║   Look for: domain/, application/, infrastructure/, ui/                  ║
-║   OR: core/, services/, adapters/, ports/                                ║
-║   → Clear layers = ✅ PASS                                               ║
-║   → No separation = ⚠️ WARN ("No clear architecture")                    ║
-║                                                                           ║
-║   CHECK 4: Test Presence                                                  ║
-║   ─────────────────────                                                   ║
-║   Count *.test.ts, *.spec.ts files                                       ║
-║   Compare to *.ts files (ratio)                                          ║
-║   → > 50% coverage = ✅ PASS                                             ║
-║   → < 50% coverage = ⚠️ WARN ("Low test coverage")                       ║
-║   → 0 tests = ❌ FAIL ("No tests")                                       ║
-║                                                                           ║
-║   ════════════════════════════════════════════════════════════════════   ║
-║                                                                           ║
-║   RESULT THRESHOLDS                                                       ║
-║                                                                           ║
-║   ✅ CRAFT-COMPLIANT: All checks pass or only warnings                   ║
-║   ⚠️ PARTIALLY COMPLIANT: Warnings but no failures                       ║
-║   ❌ NOT COMPLIANT: Any check fails                                      ║
-║                                                                           ║
-║   Only ✅ and ⚠️ can have patterns extracted.                            ║
-║   ❌ generates violation report ONLY.                                    ║
-║                                                                           ║
-╚═══════════════════════════════════════════════════════════════════════════╝
+4. Cleanup temp folder if cloned
 ```
 
 ---
@@ -404,114 +359,122 @@ Task(
 ## Output Files
 
 ```
-.clean-claude/
-├── context.json              # Detected libraries (gitignored)
-├── stack-skills.md           # Library documentation (gitignored)
-├── external-analysis.md      # External source report (gitignored)
-│
-└── architecture-guide.md     # Project patterns — COMMITTED ✅
-                              # (shared reference for all µApps)
-```
+specs/                                    # COMMITTED ✅
+├── stack/
+│   └── stack-skills.md                   # Library skills (mandatory + project-specific)
+└── ...
 
-**architecture-guide.md is COMMITTED** — it's the shared reference architecture for the entire team and all future features.
+{SCOPE}/ARCHITECTURE.md                   # COMMITTED ✅ (architecture reference)
 
-### architecture-guide.md Example
-
-```markdown
-# Architecture Guide
-
-> Extracted from this project. CRAFT-validated.
-
-## File Organization
-
-```
-src/
-├── domain/           # Pure business logic (no imports from infra)
-│   ├── entities/
-│   ├── value-objects/
-│   └── services/
-├── application/      # Use cases, orchestration
-│   └── use-cases/
-├── infrastructure/   # External world (DB, APIs, etc.)
-│   ├── repositories/
-│   └── adapters/
-└── ui/               # Presentation (React, CLI, etc.)
-    ├── components/
-    └── pages/
-```
-
-## Naming Conventions
-
-| Type | Pattern | Example |
-|------|---------|---------|
-| Entity | PascalCase | `User`, `Order` |
-| Value Object | PascalCase | `Email`, `Money` |
-| Service | PascalCase + suffix | `OrderService` |
-| Repository | PascalCase + suffix | `UserRepository` |
-| Use Case | Verb + Noun | `CreateOrder`, `GetUserById` |
-
-## Result<T, E> Usage
-
-```typescript
-// All operations that can fail return Result
-type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }
-
-// Example from this project:
-const createUser = (data: UserInput): Result<User, ValidationError> => {
-  // ...
-}
-```
-
-## Test Organization
-
-- Unit tests: colocated `*.test.ts`
-- Integration tests: `tests/integration/`
-- E2E tests: `e2e/`
-
-## Layer Dependencies
-
-```
-UI → Application → Domain ← Infrastructure
-         ↓
-     Infrastructure
-
-Domain has ZERO external imports.
-```
+.clean-claude/                             # GITIGNORED
+├── context.json                           # Detection cache
+└── external-analysis.md                   # External repo report (temporary)
 ```
 
 ---
 
 ## Automatic in /craft
 
-Learning runs automatically at `/craft` start:
+Learning runs automatically at `/craft` Step 5b (Architect generates skills WITH the design):
 
 ```
 /craft
    │
-   ├─ ══════════════════════════════════
-   │   LEARNING (auto)
-   │   → /learn (full mode)
-   │   → Stack + Architecture (if exists)
-   │  ══════════════════════════════════
+   ├─ Step 1: Detect (Claude: package.json → context.json)
+   │          NO skills generated yet — too early
    │
-   ├─ PO → spec
-   ├─ Architect → design (uses skills + architecture)
-   └─ Dev → implements
+   ├─ Step 5b: Architect
+   │   │
+   │   ├─ Reads .claude/templates/mandatory-stack-skills.md (hardcoded)
+   │   ├─ Generates skills for ADDITIONAL libs only
+   │   ├─ Writes specs/stack/stack-skills.md
+   │   └─ Writes specs/design/design-v1.md
+   │
+   └─ /learn is for MANUAL re-runs or external analysis
 ```
 
-**Use `/learn` subcommands only to re-run manually or analyze external sources.**
+**Use `/learn` only to re-run manually or analyze external sources.**
+
+---
+
+## Enterprise Scale (Monorepo / Modular Monolith)
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🏢 ENTERPRISE: /learn in Monorepo Context                              ║
+║                                                                           ║
+║   /learn scans the SCOPED workspace (from context.json):                ║
+║                                                                           ║
+║   Monorepo:                                                               ║
+║   ├── apps/dashboard/package.json  ← scoped /learn reads THIS           ║
+║   ├── apps/admin/package.json                                            ║
+║   ├── packages/ui/package.json     ← shared lib, also detectable        ║
+║   └── packages/domain/package.json ← shared domain                      ║
+║                                                                           ║
+║   /learn (no scope) → reads ROOT package.json + all workspaces          ║
+║   /learn (with scope) → reads SCOPED package.json only                  ║
+║                                                                           ║
+║   Architecture reference is PER-PROJECT (not per-workspace):             ║
+║   → One ARCHITECTURE.md at root or at scope level                       ║
+║   → ALL apps follow the SAME patterns                                   ║
+║   → Consistency across 40+ developers                                   ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+## CRAFT Validation Checks
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔍 VALIDATION CHECKS (Claude runs these with Grep/Glob)               ║
+║                                                                           ║
+║   CHECK 1: TypeScript Strictness                                         ║
+║   Grep(": any\\b|as any\\b", glob="*.ts,*.tsx")                          ║
+║   → 0 matches = ✅ PASS                                                  ║
+║   → Any matches = ❌ FAIL ("X files use `any` type")                     ║
+║                                                                           ║
+║   CHECK 2: Error Handling                                                 ║
+║   Grep("throw new\\b", glob="*.ts,*.tsx")                                ║
+║   + Grep("Result<|Either<", glob="*.ts,*.tsx")                           ║
+║   → Has Result/Either = ✅ PASS                                          ║
+║   → Only throw = ❌ FAIL ("Uses throw instead of Result")                ║
+║                                                                           ║
+║   CHECK 3: Architecture Layering                                          ║
+║   Glob("src/domain/**") or Glob("src/core/**")                           ║
+║   → Clear layers = ✅ PASS                                               ║
+║   → No separation = ⚠️ WARN ("No clear architecture")                    ║
+║                                                                           ║
+║   CHECK 4: Test Presence                                                  ║
+║   Glob("**/*.test.ts") count vs Glob("src/**/*.ts") count                ║
+║   → > 50% ratio = ✅ PASS                                                ║
+║   → < 50% ratio = ⚠️ WARN ("Low test coverage")                         ║
+║   → 0 tests = ❌ FAIL ("No tests")                                       ║
+║                                                                           ║
+║   RESULT THRESHOLDS                                                       ║
+║   ✅ CRAFT-COMPLIANT: All checks pass or only warnings                   ║
+║   ⚠️ PARTIALLY COMPLIANT: Warnings but no failures                       ║
+║   ❌ NOT COMPLIANT: Any check fails                                      ║
+║                                                                           ║
+║   Only ✅ and ⚠️ → patterns extracted. ❌ → violation report ONLY.       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
 ## Summary
 
-| Command | What It Does | Output |
-|---------|--------------|--------|
-| `/learn` | Everything (stack + architecture) | stack-skills.md + architecture-guide.md |
-| `/learn stack` | Libraries only | stack-skills.md |
-| `/learn architecture` | Project patterns only | architecture-guide.md |
-| `/learn <url>` | Analyze external GitHub repo | external-analysis.md |
-| `/learn <path>` | Analyze external folder | external-analysis.md |
+| Command | Claude Does | Spawns | Output |
+|---------|-------------|--------|--------|
+| `/learn` | Read pkg, Grep validation | Architect (skills + arch) | stack-skills.md + ARCHITECTURE.md |
+| `/learn stack` | Read pkg | Architect (skills) | stack-skills.md |
+| `/learn architecture` | Grep validation | Architect (arch capture) | ARCHITECTURE.md |
+| `/learn <url>` | Clone + Grep validation | — | external-analysis.md |
+| `/learn <path>` | Grep validation | — | external-analysis.md |
 
 ---
 
@@ -525,7 +488,7 @@ Learning runs automatically at `/craft` start:
 ║   If code is NOT CRAFT-compliant:                                        ║
 ║   ❌ DO NOT extract "patterns" from it                                   ║
 ║   ❌ DO NOT use it as reference for future code                          ║
-║   ❌ DO NOT generate architecture-guide.md                               ║
+║   ❌ DO NOT generate ARCHITECTURE.md                                     ║
 ║                                                                           ║
 ║   Instead:                                                                ║
 ║   ✅ Report all violations found                                         ║

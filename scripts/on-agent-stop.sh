@@ -14,7 +14,7 @@ INPUT=$(cat)
 AGENT_TYPE=$(echo "$INPUT" | jq -r '.agent_type // .subagent_type // "unknown"')
 
 # List of Clean Claude agents
-CLEAN_CLAUDE_AGENTS="qa-engineer|frontend-engineer|backend-engineer|architect|product-owner|orchestrator"
+CLEAN_CLAUDE_AGENTS="qa-engineer|frontend-engineer|backend-engineer|architect|product-owner|devops-engineer|orchestrator"
 
 # Only process Clean Claude agents
 if echo "$AGENT_TYPE" | grep -qE "^($CLEAN_CLAUDE_AGENTS)$"; then

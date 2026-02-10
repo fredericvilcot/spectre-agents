@@ -33,7 +33,7 @@
     ],
     "SubagentStart": [
       {
-        "matcher": "architect|frontend-engineer|backend-engineer|qa-engineer|product-owner",
+        "matcher": "architect|frontend-engineer|backend-engineer|qa-engineer|product-owner|devops-engineer",
         "hooks": [
           {
             "type": "command",
