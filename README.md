@@ -108,8 +108,17 @@ Dev agents implement the Architect's design with **zero deviation**:
                                      └─────────────────┘
                                                │
                                                ▼
+                                     ┌─────────────────┐
+                                     │     DEVOPS      │
+                                     │  CI/CD + ship   │
+                                     │  deploy + publish│
+                                     └─────────────────┘
+                                               │
+                                               ▼
                                         ✅ All green
 ```
+
+**DevOps in the loop:** During verify, CI/CD failures route to DevOps who parses logs and dispatches — test failures back to Dev, type errors to Architect, E2E failures to QA. After all green, DevOps handles shipping: PR creation, pipeline runs, deploy, npm publish.
 
 ---
 
@@ -178,9 +187,10 @@ Step 4  QA CONFIG      E2E tests in addition to unit tests?
 Step 5a PRODUCT OWNER  Functional spec (if new feature / user-facing bug)
 Step 5b ARCHITECT      Stack skills + technical design (hexagonal)
 Step 5c DEV + QA       Implementation in parallel waves
-Step 6  VERIFY         Tests + build → fix loop until green
-Step 7  CAPTURE        Save as architecture reference (if first feature)
-Step 8  ITERATE        Session stays active — bugs/changes routed to agents
+Step 6  VERIFY         Tests + build → fix loop until green (CI failures → DevOps)
+Step 7  SHIP           DevOps: CI/CD, PR, deploy, publish
+Step 8  CAPTURE        Save as architecture reference (if first feature)
+Step 9  ITERATE        Session stays active — bugs/changes routed to agents
 ```
 
 **Smart routing — free text works:**
@@ -192,6 +202,8 @@ Step 8  ITERATE        Session stays active — bugs/changes routed to agents
 | "Memory leak in cart" | Arch → Dev | Technical bug, no spec needed |
 | "Migrate to Result types" | Arch → Dev | Refactor, no spec needed |
 | "Add E2E tests" | QA directly | Tests only |
+| "Set up CI pipeline" | DevOps directly | Infrastructure only |
+| "Publish to npm" | DevOps directly | Ship only |
 
 ### `/heal` — Fix something
 
