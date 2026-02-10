@@ -850,82 +850,123 @@ AskUserQuestion:
 → Proceed directly to Question 2 (references)
 ```
 
-**Question 2: Do you have references?**
+**Question 2: Describe + Collect sources (accumulation loop)**
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🔴 AskUserQuestion supports MAX 4 options.                            ║
+║   🧠 SMART SOURCE COLLECTION — ACCUMULATE, DON'T LIMIT                  ║
+║                                                                           ║
+║   A spec can be built from MANY sources combined:                        ║
+║   • Text description                                                     ║
+║   • Live app/website (Playwright MCP)                                    ║
+║   • Figma design (Figma MCP)                                            ║
+║   • API spec — OpenAPI/Swagger (OpenAPI MCP)                            ║
+║   • Image — screenshot, mockup, PNG, SVG (Read tool)                    ║
+║   • Document — markdown, PDF, spec file (Read tool)                     ║
+║   • Ticket — Jira, Linear, GitHub issue URL (WebFetch)                  ║
+║   • Legacy code — existing app to migrate (Read/Glob)                   ║
+║                                                                           ║
+║   The user can combine ANY number of these.                              ║
+║   Use a LOOP: collect one source → "Add more?" → repeat until done.     ║
+║                                                                           ║
+║   🔴 AskUserQuestion supports MAX 4 options + auto "Other".             ║
 ║   Structure questions to fit this constraint.                            ║
-║   "Other" is always added automatically for free text.                  ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**2a. Ask description (ALWAYS first):**
+```
+AskUserQuestion:
+  "Describe what you want to build:"
+  [free text — user types description]
+```
+
+**2b. Source collection loop:**
+```
+AskUserQuestion:
+  "Do you have references to build the spec from?"
+  Options:
+  - Live app/website (I'll paste a URL)
+  - Design or mockup (Figma, image, screenshot)
+  - Document or ticket (spec file, Jira, markdown, PDF)
+  - No, that's everything
+```
+
+**IF "Live app/website":**
+```
+AskUserQuestion:
+  "Paste the URL to browse:" → [free text]
+
+AskUserQuestion:
+  "What should the PO do with this?"
+  Options:
+  - Reproduce this page/feature
+  - Improve on this (note what to change)
+  - Use as inspiration
+```
+→ Save as referenceUrl + referenceIntent
+
+**IF "Design or mockup":**
+```
+AskUserQuestion:
+  "What kind of design?"
+  Options:
+  - Figma URL (Figma MCP will read it)
+  - Local image/screenshot (paste path — .png, .svg, .jpg)
+  - Wireframe or mockup file (paste path)
+```
+→ IF Figma: save as figmaUrl
+→ IF image/file: save as designFiles[] (PO reads with Read tool)
+
+**IF "Document or ticket":**
+```
+AskUserQuestion:
+  "Paste the path or URL:"
+  [free text — local file path, Jira URL, GitHub issue URL, etc.]
+```
+→ IF URL (Jira, Linear, GitHub): save as ticketUrls[] (PO reads with WebFetch)
+→ IF local file (.md, .pdf, .txt): save as specFiles[] (PO reads with Read)
+
+**After EACH source collected → Loop back:**
+```
+AskUserQuestion:
+  "Source added. What else?"
+  Options:
+  - Live app/website (another URL)
+  - Design or mockup (another file)
+  - Document or ticket (another file/URL)
+  - Done, that's everything
+```
+→ Repeat until "Done" selected.
+
+**2c. API endpoints prompt (ALWAYS asked unless OpenAPI already provided):**
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔴 ALWAYS ASK ABOUT API ENDPOINTS — users forget this.                ║
+║   Skip ONLY if user already provided an OpenAPI spec above.              ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
 ```
 AskUserQuestion:
-  "Do you have references or existing specs?" (multiSelect: true)
+  "What about API endpoints?"
   Options:
-  - Reference URL (live app — Playwright MCP)
-  - Figma design (Figma MCP)
-  - OpenAPI/Swagger spec (API discovery MCP)
-  - Existing spec or legacy code (local path)
-  (user can also select "Other" to type freely or say "no reference")
+  - I have an OpenAPI/Swagger spec (paste URL or path)
+  - I have endpoint docs or a list (paste path or describe)
+  - The Architect will design the API
+  - This feature doesn't need an API
 ```
 
-**THEN for each selected reference, ask details (one question per selection):**
+→ IF OpenAPI: save as openApiSpec + ask openApiIntent (full/specific/explore)
+→ IF endpoint docs: save as endpointDocs (PO reads, extracts functional intent)
+→ IF Architect designs: save as apiDesign: "architect"
+→ IF no API: save as apiDesign: "none"
 
-**IF "Reference URL" selected:**
-```
-AskUserQuestion:
-  "Paste the URL to browse:"
-  [free text — user types URL]
-
-AskUserQuestion:
-  "What should the PO do with this reference?"
-  Options:
-  - Reproduce this page/feature
-  - Improve on this (note what to change)
-  - Use as inspiration (different design, same concept)
-```
-
-**IF "Figma design" selected:**
-```
-AskUserQuestion:
-  "Paste the Figma file URL or frame link:"
-  [free text — user types Figma URL]
-```
-
-**IF "OpenAPI/Swagger spec" selected:**
-```
-AskUserQuestion:
-  "Paste the OpenAPI spec URL or local path:"
-  [free text — user types URL or path]
-
-AskUserQuestion:
-  "What should we focus on?"
-  Options:
-  - Build a frontend for this entire API
-  - Build a feature using specific endpoints
-  - Discover what's available (explore first)
-```
-
-**IF "Existing spec or legacy code" selected:**
-```
-AskUserQuestion:
-  "Paste the path to your spec or legacy code:"
-  [free text — user types path]
-```
-
-**Question 3: Describe what you want**
-```
-AskUserQuestion:
-  "Now describe what you want to build:"
-  [free text — user types description]
-  (This is ALWAYS asked, regardless of references above)
-```
-
-**Save ALL inputs in context.json for the entire chain (PO + Architect):**
+**Save ALL collected sources in context.json:**
 
 ```
 Update context.json:
@@ -933,20 +974,27 @@ Update context.json:
   "project": { ... },
   "inputs": {
     "type": "[new feature | refactor | fix bug | add tests]",
-    "specPath": "[path if provided]",
-    "legacyPath": "[path if provided]",
-    "description": "[user description if typed]",
-    "referenceUrl": "[URL if provided via 'reference URL' option]",
-    "referenceIntent": "[reproduce | improve | inspiration]",
-    "figmaUrl": "[Figma URL if provided via 'Figma design' option]",
-    "openApiSpec": "[URL or path if provided via 'OpenAPI/Swagger spec' option]",
-    "openApiIntent": "[full api | specific endpoints | explore]"
+    "description": "[user description]",
+    "sources": [
+      { "type": "referenceUrl", "value": "[URL]", "intent": "[reproduce|improve|inspiration]" },
+      { "type": "figma", "value": "[Figma URL]" },
+      { "type": "image", "value": "[path to PNG/SVG]" },
+      { "type": "document", "value": "[path or URL]" },
+      { "type": "ticket", "value": "[Jira/GitHub URL]" },
+      { "type": "legacyCode", "value": "[path]" },
+      { "type": "specFile", "value": "[path]" }
+    ],
+    "api": {
+      "type": "[openapi | endpointDocs | architect | none]",
+      "spec": "[URL or path if provided]",
+      "intent": "[full | specific | explore]"
+    }
   }
 }
 ```
 
 **These inputs are passed to BOTH PO AND Architect:**
-- PO uses them for functional spec (features, user stories)
+- PO uses ALL sources for functional spec (features, user stories)
 - Architect uses them for technical design (endpoints, data models, API contracts)
 
 **DO NOT start exploring code on your own. Ask the user first.**
@@ -1057,7 +1105,19 @@ Launching Step 5...
    Launching product-owner...
 ```
 
-**ONE unified PO prompt — include ALL available inputs:**
+**ONE unified PO prompt — built dynamically from context.json sources:**
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   BUILD THE PROMPT DYNAMICALLY from context.json inputs.sources[]        ║
+║                                                                           ║
+║   For EACH source in the array, add the matching section below.          ║
+║   Sources stack up — multiple references = richer spec.                  ║
+║   If no sources at all → just description + rules.                       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
 
 ```
 Task(
@@ -1065,91 +1125,74 @@ Task(
   prompt: """
     Write functional spec for: [USER_DESCRIPTION]
 
-    ## AVAILABLE INPUTS (include each section ONLY if the input exists)
+    ## YOUR SOURCES (add each section for matching sources in context.json)
 
-    ### Existing Spec (if specPath in context.json)
-    Existing spec: [SPEC_PATH]
-    → Read it, ENRICH with missing functional requirements.
+    ### FOR EACH source of type "referenceUrl":
+    Reference URL: [source.value]
+    Intent: [source.intent]
 
-    ### Legacy Code (if legacyPath in context.json)
-    Legacy code: [LEGACY_PATH]
-    → Read it to find ALL features, add EVERY missing feature to the spec.
+    🔴 DEEP EXPLORATION with Playwright MCP (see your agent file).
+    4 phases: Navigate → Explore EVERYTHING → Save to reference/ → Catalog.
+    MINIMUM 10+ snapshots. Save to specs/functional/reference/.
+    ❌ NEVER use WebFetch/Fetch. ✅ ONLY Playwright MCP.
 
-    ### Live Reference URL (if referenceUrl in context.json)
-    Reference URL: [REFERENCE_URL]
-    Intent: [reproduce | improve | inspiration]
+    ### FOR EACH source of type "figma":
+    Figma URL: [source.value]
 
-    🔴 MANDATORY: DEEP EXPLORATION with Playwright MCP.
-    You MUST explore the ENTIRE application, not just take 2 screenshots.
+    🔴 Use Figma MCP tools to read the design.
+    Extract: components, layout, user flows, interactions.
+    DO NOT mention Figma-specific details (layers, frames).
 
-    PHASE 1 — Navigate:
-    → browser_navigate to the URL
-    → browser_snapshot to capture the initial page
-    → If auth required → report "🔒 AUTH NEEDED: [URL]" and STOP
+    ### FOR EACH source of type "image":
+    Image/mockup: [source.value]
 
-    PHASE 2 — Explore EVERYTHING (systematic):
-    → Find ALL navigation links, tabs, sidebar items → click EACH → snapshot EACH
-    → Find ALL action buttons (create, edit, delete...) → click EACH → snapshot modals/dialogs
-    → Find ALL dropdowns, filters, menus → open EACH → snapshot EACH
-    → Find ALL table row actions → open EACH menu → snapshot EACH
-    → Check empty states, error states, loading states
-    → Check pagination, search, sorting if present
-    → MINIMUM: 10+ snapshots. Complex apps: 20-50+.
+    → Read the image with the Read tool (it supports PNG, JPG, SVG).
+    → Extract: layout, components, text, actions visible in the mockup.
+    → Translate visual elements into functional user stories.
 
-    PHASE 3 — Save snapshots + Catalog:
-    → Save each accessibility snapshot to specs/functional/reference/
-      (01-list-page.md, 02-actions-menu.md, 03-create-modal.md, etc.)
-    → Write specs/functional/reference/catalog.md summarizing:
-      - ALL pages/views discovered + snapshot file
-      - ALL actions per page and what they open
-      - ALL forms with their fields
-      - ALL data displayed (tables, cards, stats)
-      - Navigation structure (sidebar, tabs, breadcrumbs)
+    ### FOR EACH source of type "document" or "specFile":
+    Document: [source.value]
 
-    PHASE 4 — Write spec referencing the catalog:
-    → specs/functional/spec-v1.md references catalog.md
-    → User stories link to the snapshot that inspired them
-    → Architect uses reference/ folder for design decisions
+    → Read it with Read tool (.md, .pdf, .txt).
+    → Extract functional requirements, enrich with missing ones.
 
-    ❌ DO NOT use WebFetch or Fetch — they cannot render SPAs
-    ❌ DO NOT read GitHub source code instead of browsing the live app
-    ❌ DO NOT write spec after only 2-3 snapshots — that's not exploration
-    ✅ ONLY use Playwright MCP tools (browser_navigate, browser_snapshot, browser_click)
+    ### FOR EACH source of type "ticket":
+    Ticket URL: [source.value]
 
-    ### Figma Design (if figmaUrl in context.json)
-    Figma URL: [FIGMA_URL]
+    → Read it with WebFetch (Jira, Linear, GitHub issue).
+    → Extract: requirements, acceptance criteria, user context.
+    → Enrich with missing functional requirements.
 
-    🔴 MANDATORY: Use Figma MCP tools to read the design.
-    Extract: components, layout hierarchy, user flows, interactions.
-    Use the design intent to write a precise, detailed spec.
-    DO NOT mention Figma-specific details (layers, frames, etc.)
+    ### FOR EACH source of type "legacyCode":
+    Legacy code: [source.value]
 
-    ### OpenAPI Spec (if openApiSpec in context.json)
-    OpenAPI Spec: [OPENAPI_SPEC]
-    Intent: [full api | specific endpoints | explore]
+    → Read with Read/Glob to find ALL features.
+    → Add EVERY missing feature to the spec.
 
-    🔴 MANDATORY: Use OpenAPI MCP tools to read the spec.
-    Discover: available endpoints, operations, data models, capabilities.
-    Map each API operation to a USER-FACING feature.
+    ### IF api.type = "openapi":
+    OpenAPI Spec: [api.spec]
+    Intent: [api.intent]
 
-    Example translations:
-    - "GET /users/{id}" → "User can view their profile details"
-    - "POST /orders" → "User can place a new order"
-    - "GET /products?category=X" → "User can browse products by category"
-    DO NOT mention endpoints, HTTP methods, schemas — that's the Architect's job.
+    🔴 Use OpenAPI MCP tools to read the spec.
+    Discover endpoints, operations, data models.
+    Map each operation to a USER-FACING feature.
+    DO NOT mention endpoints/methods/schemas — that's the Architect's job.
+
+    ### IF api.type = "endpointDocs":
+    Endpoint docs: [api.spec]
+    → Read it, extract functional intent from each endpoint.
 
     ## RULES (ALWAYS APPLY)
     - Write in ENGLISH
     - PURELY FUNCTIONAL — no API endpoints, no code, no tech details
     - User stories with Given/When/Then acceptance criteria
     - Translate what you SEE/READ into WHAT the user wants (functional)
+    - ALL sources complement each other — cross-reference them
     - Output: specs/functional/spec-v1.md (or spec-v[N].md if enriching)
     - Ask user approval before finalizing
   """
 )
 ```
-
-**Claude builds the prompt dynamically:** include only the sections that have values in context.json. If no inputs at all → just the description + rules. If all four inputs → all four sections in one prompt.
 
 ### Auth Interruption Flow
 
