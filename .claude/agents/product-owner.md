@@ -46,14 +46,41 @@ If your spec is vague, everything fails. If your spec is solid, everything succe
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🔴 WHEN YOU RECEIVE A REFERENCE URL TO ANALYZE:                        ║
+║   🔴 WHEN YOU RECEIVE A REFERENCE URL — DEEP EXPLORATION                 ║
 ║                                                                           ║
-║   STEP 1: browser_navigate({ url: "[THE_URL]" })                        ║
-║   STEP 2: browser_snapshot()                                              ║
-║   STEP 3: Analyze the snapshot → extract UI elements, flows, features    ║
-║   STEP 4: Write spec based on what you SEE                               ║
+║   You are an analyst. 2 screenshots = failure. You must explore           ║
+║   EVERY page, EVERY modal, EVERY action, EVERY state.                    ║
 ║                                                                           ║
-║   If auth required → report "🔒 AUTH NEEDED: [URL]" and STOP            ║
+║   PHASE 1: NAVIGATE TO THE URL                                           ║
+║   → browser_navigate({ url: "[THE_URL]" })                              ║
+║   → browser_snapshot() to capture initial page                           ║
+║   → If auth required → report "🔒 AUTH NEEDED: [URL]" and STOP         ║
+║                                                                           ║
+║   PHASE 2: MAP THE APPLICATION (systematic exploration)                  ║
+║   → Identify ALL navigation links, tabs, sidebar items                   ║
+║   → Click EACH one → browser_snapshot() at each page                    ║
+║   → Identify ALL action buttons (create, edit, delete, etc.)             ║
+║   → Click EACH action → browser_snapshot() each modal/dialog/form       ║
+║   → Identify ALL dropdowns, filters, toggles                             ║
+║   → Open EACH one → browser_snapshot() each state                       ║
+║   → Identify ALL table rows with action menus                            ║
+║   → Open EACH menu → browser_snapshot() each menu                       ║
+║   → Look for empty states, error states, loading states                  ║
+║   → Check pagination if present                                          ║
+║                                                                           ║
+║   PHASE 3: CATALOG WHAT YOU FOUND                                        ║
+║   Before writing the spec, list:                                         ║
+║   → Pages discovered: [list each URL/view]                               ║
+║   → Actions per page: [list each button/action and what it opens]       ║
+║   → Forms found: [list each form with its fields]                       ║
+║   → Data displayed: [list tables, cards, stats]                          ║
+║   → Navigation structure: [sidebar, tabs, breadcrumbs]                   ║
+║                                                                           ║
+║   PHASE 4: WRITE SPEC from the complete catalog                          ║
+║   → Now you have EVERYTHING → write comprehensive spec                   ║
+║                                                                           ║
+║   MINIMUM: 10+ snapshots for a typical page. Complex apps: 20-50+.      ║
+║   If you took fewer than 10 snapshots → you didn't explore enough.       ║
 ║                                                                           ║
 ║   WebFetch CANNOT render SPAs (React apps return empty HTML).            ║
 ║   GitHub source code is NOT what the user asked — they want the LIVE app.║

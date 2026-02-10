@@ -1079,19 +1079,36 @@ Task(
     Reference URL: [REFERENCE_URL]
     Intent: [reproduce | improve | inspiration]
 
-    🔴 MANDATORY: Use Playwright MCP tools to browse this URL.
-    Step 1: Call browser_navigate to go to the URL
-    Step 2: Call browser_snapshot to capture the accessibility snapshot
-    Step 3: Analyze the snapshot to understand the page structure
-    Step 4: Use what you SEE to write a precise, detailed spec
+    🔴 MANDATORY: DEEP EXPLORATION with Playwright MCP.
+    You MUST explore the ENTIRE application, not just take 2 screenshots.
+
+    PHASE 1 — Navigate:
+    → browser_navigate to the URL
+    → browser_snapshot to capture the initial page
+    → If auth required → report "🔒 AUTH NEEDED: [URL]" and STOP
+
+    PHASE 2 — Explore EVERYTHING (systematic):
+    → Find ALL navigation links, tabs, sidebar items → click EACH → snapshot EACH
+    → Find ALL action buttons (create, edit, delete...) → click EACH → snapshot modals/dialogs
+    → Find ALL dropdowns, filters, menus → open EACH → snapshot EACH
+    → Find ALL table row actions → open EACH menu → snapshot EACH
+    → Check empty states, error states, loading states
+    → Check pagination, search, sorting if present
+    → MINIMUM: 10+ snapshots. Complex apps: 20-50+.
+
+    PHASE 3 — Catalog before writing:
+    → List ALL pages/views discovered
+    → List ALL actions per page and what they open
+    → List ALL forms with their fields
+    → List ALL data displayed (tables, cards, stats)
+    → List navigation structure (sidebar, tabs, breadcrumbs)
+
+    PHASE 4 — Write spec from the COMPLETE catalog
 
     ❌ DO NOT use WebFetch or Fetch — they cannot render SPAs
     ❌ DO NOT read GitHub source code instead of browsing the live app
-    ✅ ONLY use Playwright MCP tools (browser_navigate, browser_snapshot)
-
-    If the page requires authentication:
-    → Report "🔒 AUTH NEEDED: [REFERENCE_URL]" and STOP
-    → Wait for further instructions.
+    ❌ DO NOT write spec after only 2-3 snapshots — that's not exploration
+    ✅ ONLY use Playwright MCP tools (browser_navigate, browser_snapshot, browser_click)
 
     ### Figma Design (if figmaUrl in context.json)
     Figma URL: [FIGMA_URL]
