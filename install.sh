@@ -152,17 +152,20 @@ main() {
     # MCP setup — installed by default
     echo ""
     step "Installing MCP servers (Visual Context + API Discovery)..."
-    echo ""
-    echo "  Which browser for Playwright?"
-    echo "  1) Chrome (default)"
-    echo "  2) Firefox"
-    echo "  3) Edge"
-    read -p "  Choice [1]: " browser_choice
-    case "${browser_choice:-1}" in
-        2) BROWSER="firefox" ;;
-        3) BROWSER="msedge" ;;
-        *) BROWSER="chrome" ;;
-    esac
+    BROWSER="chrome"
+    if [ -t 0 ] || [ -e /dev/tty ]; then
+        echo ""
+        echo "  Which browser for Playwright?"
+        echo "  1) Chrome (default)"
+        echo "  2) Firefox"
+        echo "  3) Edge"
+        read -p "  Choice [1]: " browser_choice < /dev/tty 2>/dev/null || browser_choice="1"
+        case "${browser_choice:-1}" in
+            2) BROWSER="firefox" ;;
+            3) BROWSER="msedge" ;;
+            *) BROWSER="chrome" ;;
+        esac
+    fi
     echo ""
     claude mcp add playwright -- npx @playwright/mcp@latest --browser "$BROWSER" 2>/dev/null && done_step "Playwright MCP ($BROWSER)"
     claude mcp add --transport http figma https://mcp.figma.com/mcp 2>/dev/null && done_step "Figma MCP"
