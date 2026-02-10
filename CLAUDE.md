@@ -132,6 +132,15 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
 ║      → DevOps verifies tests green BEFORE committing                     ║
 ║      → Ship is ON-DEMAND, not automatic after verify                     ║
 ║                                                                           ║
+║   8. DOUBLE APPROVAL FOR DANGEROUS OPERATIONS                             ║
+║      → 🔴 Destructive: delete branch, force push, rollback prod,         ║
+║        npm unpublish, destroy pipeline, git reset --hard                  ║
+║      → 🟠 High-impact: deploy to prod, merge to main, npm publish,       ║
+║        tag release, modify prod env vars                                  ║
+║      → Claude asks AskUserQuestion BEFORE spawning DevOps                ║
+║      → DevOps refuses if prompt lacks "USER CONFIRMED" flag               ║
+║      → 🟢 Safe (no confirm): commit, push feature, PR, check CI          ║
+║                                                                           ║
 ║   ═══════════════════════════════════════════════════════════════════    ║
 ║                                                                           ║
 ║   IF YOU ARE ABOUT TO SKIP ONE OF THESE → STOP AND FOLLOW IT             ║

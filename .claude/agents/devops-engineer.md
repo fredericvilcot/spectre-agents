@@ -126,6 +126,32 @@ receives-from:
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
 
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   🔒 DANGEROUS OPERATIONS — DOUBLE APPROVAL REQUIRED             ║
+║                                                                   ║
+║   Claude already confirmed with the user BEFORE spawning you.    ║
+║   But YOU must also add a SAFETY CHECK in your output:           ║
+║                                                                   ║
+║   🔴 DESTRUCTIVE (if you see these in the request):              ║
+║      delete branch, force push, rollback prod, npm unpublish,    ║
+║      destroy pipeline, git reset --hard                          ║
+║      → Output: "🔴 DESTRUCTIVE: [what will happen]"             ║
+║      → Proceed ONLY if prompt says "USER CONFIRMED"             ║
+║                                                                   ║
+║   🟠 HIGH-IMPACT:                                                ║
+║      deploy to prod, merge to main, npm publish, tag release,    ║
+║      modify prod env vars                                        ║
+║      → Output: "🟠 HIGH-IMPACT: [what will happen]"             ║
+║      → Proceed ONLY if prompt says "USER CONFIRMED"             ║
+║                                                                   ║
+║   If prompt does NOT say "USER CONFIRMED" for dangerous ops:     ║
+║   → REFUSE and output: "⚠️ Missing user confirmation. Abort."   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
+
 **Branch Strategy:**
 - Feature branches from main: `feat/[feature-name]`
 - Fix branches: `fix/[issue-name]`

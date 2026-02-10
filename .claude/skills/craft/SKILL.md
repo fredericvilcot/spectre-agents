@@ -1703,12 +1703,17 @@ Task(
 ║   "Merge" / "ship it"          │ → DevOps: CI check + merge             ║
 ║   "Tag" / "release" / "publish"│ → DevOps: version + changelog + publish║
 ║   "Set up CI" / "add pipeline" │ → DevOps: GitHub Actions / CDS         ║
-║   "Deploy"                     │ → DevOps: deploy pipeline              ║
+║   "Deploy" / "deploy to prod"  │ → DevOps: CI green check + deploy     ║
+║   "Check CI" / "check pipeline"│ → DevOps: monitor + notify agents     ║
+║   "Watch the CI on this branch"│ → DevOps: subscribe + failure routing  ║
+║   "Deploy once CI is green"    │ → DevOps: monitor → wait green → ship ║
 ║                                 │                                        ║
-║   ❌ Claude NEVER runs git commands directly                            ║
+║   ❌ Claude NEVER runs git/gh commands directly                        ║
 ║   ❌ Claude NEVER commits, pushes, or creates PRs                      ║
-║   ✅ ALL git operations go through DevOps agent                        ║
+║   ❌ Claude NEVER checks CI status or pipeline logs                    ║
+║   ✅ ALL git/CI/CD/deploy operations go through DevOps agent           ║
 ║   ✅ DevOps enforces conventional commits (feat:, fix:, etc.)          ║
+║   ✅ DevOps monitors pipelines and notifies the right agent on failure ║
 ║                                 │                                        ║
 ║   ═══════════════════════════════════════════════════════════════════    ║
 ║                                 │                                        ║
@@ -1792,6 +1797,55 @@ Task(
 ```
 
 ```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔒 DOUBLE APPROVAL — DANGEROUS OPERATIONS                             ║
+║                                                                           ║
+║   BEFORE spawning DevOps for these, Claude MUST ask user confirmation:   ║
+║                                                                           ║
+║   🔴 DESTRUCTIVE (irreversible or high blast radius):                    ║
+║      - Delete a branch (git branch -D, git push origin --delete)         ║
+║      - Force push (git push --force, --force-with-lease)                 ║
+║      - Rollback / revert in production                                   ║
+║      - npm unpublish / deprecate                                         ║
+║      - Drop / destroy pipeline, workflow, or environment                 ║
+║      - Reset (git reset --hard)                                          ║
+║                                                                           ║
+║   🟠 HIGH-IMPACT (affects shared state or external systems):             ║
+║      - Deploy to production                                              ║
+║      - Merge to main / release branch                                    ║
+║      - npm publish (new version to registry)                             ║
+║      - Tag a release (version becomes permanent)                         ║
+║      - Modify production environment variables                           ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   🟢 NO CONFIRMATION NEEDED (safe, reversible, local):                   ║
+║      - Commit, push to feature branch, create PR                         ║
+║      - Check CI status, watch pipeline                                   ║
+║      - Deploy to staging / dev                                           ║
+║      - Create branch, run lint, run tests                                ║
+║      - Set up CI pipeline, Docker config                                 ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   HOW: Claude uses AskUserQuestion BEFORE spawning DevOps:              ║
+║                                                                           ║
+║   AskUserQuestion:                                                       ║
+║     "⚠️ This is a [destructive/high-impact] operation:                   ║
+║      [describe what will happen]                                         ║
+║      Are you sure?"                                                      ║
+║     Options: "Yes, proceed" / "No, cancel"                              ║
+║                                                                           ║
+║   ONLY if user confirms → spawn Task(devops-engineer)                   ║
+║   If user cancels → acknowledge and continue session                    ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Safe operations → DevOps directly:**
+
+```
 // User: "commit this" / "push" / "create a PR"
 Task(
   subagent_type: "devops-engineer",
@@ -1819,6 +1873,117 @@ Task(
     ## Action Required
     Execute the git operation following CRAFT rules.
     Report what you did (branch, commit hash, PR URL if applicable).
+  """
+)
+```
+
+**Dangerous operation? → Confirm FIRST, then DevOps with USER CONFIRMED flag:**
+
+```
+// User: "deploy to prod" / "delete this branch" / "npm publish" / "merge to main" / "rollback"
+//
+// Step 1: Claude asks confirmation BEFORE spawning DevOps
+AskUserQuestion:
+  question: "⚠️ This is a [destructive/high-impact] operation: [describe what will happen]. Are you sure?"
+  options:
+    - "Yes, proceed"
+    - "No, cancel"
+
+// Step 2: ONLY if user confirms → spawn DevOps with USER CONFIRMED flag
+Task(
+  subagent_type: "devops-engineer",
+  prompt: """
+    🔔 DANGEROUS OPERATION REQUEST — USER CONFIRMED (Iteration Mode)
+
+    ## User Request
+    [PASTE user's EXACT words]
+
+    ## Risk Level
+    [🔴 DESTRUCTIVE or 🟠 HIGH-IMPACT]: [what will happen]
+
+    ## User Confirmation
+    ✅ USER CONFIRMED — proceed with the operation.
+
+    ## Context
+    - Scope: {SCOPE}
+    - Branch: [current branch]
+    - Design: {SCOPE}/specs/design/design-v1.md
+    - State: .clean-claude/state.json
+
+    ## RULES — MANDATORY
+    - Conventional Commits: type(scope): description
+    - BEFORE any destructive action: verify what will be affected
+    - Log everything in output (branch deleted, version published, etc.)
+    - For production deploys: verify CI is green FIRST
+
+    ## Action Required
+    Execute the operation. Report exactly what was done.
+  """
+)
+```
+
+**CI/Pipeline request? → DevOps agent (MONITORING):**
+
+```
+// User: "check the CI on this branch" / "check pipeline" / "watch CI"
+Task(
+  subagent_type: "devops-engineer",
+  prompt: """
+    🔔 CI MONITORING REQUEST (Iteration Mode)
+
+    ## User Request
+    [PASTE user's EXACT words]
+
+    ## Context
+    - Scope: {SCOPE}
+    - Branch: [current branch]
+    - State: .clean-claude/state.json
+
+    ## Action Required
+    1. Check current CI status on this branch (gh run list, gh run view)
+    2. If a run is in progress → monitor until completion
+    3. If failed → parse logs, identify failure type, report with NOTIFICATION format:
+       - Test failure → "🔴 ROUTE TO: frontend-engineer (or backend-engineer)"
+       - Type error → "🔴 ROUTE TO: architect"
+       - E2E failure → "🔴 ROUTE TO: qa-engineer"
+       - Build/Docker/Pipeline error → fix directly
+    4. If green → report ✅
+
+    Output with standard PIPELINE STATUS + NOTIFICATIONS SENT format.
+  """
+)
+```
+
+```
+// User: "deploy once CI is green" / "deploy to staging when pipeline passes"
+Task(
+  subagent_type: "devops-engineer",
+  prompt: """
+    🔔 CONDITIONAL DEPLOY REQUEST (Iteration Mode)
+
+    ## User Request
+    [PASTE user's EXACT words]
+
+    ## Context
+    - Scope: {SCOPE}
+    - Branch: [current branch]
+    - Design: {SCOPE}/specs/design/design-v1.md
+    - State: .clean-claude/state.json
+
+    ## Action Required
+    1. Monitor current CI run on this branch (gh run view, poll status)
+    2. Wait for completion
+    3. If ALL green → proceed with deploy:
+       - Verify target environment (staging / production)
+       - Execute deploy pipeline or deploy command
+       - Report result
+    4. If ANY red → DO NOT deploy. Report failures with NOTIFICATION format
+       so the right agent can fix.
+
+    ⚠️ IMPORTANT: If deploying to PRODUCTION → report "🔒 PRODUCTION DEPLOY"
+    in your output so Claude can confirm with user before proceeding.
+
+    Output with standard PIPELINE STATUS + ACTIONS TAKEN format.
   """
 )
 ```
