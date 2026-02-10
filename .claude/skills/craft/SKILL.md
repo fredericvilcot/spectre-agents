@@ -465,28 +465,33 @@ they see WHO was working on WHICH branch and can resume or start fresh.
 ║      → guard-stack.sh hook will also block all Task() calls as safety   ║
 ║                                                                           ║
 ║   IF NO package.json AT ALL:                                              ║
-║      → Propose to BOOTSTRAP a new project (see below)                   ║
-║      → If user accepts → scaffold → re-detect → continue flow           ║
+║      → Collect project info (name, libs) — DO NOT create any files      ║
+║      → Save stackGuard: "bootstrap" in context.json                     ║
+║      → Continue to Step 3 — Architect creates ALL files later           ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-**No project detected → Smart onboarding:**
+**No project detected → Collect project info (NO file creation):**
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   NO BOILERPLATE. ASK THE USER ABOUT THEIR PROJECT.                      ║
+║   CLAUDE NEVER CREATES FILES. ARCHITECT HANDLES EVERYTHING.              ║
 ║                                                                           ║
 ║   1. Ask project name + description                                      ║
 ║   2. Ask additional libraries (beyond mandatory stack)                    ║
-║   3. Bootstrap: package.json + deps + minimal config                     ║
-║   4. Save inputs in context.json → flow continues to Step 3              ║
+║   3. Validate: if any choice is anti-CRAFT → propose alternative         ║
+║      → If user insists on anti-CRAFT → EXIT Clean Claude                 ║
+║   4. Save in context.json with stackGuard: "bootstrap"                   ║
+║   5. CONTINUE to Step 3 — Architect creates ALL files later              ║
 ║                                                                           ║
-║   ❌ DO NOT create src/ structure (that's the Architect's job)           ║
-║   ❌ DO NOT use npm create vite (creates useless boilerplate)            ║
-║   ✅ Create package.json, tsconfig.json, vite.config.ts ONLY            ║
-║   ✅ Install deps and let the CRAFT flow design the rest                 ║
+║   ❌ DO NOT create package.json, tsconfig.json, vite.config.ts           ║
+║   ❌ DO NOT create src/ structure                                        ║
+║   ❌ DO NOT run npm install                                              ║
+║   ❌ DO NOT use npm create vite                                          ║
+║   ✅ Only collect info and validate CRAFT compliance                     ║
+║   ✅ The Architect handles ALL file creation during bootstrap            ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -496,42 +501,55 @@ AskUserQuestion:
   "No project detected. Tell me about what you want to build."
   Questions:
   1. "Project name?" → (user types name)
-  2. "Additional libraries? (React + TS + TanStack Query are mandatory)"
-     Options (multiSelect):
-     - React Router
-     - Zustand (client state)
-     - Tailwind CSS
-     - Zod (validation)
-     - None, just the mandatory stack
+  2. "Stack reference? (React + TS + TanStack Query are mandatory, what else?)"
+     Options:
+     - I have a package.json or repo to use as reference (give me the path/URL)
+     - Just the mandatory stack, nothing extra
+     - I'll list my additional libraries (free text)
 ```
 
-**IF user answers → Bootstrap:**
+**IF "reference" chosen:**
 ```
-1. Write package.json with:
-   - name: [PROJECT_NAME]
-   - Mandatory deps: react, react-dom, @tanstack/react-query
-   - Mandatory devDeps: typescript, vite, @vitejs/plugin-react,
-     vitest, @testing-library/react, @testing-library/jest-dom,
-     @testing-library/user-event, jsdom, @vitest/coverage-v8, @types/node
-   - Additional deps: [user's choices from question 2]
+AskUserQuestion:
+  "Paste the path or URL to the reference:"
+  [free text — user types path to package.json, local folder, or remote repo URL]
 
-2. Write tsconfig.json (strict mode)
-3. Write vite.config.ts (with vitest config)
-4. Write src/main.tsx (minimal entry point)
-5. Bash: npm install
+→ Read the reference (package.json, or clone repo, or scan folder)
+→ Extract dependencies list
+→ Validate CRAFT compliance (see below)
+→ Save extracted libs in context.json
+```
 
-6. Save in context.json:
-   {
-     "project": {
-       "type": "frontend",
-       "language": "typescript",
-       "stackGuard": "pass",
-       "additionalLibs": ["react-router-dom", "zustand", ...]
-     }
-   }
+**IF "free text" chosen:**
+```
+→ User types their additional libraries (e.g. "react-router, zustand, tailwind, zod")
+→ Validate CRAFT compliance (see below)
+```
 
-7. CONTINUE to Step 3 (skip Step 2 — not a monorepo)
-   → The user's project description feeds directly into Step 3.
+**Validate CRAFT compliance on collected libs:**
+```
+→ Standard React ecosystem libs? ✅ Continue
+→ Anti-CRAFT library detected? (e.g. MobX + decorators, jQuery, class components...)
+  → Propose CRAFT-compliant alternative
+  → User insists? → EXIT: "Clean Claude only supports CRAFT-compliant stacks."
+```
+
+**Save in context.json (NO files created):**
+```
+{
+  "project": {
+    "type": "frontend",
+    "language": "typescript",
+    "stackGuard": "bootstrap",
+    "name": "[PROJECT_NAME]",
+    "stackReference": "[path/URL if provided]",
+    "additionalLibs": ["react-router-dom", "zustand", ...]
+  }
+}
+
+→ CONTINUE to Step 3 (skip Step 2 — not a monorepo)
+→ The user's project description feeds directly into Step 3.
+→ Architect receives bootstrap context and creates ALL project files.
 ```
 
 **IF user declines:**
@@ -539,43 +557,45 @@ AskUserQuestion:
 → STOP. "Set up your project with React + TypeScript + TanStack Query, then retry /craft."
 ```
 
-**Existing project with wrong/incomplete stack → Smart migration:**
+**Existing project with wrong/incomplete stack:**
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   DON'T JUST BLOCK — PROPOSE A PATH FORWARD                             ║
+║   DON'T JUST BLOCK — PROPOSE A CRAFT-COMPLIANT PATH                     ║
 ║                                                                           ║
-║   Analyze what's there → propose the right migration:                    ║
+║   Analyze what's there → inform the user → route to Architect:           ║
 ║                                                                           ║
 ║   CASE 1: React + TS, missing TanStack Query only                        ║
-║      → "Install @tanstack/react-query? I'll add it and continue."       ║
-║      → Bash: npm install @tanstack/react-query                           ║
-║      → Re-detect → continue flow normally                                ║
+║      → "Your project needs @tanstack/react-query."                       ║
+║      → "The Architect will add it during design."                        ║
+║      → Set stackGuard: "bootstrap" → continue flow                      ║
 ║                                                                           ║
 ║   CASE 2: React + JS (no TypeScript)                                     ║
-║      → "Migrate to TypeScript? I'll install TS and design the migration"║
-║      → Bash: npm install -D typescript @types/react @types/react-dom    ║
-║      → Flow becomes type: "Refactor" → Architect designs TS migration   ║
+║      → "TypeScript is mandatory for Clean Claude."                       ║
+║      → Propose: Architect designs TS migration as first step             ║
+║      → Set stackGuard: "bootstrap" → type: "Refactor"                   ║
 ║                                                                           ║
 ║   CASE 3: Vue / Angular / Svelte / other framework                       ║
-║      → "This is a [Vue] project. Migration to React is a major effort." ║
+║      → "This is a [Vue] project. Clean Claude is for React."            ║
 ║      → AskUserQuestion: Migrate to React? or Start fresh alongside?     ║
-║      → IF migrate → type: "Refactor" → full migration flow              ║
-║      → IF fresh → bootstrap new project in a subfolder                   ║
+║      → IF migrate → type: "Refactor" → Architect designs migration      ║
+║      → IF fresh → collect project info → stackGuard: "bootstrap"        ║
+║      → IF neither → EXIT Clean Claude                                    ║
 ║                                                                           ║
 ║   CASE 4: Plain JS (no framework)                                        ║
-║      → "No framework detected. Install React + TS + TanStack Query?"    ║
-║      → Bash: install all mandatory deps                                  ║
-║      → Re-detect → continue flow normally                                ║
+║      → "No framework detected."                                         ║
+║      → Propose: Architect sets up React + TS + TanStack Query            ║
+║      → Set stackGuard: "bootstrap" → continue flow                      ║
 ║                                                                           ║
 ║   CASE 5: Non-JS project (Go, Rust, Python...)                           ║
 ║      → "This is a [Go] project. Clean Claude is for React frontends."   ║
 ║      → AskUserQuestion: Bootstrap a React frontend alongside?            ║
-║      → IF yes → bootstrap in a subfolder (e.g. frontend/)               ║
+║      → IF yes → collect project info → stackGuard: "bootstrap"          ║
+║      → IF no → EXIT Clean Claude                                         ║
 ║                                                                           ║
-║   KEY RULE: Always install missing deps via Bash BEFORE spawning agents  ║
-║   → guard-stack.sh checks package.json → deps present → agents pass     ║
+║   KEY RULE: Claude NEVER installs deps or creates files directly.        ║
+║   → The Architect handles ALL file creation and dependency setup.         ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -585,6 +605,7 @@ AskUserQuestion:
 🟢 Step 1 ─ Detect                              ✓ Complete
    Project: [TYPE] · Language: [LANG] · Monorepo: [yes/no]
    Stack: TypeScript + React + TanStack Query ✅
+   (or: "Bootstrap mode — Architect will set up the project")
 ```
 
 ---
@@ -1170,13 +1191,24 @@ Task(
     - IF "Follow an existing app": Read [ARCHITECTURE_REF_APP_PATH], replicate its patterns
     - IF "Design from scratch": Apply CRAFT principles below freely
 
+    ## BOOTSTRAP MODE (if stackGuard = "bootstrap" in context.json)
+    - This is a NEW or INCOMPLETE project — config files may not exist yet
+    - BEFORE designing features, Architect creates ALL project config files:
+      → package.json (mandatory deps + user's additional libs from context.json)
+      → tsconfig.json (strict mode)
+      → vite.config.ts (with vitest config)
+      → index.html (minimal entry HTML)
+    - Run Bash: npm install after creating package.json
+    - THEN design the feature using your BOOTSTRAP or FEATURE section as appropriate
+    - See "BOOTSTRAP vs FEATURE" in your agent file for guidance
+
     ## CRAFT PRINCIPLES — MANDATORY (all modes)
     - Architecture: HEXAGONAL (domain → application → infrastructure)
     - Error handling: Result<T, E> — NO throw, NO try/catch for business errors
     - Types: STRICT TypeScript — NO `any`, NO `unknown` casts
     - Domain: PURE — zero framework imports in domain layer
     - Tests: BDD style, colocated *.test.ts, test domain in isolation
-    - Patterns: Use your FEATURE Design section (hexagonal), NOT bootstrap
+    - Patterns: Use FEATURE Design (hexagonal) for features, BOOTSTRAP Design for new projects
 
     (CRAFT rules and tool restrictions are enforced by hooks — see .claude/settings.json)
 
@@ -1191,7 +1223,10 @@ Task(
        → Read it to extract API endpoints, data models, routes
        → These become the technical contract for the new app
 
-    3. Read [SCOPE]/package.json for stack detection
+    3. IF bootstrap mode (stackGuard = "bootstrap" in context.json):
+       → Create ALL project config files first (see BOOTSTRAP MODE above)
+       → Run Bash: npm install
+       ELSE: Read [SCOPE]/package.json for stack detection
 
     4. Write specs/stack/stack-skills.md:
        → Read .claude/templates/mandatory-stack-skills.md (HARDCODED — React + TS + TanStack)

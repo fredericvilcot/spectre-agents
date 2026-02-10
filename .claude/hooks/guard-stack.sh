@@ -15,7 +15,7 @@ PROJ_DIR="${CLAUDE_PROJECT_DIR:-.}"
 CTX="$PROJ_DIR/.clean-claude/context.json"
 if [ -f "$CTX" ]; then
   STACK_OK=$(jq -r '.project.stackGuard // "unchecked"' "$CTX" 2>/dev/null || echo "unchecked")
-  if [ "$STACK_OK" = "pass" ]; then
+  if [ "$STACK_OK" = "pass" ] || [ "$STACK_OK" = "bootstrap" ]; then
     exit 0
   fi
   if [ "$STACK_OK" = "fail" ]; then

@@ -453,9 +453,27 @@ Architect writes design-v1.md
 
 ### BOOTSTRAP Design (New Empty Project)
 
-When asked to design a bootstrap for a NEW project, create MINIMAL structure:
+When asked to design a bootstrap for a NEW project, you handle EVERYTHING:
 
-**React Frontend App (mandatory stack):**
+**1. Project Config Files (Architect creates ALL of these):**
+```
+package.json          ← name + mandatory deps + user's additional libs
+tsconfig.json         ← Strict TypeScript config
+vite.config.ts        ← Vite + Vitest config
+index.html            ← Entry HTML
+```
+
+**Mandatory deps in package.json:**
+- dependencies: react, react-dom, @tanstack/react-query
+- devDependencies: typescript, vite, @vitejs/plugin-react,
+  vitest, @testing-library/react, @testing-library/jest-dom,
+  @testing-library/user-event, jsdom, @vitest/coverage-v8, @types/node,
+  @types/react, @types/react-dom
+- Plus user's additional libs from context.json (`project.additionalLibs`)
+
+**2. After config files → Run `npm install`**
+
+**3. Minimal src/ structure:**
 ```
 src/
 ├── main.tsx          ← Entry point at ROOT
@@ -475,6 +493,8 @@ src/
 - ❌ NO domain/, application/, infrastructure/ folders yet
 - ❌ NO separate test/ folder (tests are colocated)
 - ❌ NO over-engineering
+- ✅ Create ALL config files (package.json, tsconfig.json, vite.config.ts, index.html)
+- ✅ Run npm install after creating package.json
 - ✅ Entry point at src/ ROOT (not nested)
 - ✅ ONE smoke test to verify setup
 - ✅ Proper tooling config (TypeScript strict, Vitest, ESLint)
