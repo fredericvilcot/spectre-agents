@@ -67,6 +67,19 @@ All agents communicate through `.clean-claude/`:
     "lastActive": "frontend-engineer",
     "history": ["product-owner", "architect", "frontend-engineer", "qa-engineer", "frontend-engineer"]
   },
+  "decomposition": {
+    "planPath": "specs/functional/decomposition-plan.md",
+    "totalBatches": 5,
+    "totalRounds": 2,
+    "currentRound": 2,
+    "batchStatus": {
+      "billing-list": "complete",
+      "billing-export": "complete",
+      "charts-layout": "complete",
+      "billing-detail": "in_progress",
+      "charts-data": "in_progress"
+    }
+  },
   "status": "in_progress"
 }
 ```
@@ -76,13 +89,146 @@ All agents communicate through `.clean-claude/`:
 | Phase | Agent | Output |
 |-------|-------|--------|
 | `learn` | Claude (orchestrates) | Stack detection + spawns architect for skills |
-| `define` | product-owner | User story with acceptance criteria |
+| `explore` | product-owner (1 instance, MODE: explore) | reference/catalog.md + 10-50+ snapshots |
+| `decompose` | product-owner (same, MODE: decompose) | decomposition-plan.md → user approval |
+| `define` | product-owner (N instances, MODE: spec) | specs per batch in sub-folders |
 | `design` | architect | Technical design document |
 | `implement` | frontend-engineer | Working code |
 | `verify` | qa-engineer | Test results |
 | `fix` | frontend-engineer | Bug fixes |
 | `ship` | devops-engineer | CI/CD, PR, deploy, publish (on-demand, not automatic) |
 | `complete` | — | Feature delivered |
+
+---
+
+## DECOMPOSITION DISPATCH — THE ORCHESTRATOR'S CORE JOB
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🤖 THE ORCHESTRATOR (CLAUDE) DISPATCHES — NEVER DOES PO WORK          ║
+║                                                                           ║
+║   Claude reads the decomposition plan.                                   ║
+║   Claude spawns PO instances.                                            ║
+║   Claude manages dependency sequencing.                                  ║
+║   Claude tracks round completion.                                        ║
+║                                                                           ║
+║   Claude NEVER:                                                           ║
+║   ❌ Writes specs                                                         ║
+║   ❌ Decides batch content                                                ║
+║   ❌ Overrides PO's sizing                                                ║
+║   ❌ Designs or implements                                                ║
+║   ❌ Changes the decomposition plan                                       ║
+║                                                                           ║
+║   PO = domain thinking (explore, decompose, size, spec)                  ║
+║   Claude = logistics (dispatch, sequence, track, parallelize)            ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Decomposition Dispatch Flow
+
+```
+  📋 PO produces decomposition-plan.md (user approved)
+     │
+     ▼
+  🤖 Claude reads plan → extracts batches + dependencies + rounds
+     │
+     │  STEP 1: VALIDATE DEPENDENCY GRAPH
+     │  ─────────────────────────────────
+     │  → Build adjacency map from "Dependencies" column
+     │  → Check for CIRCULAR DEPENDENCIES:
+     │     IF batch A → B → A (or any cycle) → STOP
+     │     Report to user: "Circular dependency detected: [cycle]"
+     │     Re-launch PO in decompose mode to fix the plan
+     │  → Compute rounds (topological sort)
+     │
+     │  STEP 2: DISPATCH ROUND BY ROUND
+     │  ─────────────────────────────────
+     │  FOR EACH round in order:
+     │     │
+     │     ├── Identify batches in this round (no unresolved deps)
+     │     │
+     │     ├── FOR EACH batch in round (PARALLEL):
+     │     │     Task(product-owner, MODE: spec,
+     │     │       batch: "{slug}", size: "{S|M}",
+     │     │       scope: "specs/functional/{slug}/",
+     │     │       reference: "specs/functional/reference/",
+     │     │       run_in_background: true)
+     │     │
+     │     ├── Wait for ALL POs in this round to complete
+     │     │
+     │     ├── Each PO asks user approval for its spec
+     │     │
+     │     └── Round complete → proceed to next round
+     │
+     │  STEP 3: ALL ROUNDS COMPLETE
+     │  ────────────────────────────
+     │  → All specs written and approved
+     │  → Each spec triggers its own chain:
+     │     PO spec → Architect design → Dev+QA → Verify → Ship
+     │  → Independent chains can run in parallel (same round logic)
+     │
+     ▼
+  🚩 Feature complete
+```
+
+### Dependency Validation Rules
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🚫 DEPENDENCY ANTI-PATTERNS — DETECT AND FIX                          ║
+║                                                                           ║
+║   1. CIRCULAR DEPENDENCY                                                  ║
+║      A → B → A                                                            ║
+║      Fix: Extract shared concern into batch C. A→C, B→C.                ║
+║                                                                           ║
+║   2. CHAIN TOO DEEP                                                       ║
+║      A → B → C → D → E (5+ sequential levels)                           ║
+║      Fix: Review splits. Can some be parallelized?                       ║
+║                                                                           ║
+║   3. SINGLE BOTTLENECK                                                    ║
+║      Everything depends on Batch #1                                       ║
+║      Fix: Can Batch #1 be split so some parts unblock earlier?           ║
+║                                                                           ║
+║   4. PHANTOM DEPENDENCY                                                   ║
+║      A "depends" on B but they share no code, state, or route            ║
+║      Fix: Remove the dependency — they're actually independent.          ║
+║                                                                           ║
+║   IF any anti-pattern detected:                                           ║
+║   → Report to user with explanation                                      ║
+║   → Propose fix (or re-launch PO in decompose mode)                     ║
+║   → NEVER proceed with a broken dependency graph                         ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Round Execution Example
+
+```
+Round 1 (parallel — no dependencies):
+   ├── Task(PO, MODE:spec, batch: billing-list, size: S)
+   ├── Task(PO, MODE:spec, batch: billing-export, size: M)
+   └── Task(PO, MODE:spec, batch: charts-layout, size: S)
+
+   ⏳ Waiting for Round 1...
+   🟢 billing-list spec ✓ approved
+   🟢 billing-export spec ✓ approved
+   🟢 charts-layout spec ✓ approved
+   → Round 1 complete.
+
+Round 2 (parallel — Round 1 deps resolved):
+   ├── Task(PO, MODE:spec, batch: billing-detail, size: M)  ← needed #1
+   └── Task(PO, MODE:spec, batch: charts-data, size: S)     ← needed charts-layout
+
+   ⏳ Waiting for Round 2...
+   🟢 billing-detail spec ✓ approved
+   🟢 charts-data spec ✓ approved
+   → Round 2 complete.
+
+All specs ready → launch chains per batch.
+```
 
 ## Reactive Links (All Agents)
 
@@ -201,12 +347,58 @@ rm -rf .clean-claude && mkdir .clean-claude
 
 When delegating to agents, provide full context:
 
-### To Product Owner
+### To Product Owner (MODE: explore)
 ```
-Use the product-owner agent to define user stories for: <feature>
+Use the product-owner agent to explore the full scope.
 
-Context from .clean-claude/context.json:
-<context>
+MODE: explore
+
+Feature: <feature description>
+Sources: <all collected sources from context.json>
+
+YOUR TASK:
+- Exhaustive exploration of ALL sources (Playwright, Figma, OpenAPI, docs)
+- Save ALL snapshots to specs/functional/reference/
+- Produce specs/functional/reference/catalog.md
+- DO NOT write specs yet. Just explore and map.
+```
+
+### To Product Owner (MODE: decompose)
+```
+Use the product-owner agent to propose a decomposition plan.
+
+MODE: decompose
+
+Feature: <feature description>
+Catalog: specs/functional/reference/catalog.md
+Reference snapshots: specs/functional/reference/
+
+YOUR TASK:
+- Read the catalog and ALL reference snapshots
+- Decompose into S/M batches (split L/XL until all are S or M)
+- Map dependencies between batches
+- Produce specs/functional/decomposition-plan.md
+- Present plan to user for approval
+```
+
+### To Product Owner (MODE: spec)
+```
+Use the product-owner agent to write the spec for ONE batch.
+
+MODE: spec
+
+Batch: <batch-slug>
+Size: <S | M>
+Description: <batch description from decomposition plan>
+Scope: specs/functional/<batch-slug>/
+Reference: specs/functional/reference/
+
+YOUR TASK:
+- Write functional spec for THIS BATCH ONLY
+- Use cognitive depth proportional to size (S=concise, M=detailed)
+- Save to specs/functional/<batch-slug>/spec-v1.md
+- Reference the shared exploration in reference/
+- Ask user approval before finalizing
 ```
 
 ### To Architect

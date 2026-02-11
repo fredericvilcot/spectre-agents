@@ -208,7 +208,7 @@ Clean Claude transforms Claude Code into a team of Software Craft experts. Clean
   ║     → Optional: PO works without them (text-only)         ║
   ╚═══════════════════════════════════════════════════════════╝
   │
-  └─ QA config → PO → Architect → Dev + QA → Fixing loop
+  └─ QA config → PO explore → PO decompose → N×(PO spec → Arch → Dev+QA) → Fix loop
 ```
 
 ### Free Text = Smart Routing
@@ -219,7 +219,7 @@ Type anything, get routed to the right CRAFT flow:
 |---------|--------------|
 | "Create e2e regression tests" | QA Agent (regression mode) |
 | "Check my Tailwind is clean" | Architect Audit |
-| "Add dark mode" | Full flow: PO → Arch → Dev → QA |
+| "Add dark mode" | Full flow: PO explore → decompose → N×(spec → Arch → Dev → QA) |
 | "Migrate to fp-ts" | Architect refactoring plan |
 | "Just write unit tests" | Dev only (BDD tests) |
 
@@ -442,11 +442,15 @@ Non-negotiable rules for ALL agents:
 
 specs/                                 # COMMITTED ✅ — shared documentation
 ├── functional/                        # PO specs
-│   ├── spec-v1.md
-│   └── reference/                     # Snapshots from visual exploration
-│       ├── catalog.md                 # Summary of all discovered pages/actions
-│       ├── 01-list-page.md            # Accessibility snapshots
-│       └── ...
+│   ├── decomposition-plan.md          # Master plan (batches, deps, rounds)
+│   ├── reference/                     # Shared exploration (all POs read this)
+│   │   ├── catalog.md                 # Summary of all discovered pages/actions
+│   │   ├── 01-list-page.md            # Accessibility snapshots
+│   │   └── ...
+│   ├── billing-list/                  # One sub-folder per bounded context
+│   │   └── spec-v1.md
+│   └── billing-detail/
+│       └── spec-v1.md
 ├── design/                            # Architect designs
 │   └── design-v1.md
 └── stack/                             # Stack skills

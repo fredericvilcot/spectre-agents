@@ -138,7 +138,11 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ║   {SCOPE} = project.scope from context.json                              ║
 ║                                                                           ║
 ║   specs/ → COMMITTED (all documentation the team shares)                 ║
-║   ├── functional/   PO specs (spec-v1.md, spec-v2.md...)                ║
+║   ├── functional/                                                        ║
+║   │   ├── decomposition-plan.md  (master plan, at root)                 ║
+║   │   ├── reference/             (shared exploration snapshots)          ║
+║   │   └── {batch-slug}/          (one sub-folder per bounded context)   ║
+║   │       └── spec-v1.md         (versioned spec per batch)             ║
 ║   ├── design/       Architect designs (design-v1.md, design-v2.md...)   ║
 ║   └── stack/        Stack skills (stack-skills.md)                       ║
 ║                                                                           ║
@@ -329,14 +333,18 @@ Task(qa-engineer,       "E2E tests",  run_in_background: true)  → task_id_3
 # FLOW OVERVIEW
 
 ```
-Step 1: DETECT       Claude: Read + Glob → context.json (or RESUME)
-Step 2: SCOPE        If monorepo → ask user
-Step 3: CHOOSE       "What do you want to craft?" + describe it
-Step 4: QA CONFIG    "E2E tests?" → yes/no
-Step 5: ROUTE        PO → Architect → Dev + QA
-Step 6: VERIFY       Tests → fix loop → green
-Step 7: CAPTURE      Architecture reference (if none existed)
-Step 8: ITERATE      CRAFT session stays active — bugs/changes routed to agents
+Step 1: DETECT         Claude: Read + Glob → context.json (or RESUME)
+Step 2: SCOPE          If monorepo → ask user
+Step 3: CHOOSE         "What do you want to craft?" + describe it
+Step 4: QA CONFIG      "E2E tests?" → yes/no
+Step 5a-1: PO EXPLORE  One PO explores everything → reference/ + catalog.md
+Step 5a-2: PO DECOMPOSE Same PO proposes batches → decomposition-plan.md → user approves
+Step 5a-3: PO SPECS    Claude dispatches N POs (one per batch, round by round)
+Step 5b: ARCHITECT     Per batch: design from spec
+Step 5c: DEV + QA      Per batch: implement + test
+Step 6: VERIFY         Tests → fix loop → green
+Step 7: CAPTURE        Architecture reference (if none existed)
+Step 8: ITERATE        CRAFT session stays active — bugs/changes routed to agents
 ```
 
 ---
@@ -1057,7 +1065,9 @@ AskUserQuestion:
 │ 🟢 Step 2 ─ Scope           ✓  [SCOPE or "N/A"]            │
 │ 🟢 Step 3 ─ Choose          ✓  [TYPE] · [INPUT]            │
 │ 🟢 Step 4 ─ QA Config       ✓  [TESTING]                   │
-│ ⬜ Step 5a ─ PO                 Pending                      │
+│ ⬜ Step 5a-1 ─ PO Explore       Pending                      │
+│ ⬜ Step 5a-2 ─ PO Decompose    Pending                      │
+│ ⬜ Step 5a-3 ─ PO Specs (N×)   Pending                      │
 │ ⬜ Step 5b ─ Architect          Pending                      │
 │ ⬜ Step 5c ─ Dev + QA           Pending                      │
 │ ⬜ Step 6 ─ Verify              Pending                      │
@@ -1075,20 +1085,21 @@ Launching Step 5...
 
 | Choice | Route |
 |--------|-------|
-| New feature | PO → Architect → Dev + QA |
+| New feature (complex) | PO explore → PO decompose → N×(PO spec → Architect → Dev+QA) |
+| New feature (simple) | PO explore → PO spec → Architect → Dev+QA |
 | Refactor | Architect → Dev + QA |
-| Fix bug (user-facing) | PO → Architect → Dev |
+| Fix bug (user-facing) | PO spec → Architect → Dev |
 | Fix bug (technical) | Architect → Dev |
 | Add tests | QA only |
 
 ---
 
-## 5a. PO (if needed)
+## 5a. PO — THREE PHASES (explore → decompose → spec)
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   PO RULES — CRITICAL                                                    ║
+║   PO RULES — CRITICAL (apply to ALL 3 phases)                           ║
 ║                                                                           ║
 ║   1. ENGLISH ONLY — All specs in English                                 ║
 ║   2. NO TECH — Zero technical details (no API endpoints, no code,        ║
@@ -1096,16 +1107,24 @@ Launching Step 5...
 ║   3. FUNCTIONAL ONLY — User stories, behaviors, business rules           ║
 ║   4. Endpoints/API = ARCHITECT'S JOB, never PO's                        ║
 ║                                                                           ║
+║   CLAUDE ORCHESTRATES — NEVER DOES PO WORK                               ║
+║   Claude spawns POs, manages rounds, tracks completion.                  ║
+║   Claude NEVER writes specs, decides batch content, or sizes tasks.      ║
+║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+---
+
+### 5a-1. EXPLORE (one PO, exhaustive)
+
 **Show BEFORE launching:**
 ```
-⏳ Step 5a ─ PO                                  ⟳ In Progress
-   Launching product-owner...
+⏳ Step 5a-1 ─ PO Exploration                    ⟳ In Progress
+   Exploring full scope...
 ```
 
-**ONE unified PO prompt — built dynamically from context.json sources:**
+**Source sections for PO prompt — built dynamically from context.json sources:**
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -1113,8 +1132,8 @@ Launching Step 5...
 ║   BUILD THE PROMPT DYNAMICALLY from context.json inputs.sources[]        ║
 ║                                                                           ║
 ║   For EACH source in the array, add the matching section below.          ║
-║   Sources stack up — multiple references = richer spec.                  ║
-║   If no sources at all → just description + rules.                       ║
+║   Sources stack up — multiple references = richer exploration.           ║
+║   If no sources at all → just description.                               ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -1123,7 +1142,9 @@ Launching Step 5...
 Task(
   subagent_type: "product-owner",
   prompt: """
-    Write functional spec for: [USER_DESCRIPTION]
+    MODE: explore
+
+    Explore the full scope for: [USER_DESCRIPTION]
 
     ## YOUR SOURCES (add each section for matching sources in context.json)
 
@@ -1133,7 +1154,7 @@ Task(
 
     🔴 DEEP EXPLORATION with Playwright MCP (see your agent file).
     4 phases: Navigate → Explore EVERYTHING → Save to reference/ → Catalog.
-    MINIMUM 10+ snapshots. Save to specs/functional/reference/.
+    MINIMUM 10+ snapshots. Save to {SCOPE}/specs/functional/reference/.
     ❌ NEVER use WebFetch/Fetch. ✅ ONLY Playwright MCP.
 
     ### FOR EACH source of type "figma":
@@ -1148,26 +1169,23 @@ Task(
 
     → Read the image with the Read tool (it supports PNG, JPG, SVG).
     → Extract: layout, components, text, actions visible in the mockup.
-    → Translate visual elements into functional user stories.
 
     ### FOR EACH source of type "document" or "specFile":
     Document: [source.value]
 
     → Read it with Read tool (.md, .pdf, .txt).
-    → Extract functional requirements, enrich with missing ones.
+    → Extract functional content.
 
     ### FOR EACH source of type "ticket":
     Ticket URL: [source.value]
 
     → Read it with WebFetch (Jira, Linear, GitHub issue).
     → Extract: requirements, acceptance criteria, user context.
-    → Enrich with missing functional requirements.
 
     ### FOR EACH source of type "legacyCode":
     Legacy code: [source.value]
 
     → Read with Read/Glob to find ALL features.
-    → Add EVERY missing feature to the spec.
 
     ### IF api.type = "openapi":
     OpenAPI Spec: [api.spec]
@@ -1175,21 +1193,21 @@ Task(
 
     🔴 Use OpenAPI MCP tools to read the spec.
     Discover endpoints, operations, data models.
-    Map each operation to a USER-FACING feature.
+    Map each operation to a USER-FACING capability.
     DO NOT mention endpoints/methods/schemas — that's the Architect's job.
 
     ### IF api.type = "endpointDocs":
     Endpoint docs: [api.spec]
     → Read it, extract functional intent from each endpoint.
 
-    ## RULES (ALWAYS APPLY)
-    - Write in ENGLISH
-    - PURELY FUNCTIONAL — no API endpoints, no code, no tech details
-    - User stories with Given/When/Then acceptance criteria
-    - Translate what you SEE/READ into WHAT the user wants (functional)
-    - ALL sources complement each other — cross-reference them
-    - Output: specs/functional/spec-v1.md (or spec-v[N].md if enriching)
-    - Ask user approval before finalizing
+    ## YOUR TASK (EXPLORE ONLY)
+    - Explore ALL sources exhaustively
+    - Save ALL snapshots to {SCOPE}/specs/functional/reference/
+    - Produce {SCOPE}/specs/functional/reference/catalog.md
+    - Map EVERYTHING: pages, forms, actions, data, navigation
+    - DO NOT write specs yet
+    - DO NOT decompose yet
+    - Just explore and catalog
   """
 )
 ```
@@ -1205,19 +1223,209 @@ Task(
 ║   2. AskUserQuestion:                                                     ║
 ║      "Please log in to the browser window that opened, then confirm."    ║
 ║      Options: "I'm logged in" / "Skip this URL"                         ║
-║   3. IF "I'm logged in" → re-launch PO with same prompt                 ║
-║   4. IF "Skip this URL" → re-launch PO WITHOUT referenceUrl             ║
+║   3. IF "I'm logged in" → re-launch PO explore with same prompt         ║
+║   4. IF "Skip this URL" → re-launch PO explore WITHOUT referenceUrl     ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
-**PO asks user approval. Wait for approval.**
+**Show AFTER exploration complete:**
+```
+🟢 Step 5a-1 ─ PO Exploration                    ✓ Complete
+   Catalog: {SCOPE}/specs/functional/reference/catalog.md
+   Snapshots: [N] pages/actions mapped
+```
 
-**Show AFTER PO completes + approval:**
+---
+
+### 5a-2. DECOMPOSE (same PO context, produces plan)
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔪 DECOMPOSITION — PO proposes, USER approves, CLAUDE dispatches       ║
+║                                                                           ║
+║   The PO has just explored everything. They know the full scope.         ║
+║   Now they cut it into chain-sized batches.                              ║
+║                                                                           ║
+║   IMPORTANT: For SIMPLE features (single page, CRUD, < 5 criteria):     ║
+║   → SKIP decomposition entirely                                          ║
+║   → Go directly to 5a-3 with a single batch                             ║
+║   → No decomposition-plan.md needed                                      ║
+║                                                                           ║
+║   DECOMPOSE WHEN: feature has multiple pages, workflows, or actors       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show BEFORE launching:**
+```
+⏳ Step 5a-2 ─ PO Decomposition                  ⟳ In Progress
+   Analyzing scope for decomposition...
+```
+
+```
+Task(
+  subagent_type: "product-owner",
+  prompt: """
+    MODE: decompose
+
+    Decompose the feature: [USER_DESCRIPTION]
+
+    ## YOUR CONTEXT
+    - Catalog: {SCOPE}/specs/functional/reference/catalog.md
+    - Reference snapshots: {SCOPE}/specs/functional/reference/
+    - You just explored everything. You have the full picture.
+
+    ## YOUR TASK
+    1. Read catalog.md and ALL reference snapshots
+    2. Identify natural boundaries (pages, workflows, bounded contexts)
+    3. Size each piece:
+       🟢 S (1 page spec, 3-5 criteria) → ✅ Ready
+       🟡 M (2-3 pages, 5-10 criteria) → ✅ Ready
+       🟠 L (4-6 pages, 10-15 criteria) → 🔪 MUST SPLIT into S/M
+       🔴 XL (6+ pages, 15+ criteria) → 🔪 MUST SPLIT into S/M
+    4. Map dependencies between batches:
+       🔗 Sequential: B needs A done first
+       ✅ Independent: no shared code/state
+       🔀 Shared base: multiple batches need a foundation first
+    5. 🚫 Check for CIRCULAR dependencies (A→B→A) — if found, rethink split
+    6. Assign rounds (topological order):
+       Round 1: all batches with no dependencies (parallel)
+       Round 2: batches whose deps are in Round 1 (parallel)
+       ...etc
+    7. Give each batch a slug (kebab-case, e.g. "billing-list")
+    8. Write {SCOPE}/specs/functional/decomposition-plan.md
+    9. Present plan to user for approval
+
+    ## DECOMPOSITION PLAN FORMAT
+    Use frontmatter: feature, status, created, batches count, rounds count.
+    Include: Batches table (# | Batch | Slug | Size | Dependencies | Round),
+    Rounds sequence, Dependency graph description.
+
+    ## RULES
+    - ONLY S and M batches get spec'd — L/XL MUST be split first
+    - Each batch slug becomes a sub-folder: specs/functional/{slug}/
+    - Dependency = FUNCTIONAL dependency (shared user flow, data, routing)
+    - NOT technical dependency (those are Architect's job)
+    - Write in ENGLISH
+    - Present plan to user for approval BEFORE any spec writing
+  """
+)
+```
+
+**Claude waits for PO to present plan to user + user approval.**
+
+**Show AFTER decomposition approved:**
+```
+🟢 Step 5a-2 ─ PO Decomposition                  ✓ Complete
+   Plan: {SCOPE}/specs/functional/decomposition-plan.md
+   Batches: [N] · Rounds: [M] · Approved ✅
+```
+
+---
+
+### 5a-3. SPEC (N POs in parallel, one per batch, round by round)
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   📝 CLAUDE DISPATCHES — READS PLAN, SPAWNS POs, MANAGES ROUNDS         ║
+║                                                                           ║
+║   This is CLAUDE's job (the orchestrator). NOT the PO's.                 ║
+║                                                                           ║
+║   1. Read decomposition-plan.md                                           ║
+║   2. Parse batches + dependencies + rounds                               ║
+║   3. VALIDATE dependency graph:                                           ║
+║      → No circular dependencies                                          ║
+║      → No chain deeper than 4 levels                                     ║
+║      → No single bottleneck blocking all others                          ║
+║      → IF issues found → report to user, re-launch PO decompose         ║
+║   4. For each round, spawn POs in parallel (one per batch)               ║
+║   5. Wait for round to complete before starting next round               ║
+║   6. Each PO instance writes to its own sub-folder                       ║
+║                                                                           ║
+║   IF SIMPLE FEATURE (no decomposition plan):                              ║
+║   → Single PO spawn with feature slug as batch slug                      ║
+║   → No round management needed                                           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+**Show BEFORE launching each round:**
+```
+⏳ Step 5a-3 ─ PO Specs                          ⟳ Round [R] of [M]
+   Spawning [N] POs in parallel...
+   ├── product-owner → {batch-1-slug} (size: S)
+   ├── product-owner → {batch-2-slug} (size: M)
+   └── product-owner → {batch-3-slug} (size: S)
+```
+
+**For each batch in the current round, spawn in parallel:**
+
+```
+Task(
+  subagent_type: "product-owner",
+  run_in_background: true,
+  prompt: """
+    MODE: spec
+
+    Write functional spec for batch: [BATCH_NAME]
+
+    ## BATCH ASSIGNMENT
+    - Slug: [BATCH_SLUG]
+    - Size: [S | M]
+    - Description: [BATCH_DESCRIPTION from decomposition plan]
+    - Dependencies: [list of completed batch slugs this depends on, or "None"]
+
+    ## YOUR CONTEXT
+    - Reference: {SCOPE}/specs/functional/reference/ (shared exploration)
+    - Catalog: {SCOPE}/specs/functional/reference/catalog.md
+    - Decomposition plan: {SCOPE}/specs/functional/decomposition-plan.md
+    - Output: {SCOPE}/specs/functional/[BATCH_SLUG]/spec-v1.md
+
+    ## COGNITIVE DEPTH (adapt to batch size)
+    - IF size = S → 1 page spec, bullet points, 3-5 acceptance criteria
+    - IF size = M → 2-3 pages, user stories, 5-10 criteria, edge cases
+
+    ## RULES
+    - Write spec for THIS BATCH ONLY — stay within scope
+    - Reference the shared exploration (catalog.md, snapshots)
+    - ENGLISH ONLY
+    - PURELY FUNCTIONAL — no tech details
+    - User stories with Given/When/Then acceptance criteria
+    - Ask user approval before finalizing
+  """
+)
+```
+
+**Poll background tasks for progress. Show live updates:**
+```
+⏳ Step 5a-3 ─ PO Specs                          ⟳ Round 1 of 2
+   ├── product-owner → billing-list (S)           ✓ spec-v1.md approved
+   ├── product-owner → billing-export (M)         ⟳ writing spec...
+   └── product-owner → charts-layout (S)          ✓ spec-v1.md approved
+```
+
+**After each round completes, check if next round's deps are met:**
+```
+🟢 Round 1                                        ✓ Complete (3 specs)
+⏳ Round 2                                        ⟳ Launching...
+   ├── product-owner → billing-detail (M)         ⟳ (needed: billing-list ✓)
+   └── product-owner → charts-data (S)            ⟳ (needed: charts-layout ✓)
+```
+
+**Show AFTER all rounds complete:**
 ```
 🟢 Step 5a ─ PO                                  ✓ Complete
-   Spec: specs/functional/spec-v[N].md
-   Stories: [X] user stories · [Y] acceptance criteria
+   Plan: {SCOPE}/specs/functional/decomposition-plan.md
+   Specs:
+   ├── billing-list/spec-v1.md (S) ✓
+   ├── billing-export/spec-v1.md (M) ✓
+   ├── charts-layout/spec-v1.md (S) ✓
+   ├── billing-detail/spec-v1.md (M) ✓
+   └── charts-data/spec-v1.md (S) ✓
+   Total: [N] specs · [M] rounds · All approved ✅
 ```
 
 ---
@@ -1243,13 +1451,24 @@ Task(
 
 ### 5b-1. BEFORE ARCHITECT: Show context + Ask design approach
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   IF DECOMPOSITION: Architect runs PER BATCH (after each batch spec)     ║
+║   Each batch triggers its own chain: PO spec → Architect → Dev+QA       ║
+║                                                                           ║
+║   IF SINGLE FEATURE: Architect runs once on the single spec              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 **Show the user what the Architect will receive:**
 ```
 ⏳ Step 5b ─ Architect                            ⟳ Preparing...
 
    Inputs for Architect:
-   ├── Functional spec: specs/functional/spec-v[N].md
-   ├── API endpoints: specs/functional/api-endpoints.md [if exists]
+   ├── Functional spec: {SCOPE}/specs/functional/{batch-slug}/spec-v[N].md
+   ├── Reference: {SCOPE}/specs/functional/reference/ (shared exploration)
    ├── Legacy code: [LEGACY_PATH] [if exists]
    └── Architecture ref: [PATH if found in Step 1] or "None detected"
 ```
@@ -1298,8 +1517,8 @@ Task(
     Design CRAFT implementation for: [REQUEST]
 
     ## YOUR INPUTS
-    - Functional spec: specs/functional/spec-v[N].md
-    - API endpoints spec: specs/functional/api-endpoints.md (if exists)
+    - Functional spec: {SCOPE}/specs/functional/{BATCH_SLUG}/spec-v[N].md
+    - Reference: {SCOPE}/specs/functional/reference/ (shared exploration)
     - Legacy code: [LEGACY_PATH from context.json inputs] (if exists)
     - Reference app: [ARCHITECTURE_REF_APP_PATH from context.json inputs] (if exists)
     - context.json: .clean-claude/context.json
