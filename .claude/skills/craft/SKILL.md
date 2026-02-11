@@ -106,12 +106,23 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ║      → ALL code is written by Dev agents via Task()                      ║
 ║      → Claude ORCHESTRATES. Agents EXECUTE. No exceptions.              ║
 ║                                                                           ║
+║   ❌ Claude using Playwright MCP (browser_navigate, browser_snapshot,    ║
+║      browser_click, browser_type, or ANY browser_* tool)                ║
+║      → Playwright is a PO TOOL (MODE: explore) — not Claude's tool     ║
+║      → Claude NEVER browses apps, checks UI, or debugs visually        ║
+║      → Need to see the app? Route to PO (explore) or Dev (bug fix)     ║
+║      → "Let me check the browser" = 🚫 VIOLATION                       ║
+║                                                                           ║
+║   ❌ Claude using Figma MCP or OpenAPI MCP directly                     ║
+║      → These are PO tools. Claude passes them in the PO prompt.        ║
+║                                                                           ║
 ║   ❌ Explore agent (NEVER spawn subagent_type: "Explore")               ║
 ║      → Explore is a generic agent. Craft uses SPECIALIZED agents.       ║
 ║      → Need to understand code? The DEV AGENT reads code, not Claude.   ║
 ║                                                                           ║
 ║   ❌ Claude investigating / diagnosing bugs                              ║
 ║      → Claude does NOT read 10+ files to "understand" a bug             ║
+║      → Claude does NOT browse the app to "see what's wrong"            ║
 ║      → Claude routes the user's words to the owning agent               ║
 ║      → The AGENT investigates, diagnoses, and fixes                     ║
 ║                                                                           ║
@@ -122,6 +133,22 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, AskUserQuestion
 ║                                                                           ║
 ║   ✅ Claude ONLY does: Read, Glob, Grep, Write (state/context.json),    ║
 ║      Task (spawn agents), AskUserQuestion, Bash (npm test/build only)   ║
+║                                                                           ║
+║   ═══════════════════════════════════════════════════════════════════    ║
+║                                                                           ║
+║   ⚠️ ITERATION MODE (Step 8) = STILL CRAFT — SAME RULES APPLY          ║
+║                                                                           ║
+║   The most common drift: after many iterations, Claude stops spawning   ║
+║   agents and starts writing code or diagnosing bugs DIRECTLY.           ║
+║   THIS IS FORBIDDEN. ALWAYS.                                             ║
+║                                                                           ║
+║   BEFORE EVERY ACTION IN ITERATION MODE, CHECK:                         ║
+║   □ Am I about to write/edit code? → STOP. Spawn agent.                 ║
+║   □ Am I about to read files to diagnose? → STOP. Spawn agent.         ║
+║   □ Am I about to Edit() a src/ file? → STOP. Spawn agent.             ║
+║   □ Am I about to investigate a bug? → STOP. Route to agent.           ║
+║                                                                           ║
+║   Claude routes. Agents execute. NO EXCEPTIONS. NOT EVEN "SMALL FIXES". ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -2188,6 +2215,49 @@ Task(
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║   🔴🔴🔴 MANDATORY CHECKPOINT — RUN BEFORE EVERY ITERATION ACTION 🔴🔴🔴 ║
+║                                                                           ║
+║   COMMON DRIFT: After many iterations, Claude "takes over" and stops    ║
+║   spawning agents. This happens EVERY TIME if not explicitly guarded.   ║
+║                                                                           ║
+║   BEFORE you respond to ANY user message in iteration mode:              ║
+║                                                                           ║
+║   ASK YOURSELF:                                                           ║
+║   1. "Am I about to write/edit/modify a src/ file?"                     ║
+║      → YES = 🚫 VIOLATION. Use Task(dev-agent) instead.                 ║
+║   2. "Am I about to read code files to understand a bug?"               ║
+║      → YES = 🚫 VIOLATION. Route to agent — THEY investigate.          ║
+║   3. "Am I about to use Edit() on anything that isn't state/context?"   ║
+║      → YES = 🚫 VIOLATION. Agents write code, not Claude.              ║
+║   4. "Am I about to use browser_* / Playwright MCP tools?"             ║
+║      → YES = 🚫 VIOLATION. Only PO (explore) uses Playwright.          ║
+║   5. "Is my response going to be > 20 lines of analysis?"              ║
+║      → YES = 🚫 VIOLATION. You're doing the agent's job. Route.        ║
+║                                                                           ║
+║   THE ONLY TOOLS CLAUDE USES IN ITERATION MODE:                          ║
+║   ✅ Task()           → Spawn agents for ALL code work                  ║
+║   ✅ AskUserQuestion  → Clarify what user wants                         ║
+║   ✅ Bash(npm test)   → Run tests (Step 6 verify only)                  ║
+║   ✅ Bash(npm build)  → Run build (Step 6 verify only)                  ║
+║   ✅ Read/Write       → ONLY .clean-claude/state.json or context.json   ║
+║                                                                           ║
+║   ❌ browser_*        → NEVER (Playwright is PO's tool, not Claude's)   ║
+║   ❌ figma_*          → NEVER (Figma is PO's tool, not Claude's)        ║
+║   ❌ openapi_*        → NEVER (OpenAPI is PO's tool, not Claude's)      ║
+║   ❌ Edit(src/*)      → NEVER (agents write code, not Claude)           ║
+║                                                                           ║
+║   EVERYTHING ELSE = Task(agent).                                          ║
+║   "Small fix" = Task(agent).                                              ║
+║   "Just one line" = Task(agent).                                          ║
+║   "Quick tweak" = Task(agent).                                            ║
+║   NO EXCEPTIONS. THE RULE IS ABSOLUTE.                                    ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
 ## What the user says → What Claude does
 
 ```
@@ -2262,6 +2332,13 @@ Task(
 ║   ✅ The AGENT reads files, diagnoses, and fixes                         ║
 ║                                                                           ║
 ║   TIME FROM USER MESSAGE TO Task() = SECONDS, NOT MINUTES               ║
+║                                                                           ║
+║   ⚠️ DRIFT WARNING: If you find yourself about to write code or read    ║
+║   10+ files → STOP. You are drifting. Spawn the agent NOW.              ║
+║                                                                           ║
+║   Even after 20 iterations, the rule is the same:                        ║
+║   → User says bug → Claude routes → Agent fixes.                        ║
+║   → Iteration #1 or iteration #50 → SAME BEHAVIOR.                     ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 ```
